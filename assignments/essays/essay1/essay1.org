@@ -1,0 +1,24 @@
+Essay 1: Correlation Versus Causation
+W241: Field Experiments
+
+First draft due before Week 2’s live session. Then, read your peers’ drafts.
+
+* Assignment 
+Find your own example of a study of observational data.  The study should use non-experimental data to measure some kind of causal effect you find interesting.  For your study, you may choose a news article, an academic journal article, or a business memo.  Here were three examples we looked at in class:
+
+- [[http://www.cbsnews.com/2100-204_162-570634.html][Obesity caused by surburban sprawl]]
+- [[http://www.reuters.com/article/2010/06/21/us-induced-labor-c-section-idUSTRE65K6DW20100621][Inducing Labor]]
+- [[http://www.telegraph.co.uk/news/science/science-news/11192385/Sex-with-21-women-lowers-risk-of-prostate-cancer-academics-find.html][Sexual Promiscuity]]
+
+In your essay, critique the study that you have chosen. 
+
+1. What is the interesting conclusion, and what data did the authors use to arrive at this conclusion?
+2. Tell a concrete story about how the purported causal effect could be underestimated or overestimated, or how the effect might not really exist at all.  (That is, we want you to think about what you think is the direction of bias in the observational study, and tell a story to illustrate it.) This is the most important
+3. Identify the main assumption(s) that we must believe in order to believe the conclusion of the study.  That is, what have the authors implicitly assumed in order to be able to interpret the correlation as a causal effect? (Note that in this exercise, we are primarily interested in the correlation-versus-causality question, and whether the result might be biased because of spurious correlation. Don’t spend time on other critiques, such as imperfections in the way that they collected the data, or how representative the sample is of the population we care about.)
+4. Describe what you think would be the ideal experiment to answer the question.  Don’t limit yourself only to experiment that seem feasible or ethical, but do try to come up with something feasible if at all possible.  If you have time and space, consider commenting on the feasibility issues (expense, fairness concerns, political opposition, etc.).
+5. In describing the experiment, don’t worry about controlling for demographic or other variables.  As we’ll see in Week 2, randomization guarantees that we’ll be comparing apples to apples, so we don’t have to worry about controlling for covariates like age and income.  (In Week 5, we’ll talk about how covariates can be useful for improving precision.
+
+I am expecting one to two pages, single spaced. This should read as an essay, not a set of bullet points. Please turn in a PDF file. 
+
+
+

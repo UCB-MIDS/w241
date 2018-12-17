@@ -1,0 +1,218 @@
+---
+title: "Problem Set #1"
+author: "Experiments and Causality"
+date: \today
+output: pdf_document
+---
+<!--
+Some guidelines for submitting problem sets in this course:
+
+- Please submit a PDF document rather than a Word document or a Google document.
+- Please put your name at the top of your problem set.
+- If you'll be using `R` or `Python` code to calculate your answers, please put the code and its output directly into your Problem Set PDF document.
+- It is highly recommended, although not required, that you use the RMarkdown feature in RStudio to compose your problem set answers. RMarkdown allows you to easily intermingle analysis code and answers in one document. It is of a similar design as `jupyter` and an ipython notebook.
+- You do not need to show work for trivial calculations, but showing work is always allowed.
+- For answers that involve a narrative response, please feel free to describe the key concept directly and briefly, if you can do so, and do not feel pressure to go on at length.
+- Please ask us questions about the problem set if you get stuck. **Don’t spend more than 20 minutes puzzling over what a problem means.** 
+- Please ensure that someone (us!) can compile your solution set. The best way is to use the web-hosted links we've provided. 
+- For text answers, please **embolden** your answers to the questions.
+- For computing answers, please store them in the answer objects we have created. 
+-->
+
+# 1. Potential Outcomes Notation 
+
+- Explain the notation $Y_{i}(1)$.
+
+- Explain the notation $E[Y_{i}(1)|d_{i}=0]$.
+
+- Explain the difference between the notation $E[Y_{i}(1)]$ and the notation $E[Y_{i}(1)|d_{i}=1]$.
+(Extra credit) 
+
+- Explain the difference between the notation $E[Y_{i}(1)|d_{i}=1]$ and the notation 
+$E[Y_{i}(1)|D_{i}=1]$.  Use exercise 2.7 from FE to give a concrete example of the difference.
+
+# 2. Potential Outcomes Practice
+Use the values in the following table to illustrate that $E[Y_{i}(1)] - E[Y_{i}(0)] = E[Y_{i}(1) - Y_{i}(0)]$.
+
++---------------+------------+------------+----------+
+|               | $Y_{i}(0)$ | $Y_{i}(1)$ | $\tau_i$ |
++===============+============+============+==========+
+|Individual 1   |   5        |  6         |  1       |                          
+|               |            |            |          |                        
++---------------+------------+------------+----------+
+|Individual 2   |   3        |  8         |  5       |                          
+|               |            |            |          |                          
++---------------+------------+------------+----------+
+|Individual 3   |   10       |  12        |  2       |                          
+|               |            |            |          |                          
++---------------+------------+------------+----------+
+|Individual 4   |   5        |  5         |  0       |                          
+|               |            |            |          |                      
++---------------+------------+------------+----------+
+|Individual 5   |  10        |  8         |  -2      |                          
+|               |            |            |          |                      
++---------------+------------+------------+----------+
+
+# 3. Conditional Expectations
+
+Consider the following table:
+
++---------------+------------+------------+----------+
+|               | $Y_{i}(0)$ | $Y_{i}(1)$ | $\tau_i$ |
++===============+============+============+==========+
+|Individual 1   |   10       |  15        |  5       |                          
+|               |            |            |          |                        
++---------------+------------+------------+----------+
+|Individual 2   |   15       |  15        |  0       |                          
+|               |            |            |          |                          
++---------------+------------+------------+----------+
+|Individual 3   |   20       |  30        |  10      |                          
+|               |            |            |          |                          
++---------------+------------+------------+----------+
+|Individual 4   |   20       |  15        |  -5      |                          
+|               |            |            |          |                      
++---------------+------------+------------+----------+
+|Individual 5   |  10        |  20        |  10      |                          
+|               |            |            |          |                      
++---------------+------------+------------+----------+
+|Individual 6   |  15        |  15        |  0       |                           
+|               |            |            |          |                      
++---------------+------------+------------+----------+
+|Individual 7   |  15        |  30        |  15      |                          
+|               |            |            |          |                      
++---------------+------------+------------+----------+
+|Average        |  15        |  20        |  5       |                          
+|               |            |            |          |                      
++---------------+------------+------------+----------+
+
+Use the values depicted in the table above to complete the table below. 
+
+\newpage
+
++---------------+----+----+----+--------------------------+
+| $Y_{i}(0)$    | 15 | 20 | 30 | Marginal $Y_{i}(0)$      |
++===============+====+====+====+==========================+
+|10             | n: | n: |n:  |                          |
+|               | %: | %: | %: |                          |
++---------------+----+----+----+--------------------------+
+|15             | n: | n: | n: |                          |
+|               | %: | %: | %: |                          |
++---------------+----+----+----+--------------------------+
+|20             | n: | n: | n: |                          |
+|               | %: | %: | %: |                          |
++---------------+----+----+----+--------------------------+
+|Marginal       |    |    |    |                          |
+| $Y_{i}(1)$    |    |    |    | 1.0                      |
++---------------+----+----+----+--------------------------+
+
+a. Fill in the number of observations in each of the nine cells; 
+b. Indicate the percentage of all subjects that fall into each of the nine cells. 
+c. At the bottom of the table, indicate the proportion of subjects falling into each category of $Y_{i}(1)$. 
+d. At the right of the table, indicate the proportion of subjects falling into each category of $Y_{i}(0)$. 
+e. Use the table to calculate the conditional expectation that $E[Y_{i}(0)|Y_{i}(1) > 15]$. 
+f. Use the table to calculate the conditional expectation that $E[Y_{i}(1)|Y_{i}(0) > 15]$. 
+
+# 4. More Practice with Potential Outcomes
+Suppose we are interested in the hypothesis that children playing outside leads them to have better eyesight.  
+
+Consider the following population of ten representative children whose visual acuity we can measure.  (Visual acuity is the decimal version of the fraction given as output in standard eye exams.  Someone with 20/20 vision has acuity 1.0, while someone with 20/40 vision has acuity 0.5.  Numbers greater than 1.0 are possible for people with better than “normal” visual acuity.)
+
+```{r, echo = F}
+d <- data.frame(child = 1:10, 
+                y0 = c(1.1, 0.1, 0.5, 0.9, 1.6, 2.0, 1.2, 0.7, 1.0, 1.1), 
+                y1 = c(1.1, 0.6, 0.5, 0.9, 0.7, 2.0, 1.2, 0.7, 1.0, 1.1) )
+knitr::kable(d)
+```
+
+In the table, state $Y_{i}(1)$ means “playing outside an average of at least 10 hours per week from age 3 to age 6,” and state $Y_{i}(0)$ means “playing outside an average of less than 10 hours per week from age 3 to age 6.”   $Y_{i}$ represents visual acuity measured at age 6.
+
+a. Compute the individual treatment effect for each of the ten children.  Note that this is only possible because we are working with hypothetical potential outcomes; we could never have this much information with real-world data. (We encourage the use of computing tools on all problems, but please describe your work so that we can determine whether you are using the correct values.)
+
+```{r, echo = F}
+answer.POa <- NA
+```
+
+b. In a single paragraph, tell a story that could explain this distribution of treatment effects.
+c. What might cause some children to have different treatment effects than others?
+d. For this population, what is the true average treatment effect (ATE) of playing outside.
+
+```{r, echo = F}
+answer.POd <- NA
+``` 
+
+e. Suppose we are able to do an experiment in which we can control the amount of time that these children play outside for three years.  We happen to randomly assign the odd-numbered children to treatment and the even-numbered children to control.  What is the estimate of the ATE you would reach under this assignment? (Again, please describe your work.)
+
+```{r, echo = F}
+answer.POe <- NA
+``` 
+
+f. How different is the estimate from the truth?  Intuitively, why is there a difference?
+g. We just considered one way (odd-even) an experiment might split the children. How many different ways (every possible way) are there to split the children into a treatment versus a control group (assuming at least one person is always in the treatment group and at least one person is always in the control group)?
+
+```{r, echo = F}
+answer.POg <- NA
+```
+
+h. Suppose that we decide it is too hard to control the behavior of the children, so we do an observational study instead.  Children 1-5 choose to play an average of more than 10 hours per week from age 3 to age 6, while Children 6-10 play less than 10 hours per week.  Compute the difference in means from the resulting observational data.
+
+```{r, echo = F}
+answer.POh <- NA
+``` 
+
+i. Compare your answer in (h) to the true ATE.  Intuitively, what causes the difference?
+
+
+<!--
+# 5. FE, exercise 2.5
+
+*Note that the book typically defines D to be 0 for control and 1 for treatment. However, it doesn't have to be 0/1. In particular, one can have more than two treatments, or a continuous treatment variable. Here, the authors want to define D to be the number of minutes the subject is asked to donate. (This is because “D” stands for “dosage.”)*
+-->
+
+# 5. Randomization and Experiments
+
+Suppose that a reasearcher wants to investigate whether after-school math programs improve grades. The researcher randomly samples a group of students from an elementary school and then compare the grades between the group of students who are enrolled in an after-school math program to those who do not attend any such program. Is this an experiment or an observational study? Why? 
+
+<!--
+#7: Skip in 2017
+# 7. FE, exercise 2.8
+Peisakhin and Pinto report the results of an experiment in India designed to test the effectiveness of a policy called RTIA, which allows citizens to inquire about the status of a pending request from government officials. In their study, the researchers hired confederates, slum dwellers who sought to obtain ration cards (which permit the purchase of food at low cost). Applicants for such cards must fill out a form and have their residence and income verified. The table of results and conditions is below, and there is more in $FE$. 
+
++--------------------------+-------+------+-----+---------+
+|                          | Bribe | RTIA | NGO | Control |
++==========================+=======+======+=====+=========+
+| Number Confederates (C)  |    24 |   23 |  18 |      21 |
++--------------------------+-------+------+-----+---------+
+| C w/ residence verif     |    24 |   23 |  18 |      20 |
++--------------------------+-------+------+-----+---------+
+| M days to verif          |    17 |   37 |  37 |      37 |
++--------------------------+-------+------+-----+---------+
+| C w/ ration card 365+    |    24 |   20 |   3 |       5 |
++--------------------------+-------+------+-----+---------+
+
+a. Interpret the apparent effect of the treatments on the proportion of applicants who have their residence verified and the speed with which verification occurred. 
+b. Interpret the apparent effect of the treatments on the proportion of applicants who actually received a ration card. 
+c. What do these results seem to suggest about the effectiveness of the RTIA as a way of helping slum dwellers obtain ration cards? 
+-->
+
+
+# 6. Lotteries
+
+A researcher wants to know how winning large sums of money in a national lottery affect people's views about the estate tax. The research interviews a random sample of adults and compares the attitudes of those who report winning more than $10,000 in the lottery to those who claim to have won little or nothing. The researcher reasons that the lottery choose winners at random, and therefore the amount that people report having won is random. 
+
+a. Critically emvaluate this assumption. 
+b. Suppose the researcher were to restrict the sample to people who had played the lottery at least once during the past year. Is it safe to assume that the potential outcomes of those who report winning more than $10,000 are identical, in expectation, to those who report winning little or nothing? 
+
+*Clarifications* 
+
+1. Please think of the outcome variable as an individual’s answer to the survey question “Are you in favor of raising the estate tax rate in the United States?”
+2. The hint about potential outcomes could be rewritten as follows: Do you think those who won the lottery would have had the same views about the estate tax if they had actually not won it as those who actually did not win it? (That is, is $E[Y_{i}0|D=1] = E[Y_{i}0|D=0]$, comparing what would have happened to the actual winners, the $|D=1$ part, if they had not won, the $Y_{i}(0)$ part, and what actually happened to those who did not win, the $Y_{i}(0)|D=0$ part.) In general, it is just another way of asking, "are those who win the lottery and those who have not won the lottery comparable?"
+3. Assume lottery winnings are always observed accurately and there are no concerns about under- or over-reporting.
+
+# 7. Inmates and Reading
+A researcher studying 1,000 prison inmates noticed that prisoners who spend at least 3 hours per day reading are less likely to have violent encounters with prison staff. The researcher recommends that all prisoners be required to spend at least three hours reading each day. Let $d_{i}$ be 0 when prisoners read less than three hours each day and 1 when they read more than three hours each day. Let $Y_{i}(0)$ be each prisoner's PO of violent encounters with prison staff when reading less than three hours per day, and let $Y_{i}(1)$ be their PO of violent encounters when reading more than three hours per day. 
+
+In this study, nature has assigned a particular realization of $d_{i}$ to each subject. When assessing this study, why might one be hesitant to assume that ${E[Y_{i}(0)|D_{i}=0] = E[Y_{i}(0)|D_{i}=1]}$ and $E{[Y_{i}(1)|D_{i}=0] = E[Y_{i}(1)|D_{i}=1]}$? In your answer, give some intuitive explanation in English for what the mathematical expressions mean.
+
+
+
+

@@ -1,0 +1,12 @@
+* Early Progress Report on Team Project
+
+By the end of Week 8, please submit a one-page progress report on your team project.  Please submit this by ISVC.  Only one report is necessary per group. 
+
+We would like you to think about such questions as:
+- At a high level, how are you planning to execute the experiment?  How will you divide up the data collection task among yourselves?
+- How detailed is your experimental design and procedure so far?
+- What parts of the protocol have you not fleshed out yet?
+- What aspects are you undecided about?  Would you like advice on these?
+- What software (if any) needs to be written to execute the experiment?  How far along are you on this?
+- On what questions would you like advice from the instructor?
+- Are you hoping for a grant to help cover expenses of the experiment?   If so, make sure to send the instructor a one-page email detailing your grant amount request (up to $500 per group)
