@@ -91,7 +91,8 @@ First, answer these based on your understanding of how you created the data. The
 3. On average, will people who are taller tend to have higher or lower potential outcomes to treatment? 
 4. **Most importantly**: If these are *potential outcomes* then, can we empirically observe any of these outcomes? 
 
-# Run YourTo this point, we've been working in the *potential outcomes space*. One way that you might think about this is as though these are the measurement that our population of people are going to walk into the expeiment having -- but we haven't measured them yet, so we don't know what they are! That is, suppose we have the whole cohort of students who are enrolled in 241, and they're going to start the coffee drinking experiment in Week 3. In Week 2, they all are either young/old, short/tall, and have innate abilities to focus, *we as the experimenters just don't know them yet!*. 
+# Run Your Experiment 
+To this point, we've been working in the *potential outcomes space*. One way that you might think about this is as though these are the measurement that our population of people are going to walk into the expeiment having -- but we haven't measured them yet, so we don't know what they are! That is, suppose we have the whole cohort of students who are enrolled in 241, and they're going to start the coffee drinking experiment in Week 3. In Week 2, they all are either young/old, short/tall, and have innate abilities to focus, *we as the experimenters just don't know them yet!*. 
 
 When we run the experiment, we accomplish several things: 
 
