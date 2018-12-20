@@ -1,3 +1,9 @@
+# Course infrastructure folder
+/infrastructure
+
+# python notebook checkpoints 
+*.ipynb_checkpoints/
+
 .DS_Store 
 
 # History files
