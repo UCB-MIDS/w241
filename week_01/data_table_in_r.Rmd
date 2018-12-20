@@ -1,0 +1,210 @@
+---
+title: "R Notebook"
+---
+
+# `data.table` and `dplyr` 
+
+Look, the benefit to R is the maniuplation of structured data. If you've got to generate a bunch of data through a scraping enterprise, or some form of a complex pipeline, or... you're probably better off handling that at a different layer; either on the storage layer before it comes to the anlaysis layer, or in a python hanlding layer. 
+
+But, once you've got data that's even *close* to being rectangular, I think you're hardpresed to find a more natural way of manipulating than R. pandas comes close, but there's a lot of fiddling around with indexes that can get in the way of intuitive merges and joins. 
+
+There are two major idioms in R for data manipulation: `data.table` and `dplyr`; and, naturally there are a lot of arguments about which is "better", and concept that is so high-dimensional, that I don't think it makes much sense to even entertain. 
+
+In what remains, I'll include a little write-up about data.table, which is probably less approachable out of the box, but does scale into medium size data (e.g. 10GB in memory) more readily than dplyr. This is *much less* comprehensive than the great guides that are available from the package authors: 
+
+- [project homepage](https://github.com/Rdatatable/data.table/wiki)
+- [cheat sheet](https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf)
+- [data camp](https://www.datacamp.com/courses/data-table-data-manipulation-r-tutorial)
+
+```{r} 
+library(data.table) 
+``` 
+
+As it is clear I'm pushing, I think that the `data.table` package is worth one's while to learn while honing skills with data wrangling. Here's why: 
+
+- I think that some of the notation is more clear than the base;
+- It scales toward production as well as something in R can.
+
+Lets cast our df into a data.table
+
+```{r}
+dt <- data.table(df)
+``` 
+
+We can make the same splits as before, but data.tables are *even* more self-aware that they are groupings of data. What do I mean? Well, inside a data.table object, it is not necessary to re-reference the data table. For example, recall the following subset from earlier
+
+```{r} 
+df[df$id < 10, "type"]
+``` 
+
+In a data table, scoping the name search is not necessary; because you've already indexed into the data.table, the default belief that is that you want to search that data.table, not some other object in memory. Additionally, you need not quote the vector that you want to return: 
+
+```{r}
+dt[id < 10, type]
+``` 
+
+This produces an equivalent output. 
+```{r} 
+df[df$id < 10, "type"] == dt[id < 10, type]
+``` 
+
+Note as well that we did not need to quote the name of `type` in the `data.table` this is just a little bonus that will same a few keystrokes.
+
+## Referencing in a data.table. 
+
+Updating, creating, modifying is performred by reference in data.table, which is a useful construct when we start have medium-sized data (1e6+ rows). Basically, base R is inefficient in its memory management; at times it will allocate 4x the memory that is actually being used in data that you want. Its frustrating.
+
+Whereas in a data.frame one would create a new vector in the following way:
+
+df$age <- sample(18:30, size = 20, replace = TRUE)
+
+in a data.table this reference comes via the `:=` operator, and occurs
+*within* a slice of the object. If we are creating a new column vector, then
+we would locate this in the column position in the slice, and just assign
+away. 
+
+```{r} 
+dt[ , age := sample(18:30, size = 20, replace = TRUE)]
+dt[ , edu := sample(c("Low", "Med", "High"), size = .N, replace = TRUE)]
+``` 
+
+(What's happening with that `.N` call? This is a shortcut to say "for as many times as there are." This becomes useful when you don't know ahead of time how many time will be present, for example, when you pass a query that you don't know that answer to ahead of time. More on this in a moment. )
+
+Notice that there is no indexing in the row position in this first case
+that is:
+
+`dt[ NOTHING HERE BEFORE COMMA, age := sample(18:30, size=20, replace=TRUE)]`
+
+So, we're just assigning onto all the rows. We might have passed a criteria into this and then assigned `d`
+
+```{r} 
+dt[id < 10, age.low := sample(18:30, size = .N, replace = T)]
+dt[id >= 10 & id %% 3 == 0, age.low := 100]
+dt[id >= 10 & id %% 4 == 0, age.low := sample(c(200, 300), .N, replace = TRUE)]
+dt
+``` 
+
+Note here that I use a second idiom of data.tables, the `.N` which just evaluates how many rows are in the particular set you've got. I could have hardcoded that: `dt[id < 10, age.low := sample(18:30, size = 9, replace = T)]` but then if my data changed, I would be left holding the bag...
+
+
+## Returning vectors togther.
+
+In a data.frame, we might call:
+
+```{r} 
+df[ , c("value", "type")] # to reference columns by name
+``` 
+
+There is a simliar construct in a data table. 
+
+```{r}
+dt[ , list(value, type)] # which produces the same output
+``` 
+
+Why are those in a list, rather than a character vector? Don't get too lost in it just yet, but a *huge* benefit is that we're going to be able to perform functions against colums. Since those colums might return something that has as different shape than what we started with, we're going to use the more flexible list structure, than the character vector structure. 
+
+Note that in a `data.table` we do NOT quote the variable names. Note too that typing `list()`  could get a little old, so there is an alias to this call: `.()`
+
+```{r} 
+dt[ , .(value, type)]
+``` 
+
+Is the same as the list 
+
+```{r} 
+dt[  , list(value, type)] == dt[ , .(value, type)]
+``` 
+
+And is the same as the df version 
+
+```{r} 
+as.data.frame(dt[ , .(value, type)]) == df[ , c("value", "type")]
+``` 
+
+## Returning mappings of vectors
+
+
+What if we want to summarize the data in some way? You pick the way that seems
+reasonable. In a data.table, we can call for that mapping in the column
+position.
+
+```{r}
+dt[ , value] # will print all of the values
+``` 
+
+But if we want the average of those values: 
+
+```{r}
+dt[ , mean(value)] # will print that mapping of values
+``` 
+
+```{r} 
+dt[ , sd(value)]
+dt[ , var(value)]
+dt[ , hist(value)]
+dt[ , lm(value ~ type)]
+``` 
+Note that if we call for a simple summary, what we get back is in the form of a vector. 
+
+```{r}
+class(dt[ , mean(value)])
+``` 
+
+If we pass that same call, but wrapped in a list, then we will return an
+object whose class is a data.table. Meaning that we can keep this as a data.table for futher work, or storage. 
+
+```{r}
+dt[ , .(mean(value))]
+class(dt[ , .(mean(value))])
+``` 
+
+This might become useful if we want to make a smaller data table that is a summarization of several features: 
+
+```{r}
+dt[ , .(mean_value = mean(value),
+        sd_value = sd(value))]
+``` 
+
+But, why might this be useful?
+
+We can map several pieces of data, perhaps to move from a stored table into something that we want to use for analysis.
+
+```{r}
+dt[ , .(mean(value), sum(type == "A"))]
+``` 
+
+Note that what came back is a data.table, with two variables created,
+V1 and V2. We could name those in the last call:
+
+```{r}
+dt[ , .(m.value = mean(value), num.A = sum(type == "A")) ]
+``` 
+
+## Grouping 
+
+One of the core things we do with data is group it, and map down the information in it to a lower dimensional space. Seriously, that is probably the VAST majority of what happens.
+
+Grouping in a data.frame can be a little clunky (though it does
+again show that the tilde is in *all places*). 
+
+```{r}
+aggregate(value ~ type, FUN = mean, data = df)
+aggregate(value ~ type, FUN = function(x) sqrt(var(x)), data = df)
+```
+
+Grouping in data.tables, is a little less clunky. Rather than using the
+aggregate call, we can pass a function into the column position, just like
+earlier, but we can add an additional argument that is `by = ` after the
+column position.
+
+```{r} 
+dt[ , .(mean(value))]
+
+dt[ , .(mean(value)), by = type]
+dt[ , .(sqrt(var(value))), by = type]
+
+dt[ , . (m.value = mean(value), sd.value = sqrt(var(value)) ),
+   by = type ]
+
+dt[ , .(mean(value)), keyby = .(type, edu)]
+``` 

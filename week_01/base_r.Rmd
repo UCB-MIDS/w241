@@ -1,0 +1,161 @@
+---
+title: "R Notebook"
+---
+# Slicing 
+
+Data is stored in vector, and vectors can be sliced using square brackets.
+
+`[ ]` 
+
+Suppose a vector of the following form:
+
+```{r}
+v <- c(1,2,3,4,6)
+```
+
+
+If a vector is one-dimensional, then we can either:
+
+- Reference a location in that vector:
+  - `v[2]` Will print the value in the second position
+  - `v[5]` Will print the value in the fifth position
+  - `v[c(2,5)]`  Will print the value in the second and fifth positions
+  - `v[-1]`  Will print everything but the first *note the difference between this and python* 
+- Pass a logical test that will print values
+  - `v == 2` Tests for each value in that vector taking a particular tested, in this case, 2. 
+
+And so, 
+
+- `v[v == 2]` Will print only the values that meet the test.
+- `v[v == 6]` Will not print anything
+- `v[v %in% 1:3]` uses the set-based `%in%` operator which looks for existence in a range.  
+
+`data.frames` are just collections of vectors.
+
+If vectors are single dimensional objects that can be indexed, then a `data.frame` is just a collection of vectors that can also be indexed. Importantly, once we have more than one vector collected, we've got more than a single dimension that we have to index. This is *ok*, because we can just index in both of these directions. 
+
+Note as well that one of the features that we appreciate about these data.frames is that they can collect vectors that are of different types in a way that a matrix cannot. 
+
+
+```{r} 
+df <- data.frame(
+  id=1:20,
+  value=(1:20) ** 2,
+  type=rep(LETTERS[1:5], each=4) 
+  )
+df
+```
+
+We can reference any of the vectors that are stored in the data frame by `stringing` into that object using the `$` operator and then naming the vector that we're interested in. Note that by calling the stored data.frame object we're scoping from the global namespace into the namespace for that object, and then calling for the named vector. We *could* also pull this based on location -- though this brings on considerable risk: If the data structure should change in the future, you'll pull from a position that might have different information than you think it does. 
+
+```{r} 
+class(df)
+class(df$id) # an integer vector
+class(df$value) # an integer vector
+class(df$type) # a character vector
+class(df[ , 3]) 
+``` 
+      
+Because the vectors in this data.frame are all of the same length, we can pass logical tests to pull specific parts of the data, based on indexes of other data. 
+
+Suppose that we wanted to pull all the type A objects: 
+
+- Write the test that will return true for the type A,
+- Then use this test to pull the values that you're interested in. 
+
+Folks might be use to referring to this as a boolean mask; if that's language you're comfortable with, *run with it*. Otherwise, you can just think of this as a logical test. 
+
+```{r} 
+df$type == "A"
+df$id[df$type == "A"]
+``` 
+Equivalently, we could write the last statement as: 
+
+```{r}
+df[df$type == "A", "id"]
+```
+Some light practice 
+
+- How would you write a call for the first 10 ids, pulling all of the columns? (The answers for each of these will follow in a short block)
+
+```{r}
+
+```
+
+- How would you pull all of the odd ids? 
+
+```{r}
+
+```
+
+- How would you pull all of the odd ids, that are of type indicated by a vowel? (Hint: You can combine the statements with the logical operator `&` )
+
+```{r}
+
+```
+
+- How would you pull the rows that *either* have an id that is in the set `1:2` **OR** have a type that is equal to `E`? (Hint: You can combine the statements ith the logical operator `|` which reads as inclusive OR)
+
+```{r}
+
+```
+
+Here come the answers: 
+
+```{r}
+df[1:10, ] # cheater... got lucky because they're ordered; this is risky
+df[df$id < 11, ]
+df[df$id %in% 1:10, ]
+
+df[df$id %in% c(1,3,5,7,9,11,13,15,17,19), ]
+df[df$id %% 2 == 1, ] # or more elegantly, find areas where mod 2 is not zero.
+
+df[df$id %% 2 == 1 & df$type %in% c("A", "E"), ]
+
+df[df$id %in% 1:2 | df$type == "E", ]
+```
+
+# Formula Notation 
+The formula tilde: `~` is a common thread through R. Most base funcitons that involve the comparison of some feature by some other feature have a built in method that is based on the formula tilde.
+
+For example, in the data.frame `df` from above, if we wanted to compare the values for ids greater than 10 to those ten and below, we might use the following call:
+
+```{r}
+t.test(value ~ id > 10, data = df)
+```
+
+Suppose we wanted a box plot:
+
+```{r}
+boxplot(value ~ id > 10, data = df)
+```
+
+Or a test for similarity of varaince, on both side of the `> 10` split:
+
+```{r} 
+var.test(value ~ id > 10, data = df)
+``` 
+
+Or, a linear regression
+
+```{r} 
+m <- lm(value ~ I(id > 10) + I(type == "A"), data = df)
+summary(m)
+``` 
+
+and so on ... and so on...
+
+Let's unpack this just a little bit. Inside each of these calls are at least three parts:
+1. the LHS of the tilde, which is the outcome variable;
+2. the RHS (which we're inputting as a logical test that is being evalutated at run time
+3. the data that we're using.
+4. oh, there are four: the tilde.
+
+an equivalent way of each of these calls would be to use the vectors
+
+```{r} 
+t.test(df$value[df$id > 10], df$value[df$id <= 10])
+``` 
+
+But, i think you can see and appreciate the clarity of the `~`, ja feel?
+
