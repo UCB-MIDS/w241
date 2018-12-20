@@ -1,0 +1,2 @@
+# Do a Longer Workout! 
+Head [here](http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https://github.com/d-alex-hughes/241_revisions&branch=master&urlpath=rstudio) and naviate to `week_05>conduct_a_full_analysis` to work on an exercize.
