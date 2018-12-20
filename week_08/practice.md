@@ -1,2 +1,0 @@
-# Do a Longer Workout! 
-Head [here](http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https://github.com/d-alex-hughes/241_revisions&branch=master&urlpath=rstudio) and navigate to `week_08>practice.Rmd` to work on an exercize.
