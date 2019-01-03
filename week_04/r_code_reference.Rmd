@@ -1,0 +1,341 @@
+---
+title: "Formatted Async 3 Code"
+---
+# Introduction 
+In this code we're going to work though an extended example that demonstrates how randomization inference works. As noted in the lecture, we are working through the example of a randomized assignment of men and women to eat (or not eat) soybeans and we are measuring the level of estrogen present in each of their bloodstreams (perhaps in parts/million).
+
+First, we create a grouping variable with two groups, one called "Man", and another called "Woman". 
+```{r}
+group <- c(rep("Man",20),rep("Woman",20))
+``` 
+
+To these groups, we assign silly, but schematically heplful *potential outcomes* to treatment and control. We say that, by some chance, we sampled men into our study that had estrogen ppm levels that ranged from 1-20, in perfect increments. Also, what luck, but we sampled women into the study that had estrogen levels that ranged from 51-70. So, the women have on average higher estrogen beginning the study. 
+
+```{r}
+po_control <- c(seq(from = 1, to = 20), seq(from = 51, to = 70))
+po_treatment <- po_control #no effect because potential outcomes in treatment are the same
+po_control
+po_treatment
+```
+
+Per our randomization scheme, we are going to randomly assign the individuals to either eat lots of tofu `(treatment == 1)` or to eat no tofu `(treatment == 0)`. To do this, we write a simple function that will randomly place zeros and ones for the treatment and control. 
+
+```{r}
+randomize <- function() { 
+  sample(c(rep(0,20),rep(1,20)))
+} 
+## from the help file
+## For sample the default for size is the number of items inferred from the first argument
+```
+
+As is the case with David R's comments in the async material, if this code isn't strictly intuitive to you, we have lots of options to write other randomization functions. 
+
+```{r} 
+cases <- c(0,1)
+randomizeV2 <- function() { 
+  sample(cases, size = length(group), replace = TRUE)
+  }
+
+randomize()
+randomizeV2()
+```
+
+With our randomization function in hand, we can now set up our vector of treatment assignments. This is simply storing the results of our function randomize in a vector object called treatment. 
+
+```{r}
+treatment <- randomize() #Conduct randomization for this experiment
+treatment
+table(treatment)
+```
+
+Recall that we are setting up an experiment that has **no** effect. As Green and Gerber point out in *Field Experiments* in the case of the sharp-null, we are actually testing against the possiblity that we observe both the potential outcomes! (As a comprehension check, explain why this is true).
+
+Next, we create a vector of realized outcomes, first using the compact notation that Green and Gerber prefer using maths. For those randomized to treamtent, we multiply the potential outcome to treatment time the treatment vector (which is a 1 when they were assigned to treatment), and for those in control, into this vector we assign the potential outcome to control time the quantity `(1 - treatment)` which will be one when they are in the treatment group. 
+
+```{r}
+outcomes <- po_treatment * treatment + po_control*(1-treatment)
+outcomes
+```
+
+One of the points that David R. and David B. make in their lecture is that we could have alternatively written this as a *very* simple subset, if math isn't your thing but programming control flows is. 
+
+Standard practice in R would be the follow style of subset: 
+
+```{r}
+outcomesV2 <- rep(NA, length(group))
+outcomesV2[treatment == 0] <- po_control[treatment == 0]
+outcomesV2[treatment == 1] <- po_treatment[treatment == 1] 
+``` 
+
+Although if you're coming from another language that doesn't place such a high value on vectorized operations, you might go for it in the following way: 
+
+```{r}
+outcomesV3 <- rep(NA, length(group))
+for(i in 1:length(group)) { 
+  if(treatment[i] == 0) { 
+    outcomesV3[i] <- po_control[i]
+    } else if(treatment[i] == 1) { 
+      outcomesV3[i] <- po_treatment[i]
+      }
+  }
+```
+
+Check that they're all doing the same thing
+
+```{r}
+table(outcomes == outcomesV2)
+table(outcomes == outcomesV3)
+```
+
+To my eye, the clarity of either the math version or the vector subset version are much more transparent in what they're accomplishing -- they have the added benefit of working more quickly in R if you have a large number of opertaions to run. 
+
+# Ok so we've got our data set up. Now what? 
+Now that we have the data set up, we can begin to examine what the lecture is really about, what is the distribution of ATE that we observe due to the different possibly assignments to treatment and control. A few points to remember: 
+
+1. From last week: The difference in sample means between the treatment and control groups is an unbiased estimator of the ATE. 
+2. Also from last week: This does not imply that any one realization of treatment/control assignment is guaranteed to exactly produce that ATE.
+
+This is the entire point of understanding the distribution of the ATE. 
+
+To get here, first lets write another function that will calculate the ATE. 
+
+```{r}
+est_ate <- function(outcome, treat) { 
+  mean(outcome[treat==1]) - mean(outcome[treat==0])
+  } 
+est_ate
+```
+
+And then, let's actually compute the average treatment effect for this experiment: 
+
+```{r} 
+ate <- est_ate(outcomes, treatment) 
+ate 
+```
+
+**What gives!** We created this data such that there is *exactly* zero treament effect.  Note, even more specifically than creating the data so that there was no *average treatment effect* we constructed this so that there was no effect at all -- this is at the potential outcomes level! Recall that P(0) = P(1).  
+
+# How big is that difference likely to be on average?
+We can figure out what would happen if we did this same randomization a few of times. 
+
+```{r}
+est_ate(outcomes, randomize())
+est_ate(outcomes, randomize())
+est_ate(outcomes, randomize())
+``` 
+
+So, what we're seeing is that there are some slightly different outcomes to different trement regimes. We can do this, a bunch more times using the `replicate` function. Specifically, do this 5,000 to get a sense of the distribution
+
+```{r}
+distribution_under_sharp_null <- replicate(5000, est_ate(outcomes, randomize()))
+```
+
+What does this look like if we examine it a little more? 
+```{r}
+plot(density(distribution_under_sharp_null), 
+     main = "Density under Sharp Null")
+hist(distribution_under_sharp_null, 
+     main = "Histogram under Sharp Null")
+```
+
+How big was our observed difference?
+
+```{r}
+par(mfrow = c(1,2))
+plot(density(distribution_under_sharp_null), 
+     main = "Density Plot of ATE")
+abline(v = ate, col = "blue")
+hist(distribution_under_sharp_null, 
+     main = "Histogram of ATE", 
+     freq = FALSE)
+abline(v = ate, col = "blue")
+``` 
+
+As it turns out, that was pretty similar to what we saw in our draw! In fact, what we've got here is pretty likely to turn up by chance. 
+
+Following David B. statment, we can really easily draw a probability of seeing an ATE of a given size under the repeated randomization regime. 
+
+```{r}
+m <- mean(ate <= distribution_under_sharp_null) #p-value
+m
+``` 
+And so we we see that there is a `r m` probability of observing an ATE of this size, given the repreated randomization regime, under the sharp null hypothesis. 
+
+#Simulate an experiment with a large effect
+
+We have seen that when there is no effect, our Randomization Inference regime does a good job at assigning a high probability of observing an effect size equal to or larger than the ATE we calculate from our particular randomization. 
+
+Now, let's show that when there is a big effect, our Randomization Inference regime does a good job at assigning a low probability of observing an effect size equal to or larger that the ATE we calculate in our regression. 
+
+```{r}
+po_treatment <- po_control + 25 # this is a big effect! 
+po_control
+po_treatment
+# Randomize
+treatment <- randomize()
+outcomes <- po_treatment * treatment + po_control*(1-treatment)
+outcomes
+# Estimate ate
+ate <- est_ate(outcomes, treatment)
+ate
+# What is the uncertainty?
+distribution_under_sharp_null <- replicate(5000, est_ate(outcomes,
+                                                         randomize()))
+plot(density(distribution_under_sharp_null), 
+     xlim = c(-50, 50), 
+     main = "Density under Sharp Null")
+abline(v=ate, col = "darkgreen", lwd = 2)
+mean(ate < distribution_under_sharp_null) #p-value
+```
+
+# Statistical power
+
+To get a sense for how power increases or decreases with sample size and effect size, here we're going to wrap *everything* that we've done before in another function that will simulate our entire study. 
+
+As we note in the lecture, there is a third component to power that we are going to leave for next week: the variation in outcomes. (*Preview: if we decrease variation in outcomes either by including pre-treatment covariates, or explicitly designing our sampling to reduce this variation by blocking, we will increase our power.*)
+
+```{r}
+# Function to simulate a study of a given 
+# treatment effect and get the p-value
+
+simulate_study <- function(treatment_effect_size) {
+  po_control <- c(seq(from = 1,  to = 20), 
+                  seq(from = 51, to = 70) )
+  po_treatment <- po_control + treatment_effect_size
+  treatment <- randomize()
+  outcomes <- po_treatment * treatment + po_control * (1- treatment)
+  ate <- est_ate(outcomes, treatment)
+  distribution_under_sharp_null <- replicate(1000, est_ate(outcomes, randomize()) )
+  return(mean(ate < distribution_under_sharp_null))
+}
+```
+
+With that function in hand, we can run with our simulations! 
+
+```{r}
+simulate_study(0) # p-value for no effect
+p_values <- replicate(1000, simulate_study(0)) # distribution of pvalues
+plot(density(p_values, from = 0, to = 1), xlim = c(0,1), 
+     main = "Density of p-values \n t = 0") # uniform distribution
+# how often is p_value under 0.05 when there is no effect?
+``` 
+That line is kind of warbeling around as a result of statistical noise, but more or less, we have a horizontal line -- or at the very least, a line that would not be very informative if we had to place a bet about where on the range the p-value is most likely to lie. 
+
+In fact, if we look at the average p-value from this distribution, we see that it is `r mean(p_values < 0.05)`. This means that the *average* probability of seeing a treatment size of size $\hat{ATE}$ under the sharp null hypothesis, across all 5,000 of our replications is `r mean(p_values < 0.05)`. That is really, *really* likely. 
+
+What happens if we incrase the effect size in our simulated study? Now, we're moving from a simulation that supposes there is no effect of soy on estrogen levels to a simulation that supposes there is a 10 unit increase in the estrogen levels of subjects who are treated with soy. 
+
+```{r}
+p_values <- replicate(1000, simulate_study(10))
+plot(density(p_values, from = 0, to = 1), 
+     main = "Density of p-values \n t = 10")
+```
+
+In the proceeding plot, we have quite a bit more information about the distribution of the p-values (which are themselves the result of a distribution...stay with us here). In this case, the average p-value from the 1,000 replications of the experiment under the sharp-null is `r mean(p_values)`. This is *lower* than before -- which is sensible given we have increased the simulated effect. With a larger effect, we should think that it is less likely to see an effect size of $\hat{ATE}$ due only to random chance, and as such, the mean p-value should be smaller to reflect this state of the world. 
+
+A little more about the average p-values: What does the "average" p-value look like under this regime? And how often do we see p-values that are smaller than 0.05? This is the RI relative to a classical hypothesis test that relies on strong statistical assumptions about sampling, distributions and the law of large numbers. 
+
+```{r}
+mean(p_values) 
+mean(p_values < 0.05) # somewhat likely to detect this effect
+table(p_values < 0.05)
+```
+
+Now, do it again, but with a simulated treatment effect size of twenty: $\tau_{i} = 20$ for everyone in the study. What then are the chances that we see an effect size as large as we do for a single randomization, just by chance? 
+
+```{r}
+p_values <- replicate(1000, simulate_study(20))
+plot(density(p_values, from = 0, to = 1), 
+     main = "Density of p-values \n t = 20")
+# What do those p-values look like? 
+mean(p_values)
+mean(p_values < 0.05)   # very likely to 
+table(p_values < 0.05)  # detect this effect
+```
+
+#How does power behave?
+
+In this section we're going to talk about power, which is the probability that the test we set up will *correctly* reject the null hypothesis.  Said another way, what is the probability that our p-value is small, given our p-value *should* be small? Or, said even another way, how much **power** does our test have to detect a *true* effect. 
+
+Let's examine how power behaves in a very simple OLS regression. To do so, let's write two more short functions. 
+
+```{r}
+# First: Simulate the p-values in a regression
+simulate_study_lm <- function(baseline, effect_size, sample_size) {
+  control_units <- rbinom(sample_size, 1, baseline)
+  treatment_units <- rbinom(sample_size, 1, baseline + effect_size)
+  all_units <- c(control_units, treatment_units)
+  treatment_vector <- c(rep(0, sample_size), rep(1, sample_size))
+  p_value <- summary(lm(all_units ~ treatment_vector))$coefficients[2, 4]
+  effect_detected <- p_value < 0.05
+  return(effect_detected)
+}
+# Second: 
+get_power <- function(baseline, effect_size, sample_size) {
+  return(mean(replicate(2000, 
+                        simulate_study_lm(baseline,
+                                          effect_size, 
+                                          sample_size))) )
+}
+```
+
+Functions set, let's roll! 
+
+First: What is the effect on our power if we incrase the effect size of the treatment that we are administering? In an experiment, we might be able to accomplish this incrased effect size by increasing the *dosage* or the intensity of the treatment that we're administering.  However, we should note two things: 
+
+1. The actual treatment effect $(\tau_{i})$ is an effect that is a parameter of the *real* world, something that is onobserved
+2. We can't actually manipulate $\tau_{i}$ per unit application -- but rather, we can increase the units applied. 
+
+```{r}
+#Increasing effect size
+get_power(baseline = .1, effect_size = .05, sample_size = 100)
+get_power(baseline = .1, effect_size = .10, sample_size = 100)
+get_power(baseline = .1, effect_size = .15, sample_size = 100)
+get_power(baseline = .1, effect_size = .2, 100)
+get_power(baseline = .1, effect_size = .25, 100)
+``` 
+
+Second: let's work with the other lever that we actually *can* pull, mainipulating the effect size. Even if we can't move $\tau$, we can enroll 1x, 5x, or 50x the number of people in our study. 
+
+```{r}
+# Increasing sample size
+get_power(baseline = .1, effect_size = .05, sample_size = 100)
+get_power(baseline = .1, effect_size = .05, sample_size = 200)
+get_power(baseline = .1, effect_size = .05, sample_size = 300)
+get_power(baseline = .1, effect_size = .05, sample_size = 400)
+get_power(baseline = .1, effect_size = .05, sample_size = 500)
+get_power(baseline = .1, effect_size = .05, sample_size = 1000)
+get_power(baseline = .1, effect_size = .05, sample_size = 5000)
+```
+
+That is a little bit less rosy, isn't it... 
+
+... this leads us to the notion of the concentrated test as described in lecture. If we can only afford 1e6 soybeans, how should we allocate them among the population? How many subjects should we enroll in our trial, and how many soybeans should we provide to each subject? 
+
+#Confidence interval
+
+```{r}
+summary(lm(outcomes ~ treatment))
+estimate_in_confidence_interval <- function() {
+  true_effect <- 25
+  # Simulate outcomes
+  po_control <- c(seq(from = 1,  to = 20), 
+                  seq(from = 51, to = 70))
+  po_treatment <- po_control + true_effect
+  treatment <- randomize()
+  outcomes <- po_treatment * treatment + po_control*(1 - treatment)
+  # Run regression
+  regression <- summary(lm(outcomes ~ treatment))
+  estimate <- regression$coefficients[2, 1]
+  standard_error <- regression$coefficients[2, 2]
+  lower_bound <- estimate - standard_error * 1.96
+  upper_bound <- estimate + standard_error * 1.96
+  # Is estimate in CI?
+  estimate_in_ci <- lower_bound < true_effect & upper_bound > true_effect
+  return(estimate_in_ci)
+}
+estimate_in_confidence_interval()
+mean(replicate(1000, estimate_in_confidence_interval()))
+```
+
+That's all folks! 
