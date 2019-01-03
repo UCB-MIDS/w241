@@ -14,4 +14,4 @@ The first time that you start a datahub server, the server pulling is going to p
 For *in async* code demonstrations, we're going to use the UC Berkeley datahub. This is a lightweight compute system with a jupyter server and Rstudio server. You've got general access to this compute using your @berkeley.edu credentials. Don't get distracted by the link right now: but, this jupyter hub is housed at [datahub.berkeley.edu](datahub.berkelely.edu). If you're interested, you can read more about this compute system [here](https://jupyterhub.readthedocs.io/en/stable/).
 
 # Do some guided Yoga! 
-Head [here](http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https://github.com/d-alex-hughes/241_revisions&branch=master&urlpath=rstudio) and navigate to `week_01>base_r.Rmd` to work on an exercize.
+Head [here](http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2FUCB-MIDS%2Fw241&branch=master&urlpath=rstudio) and navigate to `week_01>base_r.Rmd` to work on an exercize.
