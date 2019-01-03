@@ -43,6 +43,5 @@ vignettes/*.pdf
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 
-# Ignore icons
-Icon\r
-*Icon\r
+# Ignore mac files
+*Icon*
