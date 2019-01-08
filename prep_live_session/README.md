@@ -26,8 +26,9 @@
 
 First, read the three news articles that we provided as examples for [*Essay 1*](https://docs.google.com/a/davidreiley.com/document/d/1DSuupY-xbNJykxpO3tRA_n7_auozF5gS3gQrC3vk9z8/edit):
 -   [*Obesity caused by suburban sprawl*](http://www.cbsnews.com/2100-204_162-570634.html) (2013)
--   [*Inducing labor increases the chance of Caesarian section*](http://www.reuters.com/article/2010/06/21/us-induced-labor-c-section-idUSTRE65K6DW20100621) (2010)
--   [*Sexual promiscuity decreases the risk of prostate cancer*](http://www.telegraph.co.uk/science/science-news/11192385/Sex-with-21-women-lowers-risk-of-prostate-cancer-academics-find.html) (2014)
+-   ~[*Inducing labor increases the chance of Caesarian section*](http://www.reuters.com/article/2010/06/21/us-induced-labor-c-section-idUSTRE65K6DW20100621) (2010)~
+-   ~[*Sexual promiscuity decreases the risk of prostate cancer*](https://www.telegraph.co.uk/news/science/science-news/11192385/Sex-with-21-women-lowers-risk-of-prostate-cancer-academics-find.html) (2014)~ 
+-   [Get Fast?](https://www.nytimes.com/interactive/2018/07/18/upshot/nike-vaporfly-shoe-strava.html) (2018)
 
 For each article, please consider the following discussion questions:
 -   What is the causal claim?
