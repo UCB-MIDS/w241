@@ -11,7 +11,7 @@ Not all weeks will have a code *hike* in them, but when we do, there will be onl
 # The Berkeley DataHub 
 The first time that you start a datahub server, the server pulling is going to pull materials from a GitHub repository and do a little housecleaning. After the first time, it will only pull differences. This means that the server should start, in general, in 30 seconds or less.
 
-For *in async* code demonstrations, we're going to use the UC Berkeley datahub. This is a lightweight compute system with a jupyter server and Rstudio server. You've got general access to this compute using your @berkeley.edu credentials. Don't get distracted by the link right now: but, this jupyter hub is housed at [datahub.berkeley.edu](https://datahub.berkelely.edu). If you're interested, you can read more about this compute system [here](https://jupyterhub.readthedocs.io/en/stable/).
+For *in async* code demonstrations, we're going to use the UC Berkeley datahub. This is a lightweight compute system with a jupyter server and Rstudio server. You've got general access to this compute using your @berkeley.edu credentials. Don't get distracted by the link right now: but, this jupyter hub is housed at [datahub.berkeley.edu](https://datahub.berkeley.edu). If you're interested, you can read more about this compute system [here](https://jupyterhub.readthedocs.io/en/stable/).
 
 # Do Some Short Yoga! 
 Head [here](http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https://github.com/UCB-MIDS/w241&branch=master&urlpath=rstudio) and navigate to `week_01>reintroduction_to_r.Rmd` to work on an exercize.
