@@ -4,13 +4,13 @@ title: "R Notebook"
 
 # `data.table` and `dplyr` 
 
-Look, the benefit to R is the maniuplation of structured data. If you've got to generate a bunch of data through a scraping enterprise, or some form of a complex pipeline, or... you're probably better off handling that at a different layer; either on the storage layer before it comes to the anlaysis layer, or in a python hanlding layer. 
+Look, the benefit to R is the manipulation of structured data. If you've got to generate a bunch of data through a scraping enterprise, or some form of a complex pipeline, or... you're probably better off handling that at a different layer; either on the storage layer before it comes to the analysis layer, or in a python handling layer. 
 
-But, once you've got data that's even *close* to being rectangular, I think you're hardpresed to find a more natural way of manipulating than R. pandas comes close, but there's a lot of fiddling around with indexes that can get in the way of intuitive merges and joins. 
+But, once you've got data that's even *close* to being rectangular, I think you're Hard-pressed to find a more natural way of manipulating than R. pandas comes close, but there's a lot of fiddling around with indexes that can get in the way of intuitive merges and joins. 
 
 There are two major idioms in R for data manipulation: `data.table` and `dplyr`; and, naturally there are a lot of arguments about which is "better", and concept that is so high-dimensional, that I don't think it makes much sense to even entertain. 
 
-In what remains, I'll include a little write-up about data.table, which is probably less approachable out of the box, but does scale into medium size data (e.g. 10GB in memory) more readily than dplyr. This is *much less* comprehensive than the great guides that are available from the package authors: 
+In what remains, I'll include a little write-up about data.table, which is probably less approachable out of the box, but does scale into medium size data (e.g. 100GB in memory) more readily than `dplyr`. This is *much less* comprehensive than the great guides that are available from the package authors: 
 
 - [project homepage](https://github.com/Rdatatable/data.table/wiki)
 - [cheat sheet](https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf)
@@ -24,6 +24,16 @@ As it is clear I'm pushing, I think that the `data.table` package is worth one's
 
 - I think that some of the notation is more clear than the base;
 - It scales toward production as well as something in R can.
+
+```{r}
+df <- data.frame(
+  id=1:20,
+  value=(1:20) ** 2,
+  type=rep(LETTERS[1:5], each=4) 
+  )
+df
+```
+
 
 Lets cast our df into a data.table
 
@@ -52,11 +62,13 @@ Note as well that we did not need to quote the name of `type` in the `data.table
 
 ## Referencing in a data.table. 
 
-Updating, creating, modifying is performred by reference in data.table, which is a useful construct when we start have medium-sized data (1e6+ rows). Basically, base R is inefficient in its memory management; at times it will allocate 4x the memory that is actually being used in data that you want. Its frustrating.
+Updating, creating, modifying is performed by reference in data.table, which is a useful construct when we start have medium-sized data (1e6+ rows). Basically, base R is inefficient in its memory management; at times it will allocate 4x the memory that is actually being used in data that you want. Its frustrating.
 
 Whereas in a data.frame one would create a new vector in the following way:
 
+```{r}
 df$age <- sample(18:30, size = 20, replace = TRUE)
+```
 
 in a data.table this reference comes via the `:=` operator, and occurs
 *within* a slice of the object. If we are creating a new column vector, then
@@ -84,7 +96,7 @@ dt[id >= 10 & id %% 4 == 0, age.low := sample(c(200, 300), .N, replace = TRUE)]
 dt
 ``` 
 
-Note here that I use a second idiom of data.tables, the `.N` which just evaluates how many rows are in the particular set you've got. I could have hardcoded that: `dt[id < 10, age.low := sample(18:30, size = 9, replace = T)]` but then if my data changed, I would be left holding the bag...
+Note here that I use a second idiom of data.tables, the `.N` which just evaluates how many rows are in the particular set you've got. I could have hard-coded that: `dt[id < 10, age.low := sample(18:30, size = 9, replace = T)]` but then if my data changed, I would be left holding the bag...
 
 
 ## Returning vectors togther.
@@ -95,13 +107,13 @@ In a data.frame, we might call:
 df[ , c("value", "type")] # to reference columns by name
 ``` 
 
-There is a simliar construct in a data table. 
+There is a similar construct in a data table. 
 
 ```{r}
 dt[ , list(value, type)] # which produces the same output
 ``` 
 
-Why are those in a list, rather than a character vector? Don't get too lost in it just yet, but a *huge* benefit is that we're going to be able to perform functions against colums. Since those colums might return something that has as different shape than what we started with, we're going to use the more flexible list structure, than the character vector structure. 
+Why are those in a list, rather than a character vector? Don't get too lost in it just yet, but a *huge* benefit is that we're going to be able to perform functions against columns. Since those locums might return something that has as different shape than what we started with, we're going to use the more flexible list structure, than the character vector structure. 
 
 Note that in a `data.table` we do NOT quote the variable names. Note too that typing `list()`  could get a little old, so there is an alias to this call: `.()`
 
@@ -151,7 +163,7 @@ class(dt[ , mean(value)])
 ``` 
 
 If we pass that same call, but wrapped in a list, then we will return an
-object whose class is a data.table. Meaning that we can keep this as a data.table for futher work, or storage. 
+object whose class is a data.table. Meaning that we can keep this as a data.table for further work, or storage. 
 
 ```{r}
 dt[ , .(mean(value))]
