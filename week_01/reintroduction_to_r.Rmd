@@ -18,7 +18,7 @@ Head to [this page](https://rmarkdown.rstudio.com/lesson-1.html) and do the foll
 - Read the Introduction, How it Works, Code Chunks, and Inline code sections 
 - Come back here and keep working down the worksheet. 
 
-What you're reading right now is an RStudio notebook -- just a slight turn on the notebook format that you're familiar with in a jupyter notebook. In these notebooks, the default is that you're writing into the "paper", or "markdown" space. But, if you want to incldue a code chunk, you can. 
+What you're reading right now is an RStudio notebook -- just a slight turn on the notebook format that you're familiar with in a jupyter notebook. In these notebooks, the default is that you're writing into the "paper", or "markdown" space. But, if you want to incldue a code chunk, you can. [This file](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf) has a cheatsheet for navigating the Rstudio IDE. 
 
 In the upper right of this editor, you can see the **Insert** button. This has options for inserting a code chunk, in the language of your choice: R, bash, python, etc. Since for most of the class, we're going to be working in R, you may as well know the keyboard binding to this: 
 
