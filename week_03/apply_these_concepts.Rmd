@@ -8,8 +8,9 @@ output: html_notebook
 Let's look at the box that's reported in _Field Experiments_ box 3.7. This is a short table of "donations" to a political campaign, where some people have received one treatment message about donation, while other have received another message. 
 
 ```{r}
-library(dplyr)
 library(data.table)
+library(magrittr)
+
 d <- fread('http://hdl.handle.net/10079/ghx3frr')
 head(d)
 ```
@@ -20,38 +21,51 @@ Here are the column definitions:
 
 # Conduct the following work
 
-1. Assess whether the treatment _has an effect_. If so, what is that effect, on average?
+1. Assess whether the treatment _has an effect_. If so, what is that effect, on average? We'll give you the general structure of a solution, but you'll have to fill in the specifics. 
 
 ```{r}
-means <- d[, mean(Y), by = Z]
-ATE <- means[1,2] - means[2,2]
+ATE <- d[ , .('group_mean' = ), keyby = .()] %>% 
+  .[ , .('ate' = diff())]
+ATE
 ```
+(Note that you could also accomplish the same thing without the "pipe" using chaining of operations in data.table 
+
+```{r}
+d[ , .('group_mean' = ), keyby = .()][ , .('ate' = 'diff())])`
+``` 
 
 2. Assess, using randomization inference, whether this effect is a _surprising_ effect, or instead if this effect could just have arisen from randomization error. 
 
 In doing so, **do not** simply copy code from the async, or from another notebook; actually think about the algorithm that you want to performn, and write it from scratch. 
+
+What are the steps to any Randomization Inference Task? 
+
+1. Calculate the parameter that you're interested in knowing under the randomization that actually occurred and that we observed. In this case, it is the ATE. 
+2. Assume that the sharp null is true -- this permits us to solve the "missing data problem" that *Field Experiments* highlights. Actually fill in this data. 
+3. Do the following sub-routine many times: 
+  1. "Re-randomize" under the assumption of the sharp null
+  2. Calculate the parameter you want, under these re-randomizations. 
+
+You can do it! There are ways that involve loops that are pretty easy to think about. There is also a way that you can do this with a pretty concise one-liner in `data.table` work at whatever level you think is useful for you. 
+
+(**Note**: You're going to generate a surprising distribution, this doesn't mean that your algorithm isn't working. Why might it look this way? We'll talk about this in live session.)
+
+```{r}
+
+```
 
 # Questions for understanding 
 
 1. Characterize the distribution of the sharp-null distribution of treatment effects. Talk about what, if anything, is notable about it, and what components of the data might be leading to any patterns that you note.
 
 ```{r}
-## simulate randomizations here, plot historgram
-## fix this
-nsims <- 10000
-sim.means <- as.numeric(NULL)
-for(i in 1:nsims){
-  d[, sim.treat := sample(c(rep(0,10), rep(1,10)))]
-  sim.means[i] <- d[sim.treat == 1, mean(Y)] - d[sim.treat == 0, mean(Y)]
-}
-hist(sim.means)
+
 ```
-
-
 
 2. How many of the randomization inference loops are larger than the treatment effect that you calculated? How would you use this statement to construct a one-sided test, and an associated p-value? 
 
 3. How many of the randomization inference loops are _more extreme_ (:metal:) than the treatment effect that you calculated? How would you use this statement to construct a two-sided test, and an associated p-value? 
 
 4. Compare the two-sided p-value against the p-value that you generate from a two-tailed t-test. If these p-values are the same, would this be a positive or a negative characteristic of randomization inference? If these p-values are different, why would they be different? Don't go looking all over hill-and-dale for the call for a t-test, it is at `t.test`. 
+
 5. Which of the two of these inferrential methods do you prefer, randomization inference or a t-test, and why? Ease of use is not an acceptable answer. 
