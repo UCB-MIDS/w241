@@ -1,0 +1,57 @@
+---
+title: "Week 03 Live Session"
+output: html_notebook
+---
+
+# Donor Treatment effect? 
+
+Let's look at the box that's reported in _Field Experiments_ box 3.7. This is a short table of "donations" to a political campaign, where some people have received one treatment message about donation, while other have received another message. 
+
+```{r}
+library(dplyr)
+library(data.table)
+d <- fread('http://hdl.handle.net/10079/ghx3frr')
+head(d)
+```
+Here are the column definitions: 
+
+- `Y`: The amount of donations that were made by an individual 
+- `Z`: Whether that individual was in the new contact language treatment, or the old contact language treatment. 
+
+# Conduct the following work
+
+1. Assess whether the treatment _has an effect_. If so, what is that effect, on average?
+
+```{r}
+means <- d[, mean(Y), by = Z]
+ATE <- means[1,2] - means[2,2]
+```
+
+2. Assess, using randomization inference, whether this effect is a _surprising_ effect, or instead if this effect could just have arisen from randomization error. 
+
+In doing so, **do not** simply copy code from the async, or from another notebook; actually think about the algorithm that you want to performn, and write it from scratch. 
+
+# Questions for understanding 
+
+1. Characterize the distribution of the sharp-null distribution of treatment effects. Talk about what, if anything, is notable about it, and what components of the data might be leading to any patterns that you note.
+
+```{r}
+## simulate randomizations here, plot historgram
+## fix this
+nsims <- 10000
+sim.means <- as.numeric(NULL)
+for(i in 1:nsims){
+  d[, sim.treat := sample(c(rep(0,10), rep(1,10)))]
+  sim.means[i] <- d[sim.treat == 1, mean(Y)] - d[sim.treat == 0, mean(Y)]
+}
+hist(sim.means)
+```
+
+
+
+2. How many of the randomization inference loops are larger than the treatment effect that you calculated? How would you use this statement to construct a one-sided test, and an associated p-value? 
+
+3. How many of the randomization inference loops are _more extreme_ (:metal:) than the treatment effect that you calculated? How would you use this statement to construct a two-sided test, and an associated p-value? 
+
+4. Compare the two-sided p-value against the p-value that you generate from a two-tailed t-test. If these p-values are the same, would this be a positive or a negative characteristic of randomization inference? If these p-values are different, why would they be different? Don't go looking all over hill-and-dale for the call for a t-test, it is at `t.test`. 
+5. Which of the two of these inferrential methods do you prefer, randomization inference or a t-test, and why? Ease of use is not an acceptable answer. 

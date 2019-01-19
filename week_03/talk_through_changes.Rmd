@@ -1,0 +1,76 @@
+---
+title: "Talk through Changes in Power"
+output: html_notebook
+---
+
+#How does power behave?
+
+In this section we're going to talk about power, which is the probability that the test we set up will *correctly* reject the null hypothesis.  Said another way, what is the probability that our p-value is small, given our p-value *should* be small? Or, said even another way, how much **power** does our test have to detect a *true* effect. 
+
+Let's examine how power behaves in a very simple OLS regression. To do so, let's write two more short functions. 
+
+```{r}
+# First: Simulate the p-values in a regression
+simulate_study_lm <- function(baseline, effect_size, sample_size) {
+  control_units <- rbinom(sample_size, 1, baseline)
+  treatment_units <- rbinom(sample_size, 1, baseline + effect_size)
+  all_units <- c(control_units, treatment_units)
+  treatment_vector <- c(rep(0, sample_size), rep(1, sample_size))
+  p_value <- summary(lm(all_units ~ treatment_vector))$coefficients[2, 4]
+  effect_detected <- p_value < 0.05
+  return(effect_detected)
+}
+# Second: 
+get_power <- function(baseline, effect_size, sample_size) {
+  return(mean(replicate(2000, 
+                        simulate_study_lm(baseline,
+                                          effect_size, 
+                                          sample_size))) )
+}
+```
+
+Functions set, let's roll! 
+
+First: What is the effect on our power if we incrase the effect size of the treatment that we are administering? In an experiment, we might be able to accomplish this incrased effect size by increasing the *dosage* or the intensity of the treatment that we're administering.  However, we should note two things: 
+
+1. The actual treatment effect $(\tau_{i})$ is an effect that is a parameter of the *real* world, something that is onobserved
+2. We can't actually manipulate $\tau_{i}$ per unit application -- but rather, we can increase the units applied. 
+
+```{r}
+#Increasing effect size
+get_power(baseline = .1, effect_size = .05, sample_size = 100)
+get_power(baseline = .1, effect_size = .10, sample_size = 100)
+get_power(baseline = .1, effect_size = .15, sample_size = 100)
+get_power(baseline = .1, effect_size = .2, 100)
+get_power(baseline = .1, effect_size = .25, 100)
+``` 
+
+Second: let's work with the other lever that we actually *can* pull, mainipulating the study size. Even if we can't move $\tau$, we can enroll 1x, 5x, or 50x the number of people in our study. 
+
+```{r}
+# Increasing sample size
+get_power(baseline = .1, effect_size = .05, sample_size = 100)
+get_power(baseline = .1, effect_size = .05, sample_size = 200)
+get_power(baseline = .1, effect_size = .05, sample_size = 300)
+get_power(baseline = .1, effect_size = .05, sample_size = 400)
+get_power(baseline = .1, effect_size = .05, sample_size = 500)
+get_power(baseline = .1, effect_size = .05, sample_size = 1000)
+get_power(baseline = .1, effect_size = .05, sample_size = 5000)
+```
+
+That is a little bit less rosy, isn't it... 
+
+... this leads us to the notion of the concentrated test as described in lecture. If we can only afford 1e6 soybeans, how should we allocate them among the population? How many subjects should we enroll in our trial, and how many soybeans should we provide to each subject? 
+
+# Questions to Work through
+
+1. What happens if you have a really high baseline outcome rate? Suppose that in the baseline group, 95\% of the units "convert". How many people will your study require to have a power of 0.80 to detect an `effect_size = 0.02`. 
+2. What happens if you have a lower baseline outcome rate? Suppose instead that in a seperate case, 50\% of the units "converet". Before running the simulation, which of the two studies do you think will require more subjects to be powered at 0.80? Why? 
+3. Run that simulation -- what's the answer? 
+4. What happens if rather than a 95\% conversion rate, there is instead a 5\% conversion rate. Should you require the same experiment sizes in both cases? Why or why not? What is actually the case when you run the simulations. 
+
+```{r}
+
+```
+
+
