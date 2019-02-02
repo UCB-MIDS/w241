@@ -1,0 +1,139 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Let's work quickly to conduct a covariate balance check to see if a randomization has worked. To do so, we're going to fabricate data and then run tests to whether the tests confirm what we did in the manufactured data. 
+
+```{r}
+library(data.table)
+set.seed(1) 
+
+rows <- 101 
+
+d <- data.table(id = 1:rows) 
+d[ , ':='(treat = sample(c(0,1), .N, replace = TRUE), 
+          x1 = rnorm(.N), 
+          x2 = rbinom(.N, 2, .25),
+          x3 = sample(c("green", "blue", "red"), .N, replace = TRUE), 
+          block = factor(sample(c("A", "B", "C"), .N , replace = TRUE)))
+  ]
+```
+
+Note in the lines above that I've been using the `.N` special. This is particular to `data.table` and permits us a variable that is the *number of rows* that meet the current query scope. This is nice, because you can write your work without having to worry that the size of your data is somehow hardcoded to the size that you have in the present moment. Slick! 
+
+# A first test 
+
+Consider what we've got above: In the `treat` variable we've got random assignments to treatment and control, and in the `x1` variable we've got random draws from a normal distribution. Should there be any difference in the mean values of `x1` conditional on being in the treatment or control? 
+
+Of course not! But, is there? 
+
+```{r}
+d[ , t.test(x1 ~ treat)]
+```
+
+If I were to read the last call aloud, it would read as: 
+
+> From the data.table `d`, select all the rows and conduct a t.test for the difference in means in `x1`, split on the `treat` indicator. 
+
+Of course, I could perform the same test for `x2` right? 
+
+```{r}
+d[ , t.test('fill this')]
+```
+
+What would be the appropriate test for the difference in categorical variables, split on the treatment indicator? Look it up, and fill into the next cell. 
+
+```{r}
+
+```
+
+# A better test 
+
+As Green and Gerber highlight, if we make three such tests in a row we're going to be subject to the possibility of falsely rejecting the null hypothesis at rates higher than our critical value $\alpha$ should lead us to. This is a problem of *fishing*, or losing control of our Family Wide Error or False Discovery rate. 
+
+How might we control for this? Green and Gerber suggest a clever test! Since the treatment indicator is random, why not try to fit a model that explains a random feature, and compare to just a null model that has no predictive features? 
+
+How would this look? 
+
+## First, fit the simplest model
+```{r}
+null_mod <- d[ , lm(treat ~ 1)]
+```
+
+This is a model that has *only* an intercept, which is indicated in the `1` in the formula call. Note aso that just as we are able to perform relatively simple functions on the column space using `data.table` (e.g. `d[ , mean(x)]`) we can also peform relatively more complex functions -- like a `t.test` or a `lm`. Neato. 
+
+## Now, the more complex model 
+
+```{r}
+full_mod <- d[ , lm(treat ~ 1 + x2 + x2 + x3)]
+summary(full_mod)
+```
+
+Once we've got both models fit, we can use an **F-test** to evaluate whether the additional model terms were useful in predicting whether someone was in the treatment or the control group. *If these additional model features increase our ability to predict whether someone is in one group or another, it would be evidence of non-randomness!*. 
+
+```{r}
+anova_mod <- anova(full_mod, null_mod, test = 'F')
+anova_mod
+```
+
+Here, we have no evidence to suggest that the additional model terms incrased the accuracy of the model's predictions. Indeed the p-value is nearly 0.5, scant evidence in support of the alternative hypothesis. 
+
+# If you like a challenge 
+
+This is optional, and so less well developed. 
+
+What if you were to block randomize? Suppose that for the "A" block, you don't much care if they get treatment or control; but for the "B" block you'd really like them to get treatment, and for the "C" block you'd really like them to get control. 
+
+Then, you might assign with a slightly more complex scheme. 
+
+```{r}
+rm(d)
+rows <- 2001                            # set rows
+d <- data.table(id = 1:rows)            # create data.table 
+d[ ,':='(block = sample(c("A", "B", "C"),
+             rows, replace = TRUE)) ]   # make some random block assignments 
+
+blocks <- c("A", "B", "C")              # create a 'blocks' vector to check
+                                        # against for the loop that is coming
+
+probs <- list(c(0.5, 0.5),              # create a list of treatment assignment 
+              c(0.1, 0.9),              # probabilites. we're going to step 
+              c(0.9, 0.1) )             # through these one at a time. 
+
+for(b in 1:3) {                         # start a loop from 1:3
+    d[block == blocks[b],               # for each iteration, match against
+      ':='(treat = sample(c(0,1), .N,   # the objects 'blocks' in position i
+               replace = TRUE,          # take .N samples with probability 
+               prob = probs[[b]]),      # drawn from the probs list at indx i
+           x1 = rnorm(.N, mean = b),
+           x2 = rbinom(.N, 2*b, .25),
+           x3 = sample(x = c("green", "blue"), size = .N, replace = T,
+               prob = probs[[b]]) )     # notice that we ARE random assigning
+      ]                                 # just with different probabilities 
+}                                       # and it is working, so a randomization
+                                        # check should /not/ generate a positive
+                                        # finding
+```
+
+Notice as well that in the data creation, there is going to be some covariance between the levels in unit's block and their `x*` values. 
+
+Under this randomization, there will -- of course -- be some relationship between the x values and the treatment indicators. Just look: 
+
+```{r}
+d[ , t.test(x1 ~ treat)]
+```
+What is causing this? Can you point to it closely? To do so, write three tests for differences in `x1` by treatment, but for each of them, conduct it within a block. 
+
+Here's a hint: You don't want to select all the rows; instead, you want to select the rows, block-by-block. 
+
+```{r}
+
+```
+
+How might you similarily conduct your `anova` test within blocks? 
+
+```{r}
+
+```
+
