@@ -8,10 +8,6 @@ The Tennessee STAR experiment is a shining example of a well run, well executed 
 
 # Download the data 
 
-```{r} 
-# browseURL("https://drive.google.com/open?id=0BxwM1dZBYvxBc0ZMbkNXYno1OE0")
-``` 
-
 # Load Packages and Set Options and Load Data 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 library(data.table)                     # for data manipulation 
@@ -26,7 +22,6 @@ options(digits=3)                       # limit the printed digits
 rm(list = ls())
 
 # set the path for your machine 
-##path = "/Users/douglashughes/Google Drive/1 - Current Work/David Reiley-Broockman Experiments Class/Data/PROJECT STAR/"
 path = "./"
 file = "STAR_Students.sav"
 # set a copy aside that won't be manipulated 
@@ -284,7 +279,6 @@ stargazer(m1, m2, m3, type = "latex",
           apply.coef = function(x) 100*x,
           dep.var.labels = "Percentile",
           notes = "All coef and se scaled by 100x",
-          header = FALSE, 
           column.sep.width = "2pt", 
           title = "OLS Regression. Small Class Causal Effect.",
           header = FALSE
