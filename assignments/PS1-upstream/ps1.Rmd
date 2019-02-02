@@ -34,76 +34,57 @@ $E[Y_{i}(1)|D_{i}=1]$.  Use exercise 2.7 from FE to give a concrete example of t
 # 2. Potential Outcomes Practice
 Use the values in the following table to illustrate that $E[Y_{i}(1)] - E[Y_{i}(0)] = E[Y_{i}(1) - Y_{i}(0)]$.
 
-+---------------+------------+------------+----------+
 |               | $Y_{i}(0)$ | $Y_{i}(1)$ | $\tau_i$ |
-+===============+============+============+==========+
-|Individual 1   |   5        |  6         |  1       |                          
-|               |            |            |          |                        
-+---------------+------------+------------+----------+
-|Individual 2   |   3        |  8         |  5       |                          
-|               |            |            |          |                          
-+---------------+------------+------------+----------+
-|Individual 3   |   10       |  12        |  2       |                          
-|               |            |            |          |                          
-+---------------+------------+------------+----------+
-|Individual 4   |   5        |  5         |  0       |                          
-|               |            |            |          |                      
-+---------------+------------+------------+----------+
-|Individual 5   |  10        |  8         |  -2      |                          
-|               |            |            |          |                      
-+---------------+------------+------------+----------+
+|---------------|------------|------------|----------|
+|Individual 1   |   5        |  6         |  1       |
+|               |            |            |          |                  
+|Individual 2   |   3        |  8         |  5       |                    
+|               |            |            |          |                    
+|Individual 3   |   10       |  12        |  2       |                    
+|               |            |            |          |
+|Individual 4   |   5        |  5         |  0       |                    
+|               |            |            |          |                
+|Individual 5   |  10        |  8         |  -2      |                    
 
 # 3. Conditional Expectations
 
 Consider the following table:
 
-+---------------+------------+------------+----------+
+
 |               | $Y_{i}(0)$ | $Y_{i}(1)$ | $\tau_i$ |
-+===============+============+============+==========+
+|---------------|------------|------------|----------|
 |Individual 1   |   10       |  15        |  5       |                          
 |               |            |            |          |                        
-+---------------+------------+------------+----------+
 |Individual 2   |   15       |  15        |  0       |                          
 |               |            |            |          |                          
-+---------------+------------+------------+----------+
 |Individual 3   |   20       |  30        |  10      |                          
 |               |            |            |          |                          
-+---------------+------------+------------+----------+
 |Individual 4   |   20       |  15        |  -5      |                          
 |               |            |            |          |                      
-+---------------+------------+------------+----------+
 |Individual 5   |  10        |  20        |  10      |                          
 |               |            |            |          |                      
-+---------------+------------+------------+----------+
 |Individual 6   |  15        |  15        |  0       |                           
 |               |            |            |          |                      
-+---------------+------------+------------+----------+
 |Individual 7   |  15        |  30        |  15      |                          
 |               |            |            |          |                      
-+---------------+------------+------------+----------+
+|---------------|------------|------------|----------|
 |Average        |  15        |  20        |  5       |                          
-|               |            |            |          |                      
-+---------------+------------+------------+----------+
 
 Use the values depicted in the table above to complete the table below. 
 
 \newpage
 
-+---------------+----+----+----+--------------------------+
 | $Y_{i}(0)$    | 15 | 20 | 30 | Marginal $Y_{i}(0)$      |
-+===============+====+====+====+==========================+
+|---------------|----|----|----|--------------------------|
 |10             | n: | n: |n:  |                          |
 |               | %: | %: | %: |                          |
-+---------------+----+----+----+--------------------------+
 |15             | n: | n: | n: |                          |
 |               | %: | %: | %: |                          |
-+---------------+----+----+----+--------------------------+
 |20             | n: | n: | n: |                          |
 |               | %: | %: | %: |                          |
-+---------------+----+----+----+--------------------------+
+|----------------------------------------------------------
 |Marginal       |    |    |    |                          |
 | $Y_{i}(1)$    |    |    |    | 1.0                      |
-+---------------+----+----+----+--------------------------+
 
 a. Fill in the number of observations in each of the nine cells; 
 b. Indicate the percentage of all subjects that fall into each of the nine cells. 
@@ -163,6 +144,8 @@ i. Compare your answer in (h) to the true ATE.  Intuitively, what causes the dif
 
 
 <!--
+You can skip answering this question for a mark, however, we think it is interesting to think about. 
+
 # 5. FE, exercise 2.5
 
 *Note that the book typically defines D to be 0 for control and 1 for treatment. However, it doesn't have to be 0/1. In particular, one can have more than two treatments, or a continuous treatment variable. Here, the authors want to define D to be the number of minutes the subject is asked to donate. (This is because “D” stands for “dosage.”)*
@@ -171,29 +154,6 @@ i. Compare your answer in (h) to the true ATE.  Intuitively, what causes the dif
 # 5. Randomization and Experiments
 
 Suppose that a reasearcher wants to investigate whether after-school math programs improve grades. The researcher randomly samples a group of students from an elementary school and then compare the grades between the group of students who are enrolled in an after-school math program to those who do not attend any such program. Is this an experiment or an observational study? Why? 
-
-<!--
-#7: Skip in 2017
-# 7. FE, exercise 2.8
-Peisakhin and Pinto report the results of an experiment in India designed to test the effectiveness of a policy called RTIA, which allows citizens to inquire about the status of a pending request from government officials. In their study, the researchers hired confederates, slum dwellers who sought to obtain ration cards (which permit the purchase of food at low cost). Applicants for such cards must fill out a form and have their residence and income verified. The table of results and conditions is below, and there is more in $FE$. 
-
-+--------------------------+-------+------+-----+---------+
-|                          | Bribe | RTIA | NGO | Control |
-+==========================+=======+======+=====+=========+
-| Number Confederates (C)  |    24 |   23 |  18 |      21 |
-+--------------------------+-------+------+-----+---------+
-| C w/ residence verif     |    24 |   23 |  18 |      20 |
-+--------------------------+-------+------+-----+---------+
-| M days to verif          |    17 |   37 |  37 |      37 |
-+--------------------------+-------+------+-----+---------+
-| C w/ ration card 365+    |    24 |   20 |   3 |       5 |
-+--------------------------+-------+------+-----+---------+
-
-a. Interpret the apparent effect of the treatments on the proportion of applicants who have their residence verified and the speed with which verification occurred. 
-b. Interpret the apparent effect of the treatments on the proportion of applicants who actually received a ration card. 
-c. What do these results seem to suggest about the effectiveness of the RTIA as a way of helping slum dwellers obtain ration cards? 
--->
-
 
 # 6. Lotteries
 
