@@ -25,8 +25,6 @@
 * Description 
 This course introduces students to experimentation in data science. Particular attention is paid to the formation of causal questions, and the design and analysis of experiments to provide answers to these questions.  This topic has increased considerably in importance since 1995, as researchers have learned to think creatively about how to generate data in more scientific ways, and developments in information technology has facilitated the development of better data gathering. 
 
-# The full syllabus is located [[https://docs.google.com/document/d/1Ui1Wc-5ya2qCHjM27fR8wKVhO6SWXpk9fLearagwMXc/edit?usp=sharing][here]].
-
 This course *begins* with a discussion of the issues with causal inference based on observational data. We recognize that many of the decisions that we care about, whether they be business related or theoretically motivated, are /essentially/ causal in nature. 
 
 The *center* of the course builds out an understanding of the mechanics of estimating a causal quantity. We present two major inferential paradigms, one new and one you are likely familiar with. We first present _randomization inference_ as a unifying, intuitive inferential paradigm. We then demonstrate how this paradigm sits in complement to the classical frequentist inferential paradigm. These concepts in hand, we turn focus to the design of experiments and place particular focus both answering the question that we set out to answer, and achieving maximally powered experiments through design. 
