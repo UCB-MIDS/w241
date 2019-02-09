@@ -48,7 +48,7 @@ sample_1 <- mean(population[1:10])
 sample_2 <- mean(population[1:100])
 sample_3 <- mean(population[1:999])
 
-kable::kable()
+knitr::kable()
 ```
 
 Woud you say that the first estimator we were using -- the sum of the sample -- was a consistent estimator? Why or why not? 
