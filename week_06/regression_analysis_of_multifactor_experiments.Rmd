@@ -1,0 +1,172 @@
+---
+title: "Hospitals and Drugs"
+output: html_notebook
+---
+
+This activity straddles the yoga/hike manifold -- we figure that the whole activity could take as long as 30 minutes to complete.
+
+# Multi-factor Experiments 
+
+Multifactor experiments are our jumping off point to build more complexity into the treatment landscape than the relatively simple `treat-control` framework that we've worked with until this point. 
+
+In a multifactor experiment, we manipulate two (or more) features within the context of a single experiment. 
+
+> But wait! At other points (i.e. the excludability requirment) we've **explicitly** avoided more than one feature at a time. 
+
+That's entirely correct. Why did we stipulate this requirement? When we meet the "exclusion restriction" we can reason that any differences between the two groups is different **only** as a consequence of the feature that we manipulated. In essence, because we require that only the treatment feature was different between the treatment and control groups, any difference between the groups must be due to that single difference. 
+
+For example, if we were providing IV drugs to the treatment group who came to a hospital, while the control group received no drugs *and* also did not have to come to the hospital, any difference between the two could be a complex combination of the drugs-hospital combination.
+
+What if we wanted to know the answer to *both* of these questions though? 
+
+1. Do IV drugs improve outcomes? 
+2. Do hospitals improve outcomes? 
+
+As well as a third, very interesting question: 
+
+3. Do IV drugs in hospitals improve outcomes? 
+
+Clearly, we cannot answer all of these questions in the context of a two-group experiment. But, if we're careful, we can answer them using an experiment that has more groups. 
+
+## Questions for Understanding
+
+1. If you wanted to answer the first two questions -- *Do (1) IV drugs, and (2) hospitals improve outcomes?* -- how many groups would you need? What would each group receive? 
+
+<!-- 
+I figure that we would need three groups: 
+1. A control group that receives neither drugs, nor hospital
+2. A drugs group that receives only drugs, but not hospital
+3. A hospital group that receives only hospital, but no drugs. 
+--> 
+
+2. If you wanted to answer the additional question -- *Do IV drugs in hospitals improve outcomes?* -- couldn't you simply assign some people to receive IV drugs in a hospital?
+
+<!-- 
+Sure thing! Why not? 
+--> 
+
+It isn't that assigning people to a condition is *per se* difficult. Rather, if we have only two conditions, we thought that comparing a group that gets both drugs and the hospital, wouldn't give us a clear statement about the effect of either drugs or hospitals. That continues to be true, but: 
+
+# How does creating the two single-variable conditions rescue the two-variable condition? 
+
+If we create groups that contain the lower-level, single-variable (e.g. drug) difference from a control group, we can estimate the incremental change between the control and drug group, and then the additional marginal change between the drug and the drug & hospital group. This section set of *contrasts* tells us about the additional causal effect of drugs in a particular context. 
+
+# Some Data 
+
+```{r make-data} 
+library(data.table)
+
+# create the science table 
+d <- data.table(id = 1:1000) 
+d[ , ':='(
+  y0 = rnorm(.N),
+  tau_drugs = rnorm(.N, 2),
+  tau_hospital = rnorm(.N, 1)
+)]
+
+# run the experiment: assign
+d[ , treat_condition := sample(c('placebo-home', 'drugs-home', 'placebo-hospital', 'drugs-hospital'), 
+                               size = .N, replace = TRUE)]
+
+# run the experiment: measure 
+d[treat_condition == 'placebo-home',     Y := y0]
+d[treat_condition == 'drugs-home',       Y := y0 + tau_drugs]
+d[treat_condition == 'placebo-hospital', Y := y0 + tau_hospital]
+d[treat_condition == 'drugs-hospital',   Y := y0 + tau_drugs + tau_hospital]
+```
+
+You will be unsurprised, then, to learn that the treatment effects are quite sensible: 
+
+```{r first group-by}
+d[ , .(group_mean = mean(Y)), keyby = .(treat_condition)]
+```
+
+1. What is the magnitude of the causal effect for `no_drugs-home`, compared to `no_drugs-hospital`? 
+2. What is is magnitude of the causal effect for `no_drugs-home`, compared to `drugs-hospital`? 
+
+Are either of, or both, of these effects *causal*? 
+
+# A general method of estimating 
+
+In *Field Experiemnts*, equation 9.16 Green and Gerber provide us with a form of a **Difference-in-Differences** estimator. This estimator is of the same form as what Ayres et al. use in the *O-Power* reading that we covered last week. 
+
+The model takes the form: 
+
+\[
+Y_{i} = \beta_{0} + \beta_{1} * Drugs + \beta_{2} * Hospital + \beta_{3} [Drugs * Hospital] + \epsilon_{i}
+\]
+
+
+What does this model estimate? 
+
+1. If a unit is in the control group, it receives neither drugs nor hospital treatment so the indicators on $\beta_{1} \& \beta_{2}$ are not indicated. Neither is the indicator on $\beta_{3}$. And so, what are we left with? *The estimate of the average $Y$ in the control group. 
+
+2. If a unit receives *only* one of the treatments (suppose the drugs), then the indicator for that treatment $beta_{1}$ "switches on". Does the indicator for the third coefficient "switch on"? **No.** Because the unit did not receive the other treatment, the product of the $[Drugs * Hospital]$ is $[1 * 0] \rightarrow 0$, and so we do not include in the statement of $Y$, the marginal contribution of $\beta_{3}. 
+
+3. *Only* if a unit is in both treatments do we observe the marginal contrition of $\beta_{3}$. When we observe this $\beta_{3}$ contribution, we will necessarily also observe the contributions of the "main effects", the constituent parts from Drugs and Hospital separately. 
+
+# How can we estimate this? 
+
+We could estimate a model that looks exactly the same as the group average we estimated above. 
+
+```{r four-level model}
+mod_1 <- d[ , lm(Y ~ treat_condition)]
+summary(mod_1)
+```
+
+Well, this looks pretty close to what we estimate above, but it isn't quite the same. Compare, for example, the estimate that we have produced on the `drugs-hospital` coefficient. In this model, we've produced an estimate that is 1. Earlier, we produced an estimate that was 3. What is different in these estimates? 
+
+If you were *really* committed to producing the exact same estimate, you could, by suppressing the intercept in your model. 
+
+```{r four-level model, without intercept}
+mod_2 <- d[ , lm(Y ~ -1 + treat_condition)] # the -1 supresses the intercept
+summary(mod_2)
+```
+
+Think for a moment about what is being tested in these two models. 
+
+- In `mod_2` what is the null hypothesis for each of these coefficients? Why, then, are you not surprised that the `no_drugs-home` condition fails to reject this null hypothesis? 
+- In `mod_1` what is the null hypothesis fore each of the coefficients? Does the fact that we're testing difference *concepts* make you more comfortable that though we have different estimates and different inferential statements, that both models stand on solid ground? 
+- **Do either of these models seem to be estimating the model that we wrote down above?** Why not? 
+
+# Finally, Get to the D-in-D estimate 
+
+To finally produce the difference in difference, or D-in-D estimate, we need to parse out the treatment feature into its two treatment pieces: the hospital assignment and the drug assignment. 
+
+```{r create individual treatment indicators}
+d[ , hospital := grepl('hospital', treat_condition)]
+d[ , drugs    := grepl('drugs'   , treat_condition)]
+```
+
+Did this seem to work? 
+
+```{r group-by individual indicators}
+d[ , .(mean_hospital = mean(hospital), 
+       mean_drugs    = mean(drugs)), 
+   keyby = .(treat_condition)]
+```
+
+Finally, estimate the model: 
+
+```{r estimate d-in-d model}
+mod_3 <- d[ , lm(Y ~ 1 + hospital + drugs + hospital * drugs)]
+summary(mod_3)
+```
+
+Can you interpret each of these coefficients? 
+
+- The average in the control group is 0. 
+- The group that is assigned to be in the hospital does about 1 unit better, with a very, very small p-value. 
+- The group that is assigned to be in the drugs only group ... 
+- The group that is assigned to be in the drugs and hospital group ... 
+
+# Do it again! 
+**Hey!** What gives? 
+
+Weren't you expecting there to be a measurable effect on that last coefficient? I was when I wrote the notebook. Why isn't there? (As a hint, check the [Some Data] chunk, in particular, where we make the `drugs-hospital` potential outcomes to treatment.) 
+
+- Is there any unique effect of receiving drugs when you're in the hospital, or is the effect of receiving drugs when you're in the hospital just the composite effect of the drugs and the hospital? 
+- What if, in order for the drugs to work properly, you had to take them at very precise times --  just exactly the sort of precise times that nurses are very good at ensuring are met. This might mean than drugs taken at the hospital seem to be unique effective, right? 
+- Suppose that the magnitude of this unique effectiveness is +2 units in the outcome if you take drugs at the hospital. 
+  - Where would you represent this +2 in the `make data` chunk? Make the change! 
+  - Then, re-run all of the code, interpreting the model coefficients as you're coming across them. This time, when you get to `mod_3`, the estimate that you produce on $\beta_{3}$ shouldn't be zero. What is it? And, why does this fit with what we now understand to be happening in the data? 
