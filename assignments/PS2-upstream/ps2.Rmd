@@ -74,7 +74,24 @@ f. What is the implied two-tailed p-value?
 
 ```
 
-# 2. Term Limits Aren't Good. 
+# 2. Randomization Inference Practice
+McElhoe and Conner (1986) suggest using a *new* instrument called a "Visiplume" measure pollution. The EPA has a standard method for measuring pollution. Because they're good scientists, McElhoe and Conner want to validate that their instrument is measuring the same levels of pollution as the EPA instrument. 
+
+To do so, they take six readings -- one with each instrument -- at a single site. The recorded response is the ratio of the Visiplume reading to the EPA standard reading, and the values that are recorded are: 0.950, 0.978, 0.762, 0.733, 0.823, and 1.011.
+
+Suppose that we want to test the question, "Do the Visiplume readings and the EPA standard readings produce similar enough estimates?"
+
+a. How would you structure the sharp-null hypothesis -- that Visiplume and the EPA reaings are the same -- in this case? 
+
+b. Suppose that our summary of the data is the sum of the ratios. That is, in the test that we conducted, we obsered $0.95 + ... + 1.011 = 5.257$. Using randomization inference, test the sharp-null hypothesis that you formed in the first part of the question. Produce a histogram of the test statistic under the sharp null that compares against the 5.257 value from the test, and also produce a two-sided p-value. 
+
+```{r}
+
+```
+
+
+
+# 3. Term Limits Aren't Good. 
 
 Naturally occurring experiments sometimes involve what is, in effect, block random assignment. For example, [Rocio Titiunik](https://sites.google.com/a/umich.edu/titiunik/publications) , in [this paper](http://www-personal.umich.edu/~titiunik/papers/Titiunik2016-PSRM.pdf) studies the effect of lotteries that determine whether state senators in TX and AR serve two-year or four-year terms in the aftermath of decennial redistricting. These lotteries are conducted within each state, and so there are effectively two distinct experiments on the effects of term length.
 
@@ -193,7 +210,9 @@ head(d2)
 
 In this experiment, the experimenters invited consumers at a sports card trading show to bid against one other bidder for a pair trading cards.  We abstract from the multi-unit-auction details here, and simply state that the treatment auction format was theoretically predicted to produce lower bids than the control auction format.  We provide you a relevant subset of data from the experiment.
 
-a. Compute a 95% confidence interval for the difference between the treatment mean and the control mean, using analytic formulas for a two-sample t-test from your earlier statistics course. 
+In this question, we are asking you to produce p-values and confidence intervals in three different ways: (1) Using a `t.test`, using a regression, and using randomization inference. 
+
+a. Using a `t.test`, compute a 95% confidence interval for the difference between the treatment mean and the control mean.
 
 ```{r}
 
@@ -207,10 +226,10 @@ c. Regression on a binary treatment variable turns out to give one the same answ
 
 ```
 
-d. Calculate the 95% confidence interval you get from the regression.
+d. Calculate the 95% confidence interval you get from the regression. There is a built in, 
 
 ```{r}
-
+??confidence
 ```
 
 e. On to p-values. What p-value does the regression report? Note: please use two-tailed tests for the entire problem.
@@ -225,7 +244,7 @@ f. Now compute the same p-value using randomization inference.
 
 ```
 
-g. Compute the same p-value again using analytic formulas for a two-sample t-test from your earlier statistics course. (Also see part (a).)
+g. Pull the same p-value from the `t.test`. 
 
 ```{r}
 
