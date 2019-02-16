@@ -2,7 +2,7 @@
 title: "Bad Control"
 author: "Alex"
 date: \today
-output: html_notebook
+output: pdf_document
 ---
 ```{r, echo = FALSE, results='hide', message=FALSE}
 library(data.table) # 1.9.6
@@ -28,8 +28,6 @@ d <- data.table(
   D   = sample(0:1, 1000, replace = TRUE),
   tau = rnorm(n = 1000, mean = 2, sd = 1)
 )
-
-d
 ``` 
 
 Now, lets make the *slightly* more complicated quantities, `x`, the bad control, and the potential outcomes. We're going to take some care to create the x-variable. As we show in the figure below, the x-variable is **caused** by both the treatment and other things in the system. 
@@ -37,7 +35,7 @@ Now, lets make the *slightly* more complicated quantities, `x`, the bad control,
 For example, consider the case of the white collar and blue collar jobs. If you're born the heir of a real-estate empire in NY (in this case represented by $\epsilon$), you might be likely, no matter your college attendance or draft status, to end up in a white collar job (in this case represented in $X$). But, it may also be the case in the data that having been assigned to attend college (in this case represented in $D$) increases the probability that you get a white collar job. 
 
 ```{r}
-knitr::include_graphics("./coding_bad_controls_diagram.pdf")
+knitr::include_graphics("./week06_bad_controls_diagram.pdf")
 ```
 
 Suppose that we measure four variables, $D, x, Y, \epsilon$ that all have a positive relationship between one another, shown in the figures above.  The one exception, and this is important to make this example easy-ish to understand, is that $x$ actually has *no* relationship on Y.
@@ -75,7 +73,7 @@ mod_both <- d[ , lm(x ~ D + epsilon)]
 ## I've commented this out so that you can uncomment it after you've answered the
 ## questions for understanding.
 ## 
-stargazer(mod_d, mod_x, mod_both, type = 'text')
+## stargazer(mod_d, mod_x, mod_both, type = 'text')
 ```
 
 ## Make Potential Outcomes 
@@ -123,9 +121,255 @@ subset_model <- d[x==1, lm(Y ~ D)]
 
 ```{r, results='asis'}
 stargazer(unconditional_model, bad_control_model, subset_model, 
-          type = 'text', header = FALSE, table.placement = 'h', 
+          type = 'latex', header = FALSE, table.placement = 'h', 
           add.lines = list(c("Data Subset", "All", "All", "$x==1$")))
 ```
 
 
 
+<!--
+
+```{r}
+nRows <- 1000
+set.seed(2)
+
+d <- data.table(id = 1:nRows)
+setkeyv(d, cols = "id")
+```
+
+Create Potential Outcomes to control
+```{r}
+d[ , y0  := runif(min=-10, max=10, n = .N)]
+``` 
+
+Create a Treatment Effect with a mean **4**. This is the value that we're looking to recover with our estimator. 
+```{r} 
+d[ , tau := rnorm(n = .N, mean = 4)]
+```
+
+Randomly Assign Treatment 
+```{r}
+d[ , D   := sample(0:1, size = .N, replace = TRUE)]
+```
+
+Create a bad control that is correlated with treatment
+```{r} 
+d[ , bc  := 2 + 3 * D + rnorm(n = .N, mean = 0)]
+```
+
+And, finally, reate the observed outcomes. 
+```{r} 
+d[D == 0, Y := y0 + bc]
+d[D == 1, Y := y0 + bc + tau]
+```
+
+
+
+# What is the causal model we hold? 
+
+When we are thinking about the causal model here, we're saying, "I think that the conditional expectation of Y depends on the treatment status". But, maybe I think I want to also control for the variable bc. 
+
+In fact, we can estimate a reliable causal effect for *either* `D` on `Y`, *or* `D` on `bc`, but not the two togheter. 
+
+
+First, the caual effect of `D` on `Y` in \autoref{goodModel}. 
+```{r, results='asis'}
+m1 <- lm(Y ~ D, data = d)
+stargazer(m1, type = 'latex', label = 'goodModel', header = F)
+``` 
+
+Then, the causal effect of `D` on `bc` in \autoref{goodModelOnControl}. 
+
+```{r, results='asis'}
+m2 <- lm(bc ~ D, data = d)
+stargazer(m2, type = 'latex', label = 'goodModelOnControl', header = F)
+```
+
+So does this. But what happens if we attempt to control for the `bc` indicator at the same time that we estimate the effect of `D` on `Y`? This isn't going to work-out, as we can see in \autoref{badModel} 
+
+```{r, results='asis'}
+m3 <- lm(Y ~ D + bc, data = d)
+stargazer(m3, type = 'latex', label = 'badModel', header = F)
+``` 
+
+Now we're left with an under-estiamte of the causal effect of `D` on `Y`, and we've got some estimate of the effect of `bc` on `Y`. But, when we built the data, there wasn't such an effect! In fact, what is in here is the relationship between `y0` and `Y`, but through a mangled causal pipeline. 
+
+The thing of it is, depending on the relationship between the bad control and the treatment, and the bad control and the treatment, there's *just no structured way to know* which direction the bias is going to be when you include a bad control. 
+
+```{r, results = 'asis'} 
+stargazer(m1, m2, m3, type = 'latex', header = F)
+```
+
+
+
+I can't get this written before class Fall 2017. Let me know if you figure it out. 
+
+# An example with Education 
+
+What if we build an example that is a little more complicated, but that fits with a story that we believe about the world. 
+
+Suppose that people have potential outcomes to earnings, and they are deciding whether they want to pursue a MIDS degree or not. We've been working on this one for a while.
+
+The Dean, in her wisdom, agrees to let current students and 241 faculty run an expriment where they randomly admit people to the program. Hurrah! We can evaluate this! And we can make a causal claim. 
+
+Suppose we have the following as a setup: 
+
+- Some students live in Bay Area. Because wages are stupid here (so are mortages), these students are paid *on average* $25,000 more than people who do not live in the Bay Area. 
+- The *true* state of the world is that graduating with a MIDS degree leads individuals to earn $50,000 more, on average, if they graduate with a MIDS degree than if they didn't. This isn't a selection effect, but instead is actually the causal effect. 
+- There are some students who are *really* motivated to get that job at Pintrest. And, they think that actually have a shot at it once they're in MIDS! So, of the folks who are admitted, suppose that 25% of them move to the Bay Area. None of the people who are not admitted to MIDS move to the Bay Area. 
+
+We could make data that is consistent with this story, right? Suppose that we have 500 students, at baseline the mean earnings for people who live in SF is \$75,000 and the mean earnings for people who do not live in SF is \$50,000. Furthermore, at baseline, 25% of the students live in SF. 
+
+First, create baseline earnings for people. 
+
+```{r} 
+d <- data.table(id = 1:500)
+d[ , y0 := rnorm(.N, mean = 50000, 10000)]
+d[ , lives_in_sf_before := sample(c(0,1), size = .N, replace = TRUE, prob = c(0.75, 0.25))]
+
+d[ , y0 := y0 + lives_in_sf_before * rnorm(.N, 25000, 10000)]
+```
+
+Then, randomly assign people to receive the MIDS admission. 
+
+```{r} 
+d[ , MIDS_admission := sample(c(0,1), size = .N, replace = TRUE)]
+```
+
+For the people who are admitted to MIDS and don't live in Bay Area, suppose the hardest working among them move to the Bay Area (and in doing so, they earn \$25,000 more just because wages are crazy). They the folks who just *needed to catch a break!*
+
+```{r} 
+d[lives_in_sf_before == 1, lives_in_sf_after := 1]
+d[lives_in_sf_before == 0 & MIDS_admission == 0, lives_in_sf_after := 0]
+d[lives_in_sf_before == 0 & MIDS_admission == 1, lives_in_sf_after := sample(c(0,1), size = .N, prob = c(0.75, 0.25), replace = TRUE)]
+#d[lives_in_sf_before == 0 & MIDS_admission == 1][y0 < quantile(y0, probs = 0.25),
+#  lives_in_sf_after := 1 ]
+``` 
+
+Did that seem to work? Yes. 
+
+```{r}
+d[ , table(lives_in_sf_before, lives_in_sf_after)]
+```
+
+Make the after MIDS earnings data. 
+
+```{r}
+d[MIDS_admission == 0, Y := y0]
+d[MIDS_admission == 1 & lives_in_sf_before == 1, Y := y0 + rnorm(.N, 50000, 10000)]
+d[MIDS_admission == 1 & lives_in_sf_before == 0 & lives_in_sf_after == 1, 
+  Y := y0 + rnorm(.N, 50000, 10000) + rnorm(.N, 25000, 10000)]
+d[MIDS_admission == 1 & lives_in_sf_before == 0 & lives_in_sf_after == 0, 
+  Y := y0 +  rnorm(.N, 50000, 10000)]
+```
+
+```{r} 
+mod1 <- d[ , lm(Y ~ MIDS_admission)]
+mod2 <- d[ , lm(Y ~ MIDS_admission + lives_in_sf_before)]
+mod3 <- d[ , lm(Y ~ MIDS_admission + lives_in_sf_after)]
+
+stargazer(mod1, mod2, mod3, type = 'text')
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r} 
+## The people who newly have moved to SF now also get the SF pay-bump. 
+## People who newly moved to SF now get the SF bump, and the MIDS bump
+d[lives_in_sf_before == 0 & lives_in_sf_after == 1, 
+  y0 :=  y0 + rnorm(.N, 25000, 10000) + rnorm(.N, 50000, 10000)]
+
+## For the people who didn't move, they get the treatment effect 
+d[lives_in_sf_before == 0 & lives_in_sf_after == 0, 
+  y1 := y0 + rnorm(.N, 50000, 10000)]
+
+## And for the people who already lived in SF, they get the treatmetn effect 
+d[lives_in_sf_before == 1, 
+  y1 := y0 + rnorm(.N, 50000, 10000)]
+
+## For everyone, if they were to be admitted to MIDS, they would realize 
+## a $50,000 increase
+
+## d[ , y1 := y0 + rnorm(.N, 50000, 10000)]
+```
+
+```{r} 
+## The people who newly have moved to SF now also get the SF pay-bump. 
+## People who newly moved to SF now get the SF bump
+d[lives_in_sf_before == 0 & lives_in_sf_after == 1, 
+  y0 :=  y0 + rnorm(.N, 25000, 10000)]
+
+d[ , y1 := y0 + rnorm(.N, 50000, 10000)]
+
+## For the people who didn't move, they get the treatment effect 
+##d[lives_in_sf_before == 0 & lives_in_sf_after == 0, 
+##  y1 := y0 + rnorm(.N, 50000, 10000)]
+
+## And for the people who already lived in SF, they get the treatmetn effect 
+##d[lives_in_sf_before == 1, 
+##  y1 := y0 + rnorm(.N, 50000, 10000)]
+
+## For everyone, if they were to be admitted to MIDS, they would realize 
+## a $50,000 increase
+
+## d[ , y1 := y0 + rnorm(.N, 50000, 10000)]
+```
+
+
+Then, the last thing is just to reveal these potential outcomes. 
+
+```{r} 
+d[ , Y := ifelse(MIDS_admission == 1, y1, y0)]
+```
+
+```{r}
+mod1 <- d[ , lm(Y ~ MIDS_admission)]
+mod2 <- d[ , lm(Y ~ MIDS_admission + lives_in_sf_before)]
+mod3 <- d[ , lm(Y ~ MIDS_admission + lives_in_sf_after)]
+```
+```{r, results = 'asis'}
+stargazer(mod1, mod2, mod3, type = 'text')
+```
+
+
+
+## People who didn't move to SF as a result of MIDS_admission just get 
+## the MIDS bump 
+d[lives_in_sf_before == 0 & lives_in_sf_after == 0, 
+  y1 := y0 + rnorm(.N, 50000, 10000)]
+## People who already live in SF get the MIDS bump. 
+d[lives_in_sf_before == 1 & MIDS_admission == 1, 
+  y1 := y0 + rnorm(.N, 50000, 10000)]
+
+
+
+## People who didn't get admitted to MIDS just show their potential outcomes
+## to control 
+
+d[MIDS_admission == 0, Y := y0]
+``` 
+
+Phew! That's a lot of data to have made! 
+
+```{r} 
+mod <- d[ , lm(Y ~ MIDS_admission)]
+summary(mod)
+```
+```{r} 
+mod2 <- d[ , lm(Y ~ MIDS_admission + lives_in_sf_before)]
+summary(mod2)
+``` 
+```{r} 
+mod3 <- d[ , lm(Y ~ MIDS_admission + lives_in_sf_after)]
+summary(mod3)
+```
+  
+--> 
