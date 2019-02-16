@@ -1,0 +1,168 @@
+---
+title: "Coding HTEs for Teacher Incentives"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+# An introduction to start 
+
+I know that this is a little bit in the middle of a number of tasks:
+
+- David Reiley is lecturing
+- You're reading
+- You're taking quizzes, *and* 
+- Now I'm asking you to code. 
+
+If this is too much to do all at once, then feel free to come back to this later. 
+
+# The task 
+
+The data that you're using here is the very same data that is provided by the authors of the paper that we're discussing with David right now. And, take our word for it, the data is _ugly_. We don't mean to cast shade at the past, but this data is stored in a totally wild way. 
+
+We begin by loading the data. 
+
+```{r setup chunk, echo=TRUE, message = FALSE, results='hide'}
+library(data.table)
+library(foreign)
+library(multiwayvcov)
+library(stargazer)
+library(lmtest)
+```
+
+```{r load data}
+d <- read.dta('./jpe_data.dta')
+d <- data.table(d)
+``` 
+
+There are a set of conditions that we're going to scope out of the analysis. For people who: 
+
+- cheated; or,
+- had a weird teacher 
+
+we aren't concerned with their data. 
+
+```{r}
+d <- d[cheaters_y2==0 & teacher_group == 0 & t_deg %in% c('head master', 'regular teacher')]
+```
+
+And then, in the *worst* data practices, we're going to make the **incredible** assumption that we the ordinal data we have measured can be thought of as belonging on a linear scale. Steve in RDADA, Paul and Jeffreye in 203, and I all cringe. This is a bad idea, but it reproduces the tables that you're looking at in the text. 
+
+```{r bad data practices}
+
+# recode education to create a 'numeric' 
+d[t_education == 'matriculation passed (10th)', t_education_n := 1]
+d[t_education == 'higher secondary passed (12th)', t_education_n := 2]
+d[t_education == 'College (Bachelors)', t_education_n := 3]
+d[t_education == 'Masters/Other post graduation', t_education_n := 4]
+
+# recode training to create a 'numeric'
+d[t_training == 'None', t_training_n := 1]
+d[grepl(pattern = 'Diploma Education', t_training), t_training_n := 2]
+d[t_training == 'Bachelors Education', t_training_n := 3]
+d[t_training == 'Masters Education', t_training_n := 4]
+```
+
+Eww. Say a prayer of absolution for that crime against data. 
+
+# The core task 
+
+The form of the models that we're interested in fitting are all the same: 
+
+- We've measured students in the post-treatment time period: `nts` 
+- We have a measurment of their perofrmance in the pre-treatment time period: `lagged_nts`
+- We know where they live: `U_MC` (this is a categorical variable)
+- We know which treatment they received: `incentive` 
+
+Let's start by checking on whether including the students' previous scores, measured in `lagged_nts` improves the model. 
+
+```{r}
+simplest_model <- d[!is.na(lagged_nts) , lm(nts ~ incentive + as.factor(U_MC))]
+improved_model <- d[ , lm(nts ~ incentive + lagged_nts + as.factor(U_MC))]
+
+stargazer(simplest_model, improved_model, type = 'text', omit = 'U_MC')
+```
+
+Although there isn't an observable increase on the treatment indidcator, the model does fit better overall, observable in the $\Delta R^2$. We can test this formally, using an F-test. 
+
+```{r}
+anova(simplest_model, improved_model, test = "F")
+```
+
+In the model that we've fit above, however, we have not accounted for the fact that entire classrooms all get the same treatment. This is a classic case of clustering, and means that we've got to correct our analysis accordingly. 
+
+As we've seen in the code that introduced the `multiwayvcov` package, we can calculate a clustered vcov pretty easily. 
+
+```{r}
+improved_model$cluster_vcov <- cluster.vcov(model = improved_model, cluster = d[ , apfschoolcode])
+test <- coeftest(improved_model, 
+                 vcov. = cluster.vcov(model = improved_model, cluster = d[ , apfschoolcode]))
+
+test[!grepl('U_MC', rownames(test)), ]
+```
+Hmm... I found a way to print that test, omitting all the fixed effects. But, since I suspect I'm going to do this a number of times, I might as well make a small helper function. 
+
+```{r}
+summary_no_MC <- function(model) { 
+  ## note, this is going to cluster, and also not report the fixed effects
+  test <- coeftest(model, vcov. = cluster.vcov(model = model, cluster = d[ , apfschoolcode]))
+  
+  print(test[!grepl('U_MC', rownames(test)), ], digits = 3)
+  }
+```
+
+# The First Model: Teacher Education
+
+```{r}
+model_1 <- d[ , lm(nts ~ incentive + t_education_n + incentive * t_education_n 
+                   + lagged_nts + as.factor(U_MC))]
+summary_no_MC(model_1)
+``` 
+
+Take some time to think about that model. 
+
+- What are we learning about the effect of the incentive? For whom? 
+- Can we think about the effect of the incentive without at the same time thinking about the level that `education` of the teacher is at? 
+- Suppose that you had the opportunity to choose which kind of school that your kid was at. Would you want a treatment school or not? Note, the answer to this question is not that straightforward. 
+
+# The Second Model: Teacher Training 
+
+```{r}
+model_2 <- d[ , lm(nts ~ incentive + t_training_n + incentive * t_training_n 
+                   + lagged_nts + as.factor(U_MC))]
+summary_no_MC(model_2)
+```
+
+- What is the effect of the treatment among untrained teachers (where the value for `t_training_n == 1`)?  
+- What is the effect of the treatment among highly trained teachers (where the value for `t_training_n == 4`)? 
+- Taken together, should we increase the education of training and teachers to increase the effectiveness of the treatment? 
+- (*Note*: This _definately_ requires some clear thinking about what is, and isn't causal.)
+
+# The Third Model: Teacher Years of Experience 
+
+```{r}
+model_3 <- d[ , lm(nts ~ incentive + t_service + incentive * t_service 
+                   + lagged_nts + as.factor(U_MC))]
+summary_no_MC(model_3)
+```
+
+
+# The Fourth Model: Teacher Salary 
+```{r}
+model_4 <- d[ , lm(nts ~ incentive * log(t_salary) 
+                   + lagged_nts + as.factor(U_MC))]
+summary_no_MC(model_4)
+
+```
+
+```{r}
+## model_5 <- d[ , lm(nts ~ incentive * I(t_gender == 'male') + lagged_nts + as.factor(U_MC))]
+## summary_no_MC(model_5)
+## there's a coding error that I cannot reproduce between the author's tables and the data. Believe me, we tried. 
+```
+
+# Large Scale Takeaways 
+
+1. We'd really like you to be comfortable reading, and more importantly thinking about these regressions in all the forms that you're going to see them, both printed and while you're working. Hopefully this helps to see things twice or more. 
+2. Thinking about what is happening, and what part of it is causal in the search for HTEs requires some careful thought. 
+
