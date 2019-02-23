@@ -1,0 +1,59 @@
+---
+title: "Practice with ITT"
+output: html_notebook
+---
+
+```{r load packages}
+library(data.table)
+```
+
+```{r load data}
+d <- fread("http://hdl.handle.net/10079/70rxwqn")
+```
+
+This is the data that is described in Green and Gerbers' *Field Experiments* on page 158. 
+
+```{r}
+## Select one-person households that were either pure controls or canvass only
+## this just keeps the data that we want to have. 
+d <- d[onetreat == 1 & mailings == 0 & phongotv == 0 & persons == 1, ]
+
+## Let's make the var names consistent with the book
+setnames(d, "v98", "VOTED")
+setnames(d, "persngrp", "ASSIGNED")
+setnames(d, "cntany", "TREATED")
+
+## Keep only the data that Green and Gerber Use
+
+d <- d[ , .(VOTED, ASSIGNED, TREATED)]
+d
+```
+
+# Estimate the ITT 
+
+We can do this two ways: Using means and using models. 
+
+
+## First lets do it using means:
+Can you make back the table 5.2 from Green and Gerber using only the mean function? Here, you should just use group-by calls, and means on the outcome to produce the ITT. Don't worry about the standard errors. 
+
+1. Estimate the ITT using means
+
+```{r}
+ITT <- ''
+  
+```
+
+2. What proportion of those ASSIGNED were actually treated? 
+
+```{r}
+ITT_d <- ''
+```
+
+Can you use these two quantities to produce a CACE? 
+
+## Second, let's do it using models
+
+1. Estiamte the ITT using a `lm` call. 
+2. Estiamte the ITT_d using a `lm` call. 
+3. Divide these coefficients. 
