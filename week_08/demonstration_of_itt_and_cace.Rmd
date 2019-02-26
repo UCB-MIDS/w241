@@ -1,0 +1,210 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# What is non-compliance
+
+> "Hey, **you**! That's right you!" you yell at your participant. "You're in the treatment group, don't you even think about not taking the treatment I told you you."
+> 
+> The subject looks you straight in your face and says, "Yeah, I know this is important for your so called 'experiment', and I know that I told you I was your friend, and that I would do what you said, but now... 
+> 
+> ... Well, TBH I'm kind of lazy, and you know. "
+
+And so goes every experiment for all time. You build a group of people who are systematically unrelated to the stimulus -- random -- and they do their best to build back structured relationships. 
+
+What is the consequence of people deciding that they don't want to comply with the set of things you've told them to do? *How can you think about this as a form of selection bias coming back into the data again?* 
+
+# What can't you know
+
+When some people are systematically unable to receive the treatment that you've assigned them to receive, it is *by definition*  impossible to observe a treatment effect. If people are unwilling to take the treatment, you cannot reveal their potential outcomes to treatment, and so you cannot produce an estimate -- of any form -- for their values of $\tau$. 
+
+## Question of Understanding 
+
+- Because it would be practically impossible to *estimate* the treatment effect for the population of non-compliers, does that mean that they don't have a treatment effect? Why does thinking of this in terms of potential outcomes help to answer the question? 
+
+
+# What don't you want to know 
+
+It might be very tempting to simply let your population of *non-compliers* simply go into the control group. After all, since they didn't receive any treatment, **why not?** Well, you're going to create a comparison of two types of folks: 
+
+1. The group of people who are assigned to treatment and can take the treatment; 
+2. The group of people who are assigned to control + the group of people who are assigned to treatment and cannot take it. 
+
+Of course this is a classic **apples to oranges** comparison, and one that we don't want to make. But, how bad can it really be? 
+
+Well, pretty bad, depending on the "arrangement of the Xs". 
+
+```{r load packages}
+library(data.table)
+library(magrittr) 
+## install.packages("AER")      # this has a nice wrapper for iv regression
+library(AER)
+library(stargazer)
+```
+
+Let's create a function to load our data. 
+
+```{r data setup}
+make_data <- function(nrows=1000, non_compliance=c('none', 'random', 'non-random')) { 
+    ## this function will make data for the purposes of learning
+    ## about how  random or non-random non-compliance will change
+    ## a two-group difference estimate of those who are treated.
+
+    require(data.table)
+    
+    d <- data.table(id = 1:nrows) 
+
+    d[ , y0  := rnorm(nrows, mean = 10)]
+    d[ , tau := rnorm(nrows, mean = 1)]
+    d[ , y1  := y0 + tau]
+
+    ## randomly ASSIGN people to treatment 
+    d[ , Z := sample(0:1, .N, replace=T, prob = c(0.5, 0.5))]
+    
+    d[Z==0, D := 0L] 
+    
+    if(non_compliance == 'none') { 
+      d[Z==1, D:=1L]
+    } else if(non_compliance=='random') {
+      ## if random_non_compliance, then make the choice to comply 
+      ## occur totally at random. 
+      d[Z==1, D := sample(c(1L,0L), size=.N, replace=TRUE, prob=c(.7, .3))]
+    } else if(non_compliance=='non-random'){
+      ## if not random_non_compliance, then make the choice to comply
+      ## with conditional on the levels of Y that the person has. 
+      ## in particular, make the highly plausible case: 
+      ## 
+      ##   people with "low" levels of the Y are less likely to comply 
+      d[Z==1 & y1 > mean(y1), D := sample(1:0, size=.N, replace=TRUE, prob=c(.7, .3))]
+      d[Z==1 & y1 < mean(y1), D := sample(1:0, size=.N, replace=TRUE, prob=c(.2, .8))]
+      ## 
+      ## take the time to read and fully understand what we're doing in these
+      ## assignment line
+    }
+
+    ## if the person takes treatment, then measure their potential outcome
+    ##   to treatment in Y
+    ## if the person takes control, then measure their potential outcome
+    ##   to control in Y
+    d[D==1, Y := y1]
+    d[D==0, Y := y0]
+
+    ## return the dataset back
+    return(d)
+
+}
+```
+
+With the function to make our data built, we can "run an experiment" once. 
+
+# No Noncompliance 
+The first time, lets' run it so that there is full compliance.  
+
+```{r run experiment with full compliance}
+d <- make_data(nrows = 200, non_compliance = 'none')
+mod_assigned       <- d[ , lm(Y ~ Z)]
+mod_compliers <- d[ , lm(Y ~ D)]
+
+stargazer(mod_assigned, mod_compliers, type = 'text')
+```
+
+The treatment effect that is baked into the function is 1, and, no big surprise, when everybody that we tell (**at random**) to take the treatment does, we estimate the true treatment effect on both the assignment and the treatment indicators. This is just exactly the same as what we've seen *every single time* to this point. 
+
+# Random Noncompliance 
+
+Perform the same estimate, but this time, with the existence of some non-compliance in the treatment and control groups. When you look into the `random` block in the data creation function, though, you'll note that the *choice* to comply or non-comply is not related to people's potential outcomes. This is why we're calling it "random". 
+```{r}
+d <- make_data(nrows = 200, non_compliance = 'random')
+
+mod_assigned  <- d[ , lm(Y ~ Z)]
+mod_compliers <- d[ , lm(Y ~ D)]
+
+
+stargazer(mod_assigned, mod_compliers, type = 'text')
+```
+
+In any particular run, it looks like these are pretty nearly the same. But, what happens if we run a large number of these experiments, and store the estimates. 
+
+```{r create experiment simulator}
+simulate_experiments <- function(n_sims, nrows = 200, non_compliance = 'non_random') { 
+  z_coef <- rep(NA, n_sims)
+  d_coef <- rep(NA, n_sims)
+  
+  for(i in 1:n_sims){ 
+    d <- make_data(nrows = nrows, non_compliance = non_compliance)
+    z_coef[i] <- coef(d[ , lm(Y ~ Z)])[2]
+    d_coef[i] <- coef(d[ , lm(Y ~ D)])[2]
+  }  
+  
+  return(list(z_coef, d_coef))
+}
+```
+
+```{r run simulation with random non-compliance}
+simulation_ <- simulate_experiments(n_sims=200, nrows=200, non_compliance='random')
+
+plot(simulation_[[1]], simulation_[[2]], pch = '+',
+     xlab = 'Z', ylab = 'D', 
+     xlim = c(0, 1.2), 
+     ylim = c(0, 3))
+abline(v=1, col = 'green')
+abline(v=mean(simulation_[[1]]), col = 'blue')
+abline(h=1, col = 'green')
+abline(h=mean(simulation_[[2]]), col = 'blue')
+
+legend('topleft', col = c('green', 'blue'), lty = 1, legend = c('truth', 'estimated'))
+```
+## Questions: 
+
+Reading this plot: 
+
+- Why is the estimate for the takers (**D**)an unbiased estimate of the treatment effect? 
+- Why is the estimate of the causal effect, for those assigned (**Z**)to take treatment *lower* than the truth? 
+- Which of these estimates produces a *compliers average causal effect* and which produces an *intent to treat effect*? 
+
+# Nonrandom Noncomplience 
+
+As you might guess, this is going to be the worst case that we run into, and it is also the case that is the most likely to occur when you're actually running your experiments. The people who choose not to follow the directions that you provide them are in some way different than the people who chose to follow your directions. 
+
+In this example, the folks who comply have higher potential outcomes than those who non-comply. 
+
+- What will the consequence of this be in our estimates? 
+
+```{r make non-random non-compliance data}
+rm(d)
+d <- make_data(nrows = 200, non_compliance = 'non-random')
+
+mod_assigned  <- d[ , lm(Y ~ Z)]
+mod_compliers <- d[ , lm(Y ~ D)]
+
+
+stargazer(mod_assigned, mod_compliers, type = 'text')
+```
+
+Oooooooh goodness gracious. We're a **long** way from the truth now. Why is this? What has happened in the data that is *specifically* leading to this behavior? 
+
+Lets look through a number of simulations to see what we learn. Remember, that the causal effect throughout this data is 1. 
+
+```{r run simulation with non-random non-compliance}
+simulation_ <- simulate_experiments(n_sims=200, nrows=200, non_compliance='non-random')
+
+plot(simulation_[[1]], simulation_[[2]], pch = '+',
+     xlab = 'Z', ylab = 'D', 
+     xlim = c(0, 1.2), 
+     ylim = c(0, 3))
+abline(v=1, col = 'green')
+abline(v=mean(simulation_[[1]]), col = 'blue')
+abline(h=1, col = 'green')
+abline(h=mean(simulation_[[2]]), col = 'blue')
+
+legend('topleft', col = c('green', 'blue'), lty = 1, legend = c('truth', 'estimated'))
+```
+
+## Questions: 
+
+Reading this plot: 
+
+- Why is the estimate for the takers (**D**) now a biased estimate of the treatment effect?  Has this changed from the earlier plot? Why or why not based on what you know about how the data is created? 
+- Why is the estimate of the causal effect, for those assigned to take treatment (**Z**) *lower* than the truth? Has this changed from the earlier plot? Why or why not based on what you know about how the data is created? 
+- Which of these estimates produces a *compliers average causal effect* and which produces an *intent to treat effect*? 
