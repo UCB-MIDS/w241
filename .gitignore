@@ -45,3 +45,6 @@ rsconnect/
 
 # Ignore mac files
 *Icon*
+
+# Ignore html notebooks
+*.nb.html

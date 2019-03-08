@@ -1,0 +1,174 @@
+---
+title: 'Detecting Errors'
+output: html_notebook
+---
+
+```{r packages}
+library(data.table)
+library(magrittr)
+```
+
+
+We've just worked through an async lecture where David Broockman describes running pilot studies as a method of detecting errors in our experiment. 
+
+What happens if we have a problem in the experiment though? We talked several weeks ago about how to detect a bad randomization using a covariate balance check. 
+
+In this little demo, we're going to see what the consequences of a bad randomization might be for our estimates. As, by now, I'm sure you've already guessed, it is going to mean that what you estimate as your causal effect is *not* in fact the causal effect. 
+
+We're also going to *super* show-off a the globally excellent `magrittr` **"pipe"**. This pipe operator, called using the rather baroque call `%>%` permits you to pipe together calls. Just like `data.table` the `%>%` operator has chosen to pass things from place to place using `lists()` (more on that later). But, it also acknowledges that typing `list()` a bunch of times makes code uglier than normal R. 
+
+And so, when you pipe something from one place to another, you can refer to it with the simple `.` call. See how this works several cells down. 
+
+# Start with Good Data 
+
+```{r make-data}
+make_good_data <- function(n=400) { 
+  ## this is a function that will create a dataset of size n, 
+  ## non-randomly assign individuals to treatment and control. 
+  
+  require(data.table) 
+  
+  ## assign two quantities that are not related to one another
+  ##  - Z is your treatment assignment 
+  ##  - X is a covaraite 
+  dt <- data.table(id = 1:n)
+  dt[ , ':='(
+    Z = sample(x = 0:1, size = .N, replace = TRUE),
+    X = sample(x = 0:1, size = .N, replace = TRUE)
+  )]
+  
+  dt[ , Y0 := 10 + X + runif(.N, min = 0, max = 2)]
+  dt[ , Y1 := Y0 + rnorm(n = .N, mean = 2, sd = 1)]
+  
+  dt[ , Y := ifelse(Z==1, Y1, Y0)]
+  
+  return(dt[ , .(Z, X, Y)])
+  }
+```
+
+With that data built, we can inspect a single instance. 
+
+```{r}
+d <- make_good_data(n=400)
+head(d)
+```
+
+After making a data function, we can then make an analysis function that were going to apply against that data. This analysis funciton is just going to pull a few pieces for us: 
+
+1. What is the covariance between `X` and `Z`
+2. What is the estimated relationship between `Y` and `Z` (this is what we want to be our causal estimate)
+3. What is the estimated relationship between `Y` and `Z` when we condition on X (in a good randomization this should be very similar to when we don't condition).
+
+```{r make-analysis}
+analysis_function <- function(data) { 
+  ## This analysis function takes only a dataset
+  ## since the analysis that we perform is going to 
+  ## always be the same for this toy example. 
+  
+  res_list <- data.table(
+    'cov'   = 0L, 
+    'b_ate' = 0L, 
+    'u_ate' = 0L
+  )
+  
+  res_list$cov   <- data[ , cov(X, Z)]
+  res_list$b_ate <- data[ , lm(Y ~ Z)$coefficients[2]]
+  res_list$u_ate <- data[ , lm(Y ~ Z + X)$coefficients[2]]
+  
+  return(res_list)
+  } 
+```
+
+If we've got these two pieces made, then we can start to put them together into a small pipeline. First, make the data. Then analyze the data. 
+
+```{r analysis-once}
+make_good_data(n=10) %>% 
+  analysis_function
+```
+I read this aloud as, 
+
+> "Make good data, and then call the analysis function." 
+
+Actually that seems useful enough that we might rename it as our simulation pipeline! 
+
+```{r analysis-pipeline}
+analysis_pipeline <- function(n=10) { 
+  make_good_data(n=n) %>% 
+  analysis_function
+}
+
+analysis_pipeline(n=10)
+```
+
+# Now we're to the heart of the problem! 
+
+Let's run this a few times, and then look at what we get. 
+
+```{r}
+analysis_pipeline(n=10)
+analysis_pipeline(n=10)
+analysis_pipeline(n=10)
+```
+Ok, so things seem to be moving as we suspect they will in the individual trials. Let's go ahead and scale this up to a number of trials. 
+
+To do so, we're going to use something that is *half* fancy. We're going to rely on the `list()` data structure in R, which is the most flexible data structure. These lists can contain anything in any position of the list. What is stored in one position in the list, need have no relationship to what is stored in another position in the list. 
+
+For example, I can make a list called, `cat_dog_number` that has in it a cat, a dog, and a number. 
+
+```{r}
+cat <- function(string) { 
+  cat(string)
+  }
+cat_dog_number <- list(cat, 'dog', 2)
+
+cat_dog_number
+```
+
+This becomes useful because we can create a list that contains a data.table at each position of the list. In particular, at each position in the list, put the data.table that has the output from the `analysis_pipeline` function. Then, after making this list of data.table, we'll use the optimized `rbindlist`, which is a data.table function that `rbinds` (row binds) the elements of a list together. 
+
+```{r run-simulation} 
+NSIMS=2000
+results_list <- vector('list', length = NSIMS)
+
+for(sim in 1:NSIMS) { 
+  ## note that we index lists in double brackets [[]] rather
+  ## than single brackets. Sorry. This is a consequence 
+  ## of the very-very-very flexible nature of lists. 
+  ## https://stackoverflow.com/a/1169530/2040681
+  results_list[[sim]] <- analysis_pipeline(n=20)
+  }
+
+results_list <- rbindlist(results_list)
+```
+
+That's quite enough goofing around... show us what we really want! 
+
+# Plot these 
+
+Let's plot these with two plots that are overlayed upon each other. To do so, we'll first use the standard `plot` function, and then we'll use the `points` function which allows us to add points to a plot. 
+
+```{r}
+results_list %>% 
+  .[ , plot(x = cov, y = u_ate, 
+            col = rgb(0,0,1,0.5), pch = 19)]
+results_list %>% 
+  lm(u_ate ~ cov, data = .) %>% 
+  abline(., col = 'blue', lwd = 4)
+
+results_list %>% 
+  .[ , points(x = cov, y = b_ate,
+              col = rgb(1,0,0,0.5), pch = 4)]
+results_list %>% 
+  lm(b_ate ~ cov, data = .) %>% 
+  abline(., col = 'red', lwd = 4)
+```
+
+# What are you learning from the plot? 
+
+1. When there is zero covariance between the treatment assignment and the covariate, does including or excluding the additional variable lead to any difference in the estimates? 
+2. When there is *positive* covariance between the two, does including or excluding the additional variable lead to any difference in the estimates? What is the nature of that difference? 
+4. When there is *negative* covariance between the two, does including or excluding the additional variable lead to any difference inthe estimates? What is the nature of that difference? 
+
+# If you're feeling sinister... 
+
+[If you're feeling sinister](https://open.spotify.com/track/7DVWZrkGOEKRzv9ZxeGQDP?si=7HihGxR7TGaVS0acmeSJug) then go back to the `make_good_data` function and modify it so that the omitted variables bias moves the estimates in the opposite way. 
