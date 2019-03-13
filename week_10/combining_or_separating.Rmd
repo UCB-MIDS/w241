@@ -1,0 +1,83 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r load package} 
+library(data.table)
+library(stargazer)
+library(magrittr) 
+``` 
+
+# Task 
+Can you create the data from p. 359, the study of towel use in Arizona?
+
+In the first study:
+
+- 35.1 percent of the control group (N=222) used their towels twice
+- 44.1 percent of the treatment group (N=211) used their towels twice
+
+In the second study:
+
+- 37.2 percent in the control group (N=277) used their towels twice
+- 42.3 percent in the treatment group (N=334) used their towels twice.
+
+## Specific Tasks 
+
+1. How many rows should there be in the dataset? 
+2. When you think about the dataset, do you naturally think of it as a "wide" or a "long" dataset? Which of these shapes is going to be more natural for a set of analysis, and why? 
+3. Actually create the data in the next cell: 
+  1. What colums do you need? 
+  2. What are you going to score in the outcome column? 
+
+```{r make data} 
+d <- data.table(
+  id = 1: 
+)
+```
+
+# Estimate the effectiveness of the treatment twice: 
+
+1. Estiamte the effect of the treatment in the first study period; 
+2. Estimate the effect of the treatment in the second study period. 
+
+In doing so, slice the dataset that you're using, rather than creating a new "sub-dataset". 
+
+```{r estiamte first models} 
+
+``` 
+
+3. Is the response to treatment "different" between the first and second studies? Use an interaction to test this question. 
+4. So, now make a recommendation to the hotelier -- should they put out signs, or not, based on the data and analysis that you've got. Why or why not? 
+
+# If you've got time... 
+
+Estimate the precision weighted $\hat{ATE}_{pooled}$ that is described in equation 11.9. Rather than making it run functionally against the data, you can hard-code this to take a more limited set of inputs (which will, incedentally, also make it more data agnostic). 
+
+I'll start it for you. 
+
+```{r}
+precision_weighted_ate <- function(mu_1, se_1, mu_2, se_2){
+  ## this funciton takes arguments for means and standard deviations
+  ## for two studies that are to be analyzed as a fixed-effects 
+  ## meta anlaysis 
+  scale_1 <- (1 / se_1^2) / ((1/se_1^2) + (1/se_2^2))
+  scale_2 # fill this <- 
+  
+  pw_ate <- ('fill this' * ate_1) + (scale_2 * ate_2)
+  
+  return(pw_ate)  
+}
+```
+
+You can pull the quantites for this from the regression that you've run above. 
+
+# Final Questions for Understanding 
+- How different is the overall estimate in this case from the estimate that you produce using "all" the data -- that is, a regression that does not differentiate between the first and second studies. 
+- What are the characteristics of a repeated study (i.e. a "first study", "second study") that would lead to the pooled estimate you've just produced to diverge from the precision weighted estimate? 
+
+<!-- Not to complete for this semster, but you can dabble if you like
+
+Can we use the 'weights' argument to the `lm` call to produce the same thing as a precision weighted estimate? 
+
+--> 
