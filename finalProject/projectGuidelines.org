@@ -1,0 +1,49 @@
+#+TITLE: Some guidelines for final group projects (adapted from class syllabus)
+
+
+* Planning the experiment:
+- Submit budgets and progress reports
+- Plan to do a pilot study to test your recruitment strategy and highlight potential issues in advance
+- Unless previously discussed, aim for a minimum of 30+ observations per treatment
+- Use information gathered in the pilot to help inform a calculation of statistical power
+
+* Presentation:
+- Present experiment design and preliminary results to classmates, take feedback from peers, build forward toward final analysis, generate ideas for further research
+- Format:
+  - 15-20 minutes presentation
+  - 5-10 minutes for questions and feedback
+  - What is the experimental question
+  - why is it interesting/important (cite prior literature if relevant)
+  - how did you seek to test the question
+  - what were the main results?
+  - what were some limitations of your experiment? what did you learn? what might you have done differently given infinite time/resources?
+- presentations will take place the last two weeks of class
+
+* Final report:
+- 10 to 20 pages
+- No /required/ template: write for your peers in the class, or the other instructor, or David Reiley
+- The format need not necessarily be a research article (though you may use this format if you like)
+- All the points that you address in the presentation should also be
+  presented, with refinement, in the final paper.
+- A great guide to this is the final chapter of the /Field
+  Experiments/ book "Writing a Research Report"
+* Suggested Format: 
+- Statement of the research question; why this is interesting to
+  someone who is predisposed to be interested; what other people know
+  about this; what (if any) obsrevational work has to say about this question
+- Clear statement of the experiment
+  - Research Design (using =ROXO= grammar)
+  - Randomization engineering 
+  - Experimental materials (e.g. treatment materials)
+  - Measurement of variables
+  - Modeling choices
+- Clear statement of results
+  - In text description of your results
+  - Figures and tables that support your in text description
+  - Clean, clear, well articulated relationships between your theory,
+    your hypotheses, the numbers that your models produce, and the
+    figures you present. 
+
+
+
+
