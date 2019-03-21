@@ -27,7 +27,7 @@ In the second study:
 1. How many rows should there be in the dataset? 
 2. When you think about the dataset, do you naturally think of it as a "wide" or a "long" dataset? Which of these shapes is going to be more natural for a set of analysis, and why? 
 3. Actually create the data in the next cell: 
-  1. What colums do you need? 
+  1. What columns do you need? 
   2. What are you going to score in the outcome column? 
 
 ```{r make data} 
@@ -38,7 +38,7 @@ d <- data.table(
 
 # Estimate the effectiveness of the treatment twice: 
 
-1. Estiamte the effect of the treatment in the first study period; 
+1. Estimate the effect of the treatment in the first study period; 
 2. Estimate the effect of the treatment in the second study period. 
 
 In doing so, slice the dataset that you're using, rather than creating a new "sub-dataset". 
@@ -52,7 +52,7 @@ In doing so, slice the dataset that you're using, rather than creating a new "su
 
 # If you've got time... 
 
-Estimate the precision weighted $\hat{ATE}_{pooled}$ that is described in equation 11.9. Rather than making it run functionally against the data, you can hard-code this to take a more limited set of inputs (which will, incedentally, also make it more data agnostic). 
+Estimate the precision weighted $\hat{ATE}_{pooled}$ that is described in equation 11.9. Rather than making it run functionally against the data, you can hard-code this to take a more limited set of inputs (which will, incidentally, also make it more data agnostic). 
 
 I'll start it for you. 
 
@@ -70,7 +70,7 @@ precision_weighted_ate <- function(mu_1, se_1, mu_2, se_2){
 }
 ```
 
-You can pull the quantites for this from the regression that you've run above. 
+You can pull the quantities for this from the regression that you've run above. 
 
 # Final Questions for Understanding 
 - How different is the overall estimate in this case from the estimate that you produce using "all" the data -- that is, a regression that does not differentiate between the first and second studies. 
