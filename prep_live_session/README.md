@@ -472,6 +472,17 @@ x
 
 # Week 12 - Attrition, Mediation, Generalizability
 
+## [*Bates and Glennerster*](../readings/bates_2017.pdf)
+- Bates and Glennerster suggest four *misguided approaches*  that might better be called, ways that other people think about generalizability, but the headings are rather misleading. Recast the headings into four more descriptive sentences instead. I'll do the first for you:
+    1. An effect learned in a particular context (or location) can never be informative of another location.
+    2.
+    3.
+    4.
+- B&G suggest a second four-item way to intead reason about generalizability. 
+    - What are these four steps?
+    - B&G then illustrate these steps with little more than examples. Can you instead describe what each step means?
+	- Now, suppose that you're the decision-maker who has to decide whether to run the experiment signs about towel re-use in Arizona (now for a third trial). How woud you use the four-step framework to evaluate whether to run another experiment?  
+- Throughout the async, David Broockman highlights the extreme difficulty in generating data that tests mechanisms. So, isn't the Bates and Glennerster argument tantamount to saying, "Just think about this impossible thing that you're never going to be able to measure?" Or, can you use their framework profitably to generalize to other contexts? 
 
 ## [*Allcott and Rogers*](https://drive.google.com/file/d/0BxwM1dZBYvxBR0QwVWc5WmliVjg/view?usp=sharing)
 -   What does “action and backsliding” mean?
@@ -487,11 +498,6 @@ x
 -   What evidence do Allcott and Rogers provide about “physical mechanisms” for these effects? What do they conclude?
 -   What “behavioral models” do Allcott and Rogers find more likely based on these data? What is their evidence for this claim?
 
-## [*Bates and Glennerster*](../readings/bates_2017.pdf)
-- Bates suggest four *misguided approaches*  that might better be called, "Criticisms people have thrown at us." Consider each of these criticisms in the context of the *Allcott and Rogers* paper that you read for live session. Which of the concerns do you think is the most grave concern in the context of what we've learned throughout the O-power readings?
-- Bates and Glennerster suggest that we get out of the generalizabilty problem by *focusing on mechanisms*.
-    - What do they mean by the conecpt of *focusing on mechanisms*? 
-    - Throughout the async, David Broockman highlights the extreme difficulty in generating data that tests mechanisms. So, isn't the Bates and Glennerster argument tantamount to saying, "Just think about this impossible thing that you're never going to be able to measure?" Or, can you use their framework profitably to generalize to other contexts? 
 
 
 ## Questions from FE on attrition
