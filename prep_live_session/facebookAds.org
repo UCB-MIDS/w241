@@ -1,0 +1,62 @@
+#+TITLE: Facebook In-Video Ads 
+#+AUTHOR: Alex, Micah and Dan
+#+DATE: \today
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS:
+#+LATEX_HEADER:
+#+LATEX_HEADER_EXTRA:
+#+DESCRIPTION:
+#+KEYWORDS:
+#+SUBTITLE:
+#+LATEX_COMPILER: pdflatex
+#+OPTIONS: toc:nil
+
+* The Setup
+Suppose you've completed w241 & MIDS -- the sun shines brighter, the birds chirp louder, you sleep is more complete -- and you've landed a job on a great data science team at MySpace. Or, for the purposes of this example, Facebook. 
+
+The company, in pursuit of sales revenue, has determined that it would like to insert video advertisements /inside/ videos that are of a certain length. The idea here is that more even than advertisements that roll before a video begins to play, that an advertisement that rolls /inside/ the video will be very likely to be seen *and* viwed by the viewers. 
+
+It is your teams job to produce the evaluation that will determine whether this new delivery system goes before the full userbase. The determination will be made in terms of changes in revenue with a one-year time horizon, so you need not worry about events or changes that might occur beyond that horizon. 
+
+* What you've got to report back 
+You've got three groups of people who will be *very* interested in the results of this experiment. 
+
+1. *The advertisers*: These are the people who are producing the creative on the ads and selling the products. They will want to know whether, and which kinds, of people are viewing the ads. They will also want to know whether the ads are leading to increased recall/remembering of the spot.
+2. *The leadership*: These are the people internal to the company. They will also want to know whether and what kinds of ads work, but the will also want to know how the mid-video advertisement affects users' behavior on the platform. 
+3. *The machine learning team*: Part of the task in this full-stack data science is identifying at what point in a video an advertisement can be insert. Put it in mid sentence and people are confused; but, if you put it in just before the person starts their death defying jump, and they'll stay; you put it anywhere in a [[https://youtu.be/AIXUgtNC4Kc?t=105][Die Antwoord]] video and 70% will thank you but leave the video and 30% will be so confused that they will not remember the ad. 
+
+* Design the study. 
+With these stakeholders to satisfy, how would you design an experiment to answer these causal questions? 
+
+- What, if any /observational/ data might you have laying around that you could use as preliminary evidence for whether you think this might be net positive or negative? Are you confident enough in this data that you could make a recommendation based only on the existing data? Why or why not?
+  + 
+  + 
+  + 
+- What are the outcomes that you would propose measuring? Are the outcomes the same or different for the different stakeholders that you've got to report to. With these outcomes, what would be the pattern of data that would lead you to conclusively make a "go/no-go" statement about the new model?
+  + 
+  + 
+  + 
+- Who are you going to compare to whom in this experiment? Be specific here -- are you going to design a between-subjects or within-subjects experiment, and why? What are the relative merits to these two sets?
+  + 
+  + 
+  + 
+- What principled way to reveal potential outcomes are you going to use? How, or what will your strategy be to determine whether this way of revealing potential outcomes was reliably implemented?
+  + 
+  + 
+  + 
+- What are you going to do about people who leave the platform? Or use the platform less? Is this an outcome? Is this a form of attrition? Or what?
+  + 
+  + 
+  + 
+- Your units are connected to one another -- or at least the platform was developed in a way that used to allow this. How does this change your randomization? Does it?
+  + 
+  + 
+  + 
+- What does the design look like? Draw out the X's and O's. Where are the comparisons that are /strongly/ causal? Where are the comparisons that /might/ be causal? Where are the comparisons that are definitely /not/ causal?
+  + 
+  + 
+  + 
+- Since you're not going to roll this out to everyone at once, from where are you going to take your 0.1% sample? The same areas? Different areas? Why?
+  + 
+  + 
+  + 

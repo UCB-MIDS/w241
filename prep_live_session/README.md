@@ -538,6 +538,10 @@ x
     -   Who in the organization needs to make better decisions based on the answer?
     -   Can you quantify the hypothesized value of the better decisionmaking?
 
+## In Class Discussions
+
+- There are two talks that we might have; one [advertisements](./facebookAds.org) and one about [gun contro](gunControlDebate.pdf)
+
 # Week 14 - 15 Student Presentations
 
 
