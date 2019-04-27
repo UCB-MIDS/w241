@@ -55,6 +55,16 @@ c. How many of the simulated random assignments generate an estimated ATE that i
 
 ```
 
+As an aside, there is a really nice way to produce literate reports in RStudio. Just like we're writing our code in "code chunks" where things are evaluated, you can also include objects into the printed space by creating an inline chunk. 
+
+For example, suppose we have an object `x` which has in it the values `1, 2, and 5.` We can create this objects in the normal way: 
+
+```{r}
+x <- c(1,2,3)
+```
+
+But we can also write what the average of this vector is using an inline call. The mean of this vector is `r mean(x)`. When we write "backtick r" we're opening an inline call, in the R language which close with another "backtick". Use this when you're reporting your results whenever possible! 
+
 d. What is the implied *one-tailed* p-value? 
 
 ```{r}

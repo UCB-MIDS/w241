@@ -57,7 +57,7 @@ a. Using the data set from the book's website, estimate the ITT. First, estimate
 
 ```
 
-b. Use randomization inference to test the sharp null hypothesis that the ITT is zero for all observations, taking into account the fact that random assignment was clustered by dorm room. Interpret your results. 
+b. Use randomization inference to test the sharp null hypothesis that the ITT is zero for all observations, taking into account the fact that random assignment was clustered by dorm room. Interpret your results -- in particular, are you surprised at your result when you compare it to the p-value in part (a)? (This is a 2 point question, because there's quite a bit of work here.)
 
 ```{r}
 
