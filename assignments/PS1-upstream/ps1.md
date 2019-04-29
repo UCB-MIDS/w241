@@ -4,7 +4,7 @@ Experiments and Causality
 
 # 1\. Potential Outcomes Notation
 
-  - Explain the notation \[Y_{i}]\]
+  - Explain the notation \(Y_{i}(1)\).
 
   - Explain the notation \(E[Y_{i}(1)|d_{i}=0]\).
 
