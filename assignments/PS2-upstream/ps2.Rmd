@@ -1,9 +1,7 @@
 ---
 title: "Problem Set 2"
 author: "Experiments and Causality"
-output:
-  pdf_document: default
-  html_document: default
+output: rmarkdown::github_document
 ---
 
 
