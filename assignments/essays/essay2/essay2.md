@@ -47,7 +47,9 @@ After posting your paper the day before class, make sure to read, before class, 
 3. Your experiment may end up becoming a first step in a larger research program, as you will likely learn something from the process of designing the experiment, and may generate new ideas that are worth trying later. 
 4. Experiments conducted using Amazon's mechanical turk often are less satisfying an experience than an experiment that you conduct using other means. 
 
-# Grading Rubric 
+# Grading Rubric
+
+![rubric](./rubric.png)
 
 |                 |1 (Poor) | 2 (Fair) | 3 (Good) z| 4 (Excellent) | 
 |-----------------|---------|----------|-----------|---------------| 
