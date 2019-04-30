@@ -1,7 +1,7 @@
 
 
 # Overview 
-This is the directory for assignments. All the assigments _should_
+This is the directory for assignments. All the assignments _should_
 have the data that is necessary to complete the assignment included in
 the repository. This means that when you clone the repository to your
 own machine, you can just write your code relative to that cloned
@@ -12,7 +12,10 @@ able to download it and execute without any problems.
 
 # Assignments
 - [Problem Set 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2019)
-
+- [Problem Set 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2019)
+- [Problem Set 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2019)
+- [Problem Set 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2019)
+- [Problem Set 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2019)
 
 We come from PhD programs where all of the students (now
 faculty @ UCB, Harvard, Princeton, UCLA, UofMichigan, UT-Austin)
