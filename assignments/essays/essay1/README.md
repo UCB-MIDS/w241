@@ -8,7 +8,7 @@ The best sources to choose will very clearly _pose_ the causal question that the
 
 ## Sources that you might consider
 
-You've got access to all of the scholarly literatuer in the world through your University VPN. Use it! Is there some substantive topic that you're interested in? There's _absolutely_ a scholarly journal that is covering the topic. Particularly good sources, include:
+You've got access to all of the scholarly literature in the world through your University VPN. Use it! Is there some substantive topic that you're interested in? There's _absolutely_ a scholarly journal that is covering the topic. Particularly good sources, include:
 
 - Nature, Science, Proceedings of the National Academies 
 - NEJM, The Lancet, BMJ 
