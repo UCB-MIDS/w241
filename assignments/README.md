@@ -1,3 +1,5 @@
+
+
 # Overview 
 This is the directory for assignments. All the assigments _should_
 have the data that is necessary to complete the assignment included in
@@ -7,6 +9,10 @@ repository.
 
 This also means that when you submit your problem set, I should be
 able to download it and execute without any problems.
+
+# Assignments
+- [Problem Set 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2019)
+
 
 # Files for Submission
 I'd like you to submit two files for each homework. One should be a
