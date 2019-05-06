@@ -1,20 +1,28 @@
 * The Group Project 
-In teams of 3-5 students, carry out a pilot experiment that measures a causal effect of interest.
-
-- The experiment should involve at least 30 observations per treatment.  Please note, that when you perform your power calculations, that for an experiment with 30 observations to be run, you should have both (a) a /strong/ treatment effect, and (b) a /very/ clean measurement of your outcome.
-- The data may be collected either online or offline.  If the latter, students may choose to divide up the data collection, but be careful to balance the data collection across potentially heterogeneous clusters in different locations.
+In teams of 3-5 students, carry out an experiment that measures a causal effect of interest.
 
 * Project Aims 
-- Our intentions for this project is for you to learn what it is like to do an experiment in practice. This means identifying the theory that you want to test, deducing hypotheses that would support that theory, developing a measurement scheme for your outcomes, and then designing and executing an experiment that will systematically reveal subjects' potential outcome.
-- We understand that, given the limited scope of the project, it may not be possible for you to have the perfect design or enough observations that your data will be academically publishable.
+- In this project, we want you and your team to learn what it is like to do an experiment in practice. This means identifying the theory that you want to test, deducing hypotheses to test from that theory, developing a measurement scheme for your outcomes, and then designing and executing an experiment that will systematically reveal subjects' potential outcomes.
+- We understand that, given the limited scope of the project, it may not be possible for you to have the /perfect/ design. We've never seen the perfect design, even when there aren't resource constraints! 
+
+* The Nitty Gritty 
+- The experiment that you perform should be adequately powered to detect an effect, should that effect actually exist.
+  - After you've talked through the design that the team is interested in persuing, the team should conduct some exploratory power analyses to determine how many treatment cells they can adequately fill with data to provide a well-powered test.
+  - You should /design defensively/. Suppose that the key set of tests from your experiment were to fall to reject the null hypothesis. How could you and the team determine whether this null is a consequence of: (a) a poor measurement strategy; (b) a poor treatment administration strategy; or, (c) the /actually/ is *no* treatment effect? 
+- The experiment may either be collected online or offline. 
+  - If the data is to be collected online -- say through mechanical turk -- the team should justify why an in person collection isn't feasible, and should also take /considerable/ care to ensure that the respondents that conduct online work are appropriately incentivized to perform high-quality work. (NB: Paying more is not sufficient to establish good work; you'll have to proivde more to online workers!)
+  - If data is to be collected offline -- then teams may choose to divide up the data collection, but should be careful to balance the data collection across potentially heterogeneous clusters in different locations.
 - It is /critically/ important to run a pilot experiment with a small number of observations. This will help you debug problems in execution before going ahead to collect all your data. 
+- Compliance with treatment and data reporting regimes is a problem that arises year after year. The project team should seriously consider how they're going to compel their subjects to provide their data -- eithe designing low-cost or passive data collection mechanisms, providing /strong/ incentives for subjects to reliably report data, or some other method.
+- Self-reported, survey data is a double edged sword -- it is relatively easy to collect and people are willing to put numbers on your survey -- but this comes at the expense that it does not measure true, or /revealed/ behavior. 
 - We strongly encourage you to collect real field experimental data instead of survey data. However, collecting data via a survey is common given the time constraints of a semester. If you do so, a common solution is to use Qualtrics, to which Berkeley has a license. Register for a free account using your Berkeley login at berkeley.qualtrics.com. Then, [[http://brentcurdy.net/qualtrics-tutorials/link/][this]] tutorial has good instructions on recruiting subjects to your survey using Mechanical Turk.
 
 * Presentation
-- During one of the final classes, we will ask you to present your findings to your peers for feedback that might help you improve your final paper. Please don’t spend time making the presentation pretty; this will not get an explicit grade.
+- During Week 14, we will ask you to present your findings to your peers for feedback that might help you improve your final paper. You should pitch the presentation toward what it is: a carefully thought out, but work-in-progress reporting of your experiment to a set of data science colleagues. 
 - See the document `/finalProject/presentationGuidelines.pdf` for more information about these presentations. 
 
 * The Final Paper 
+- After Week 14, you will turn in a final report for your project. 
 - See the document `/finalProject/projectGuidelines.org` for the most detailed information about what to complete for the project. 
 
 * Reimbursements
