@@ -151,11 +151,13 @@ Let's unpack this just a little bit. Inside each of these calls are at least thr
 3. the data that we're using.
 4. oh, there are four: the tilde.
 
-an equivalent way of each of these calls would be to use the vectors
+An equivalent way of each of these calls would be to use the vectors -- which might feel more similar to how you pull vectors and arrays in `scikit`. But, the ability to pull in whole data, and use the `~` as a splitting or modeling feature is a key component of the R language. 
 
 ```{r} 
 t.test(df$value[df$id > 10], df$value[df$id <= 10])
-``` 
+```
 
-But, i think you can see and appreciate the clarity of the `~`, ja feel?
+# Head Home
+
+Feel free to save the files that you've just edited, and then to close the *editor tab* that you've got open called `base_r.Rmd`. This way, you're organized for the next time you're here. 
 

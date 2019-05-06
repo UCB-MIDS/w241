@@ -6,9 +6,12 @@ title: "R Notebook"
 
 Look, the benefit to R is the manipulation of structured data. If you've got to generate a bunch of data through a scraping enterprise, or some form of a complex pipeline, or... you're probably better off handling that at a different layer; either on the storage layer before it comes to the analysis layer, or in a python handling layer. 
 
-But, once you've got data that's even *close* to being rectangular, I think you're Hard-pressed to find a more natural way of manipulating than R. pandas comes close, but there's a lot of fiddling around with indexes that can get in the way of intuitive merges and joins. 
+But, once you've got data that's even *close* to being rectangular, I think you would be hard-pressed to find a more natural way of manipulating than R. pandas comes close, but there's a lot of fiddling around with indexes that can get in the way of intuitive merges and joins. As well, it is pretty well known than pandas doesn't scale well.  
 
-There are two major idioms in R for data manipulation: `data.table` and `dplyr`; and, naturally there are a lot of arguments about which is "better", and concept that is so high-dimensional, that I don't think it makes much sense to even entertain. 
+There are two major idioms in R for data manipulation: `data.table` and `dplyr`.
+
+- `data.table` intends to be a high-performing, minimal package that can be deployed against data at all sizes. It has a concise, well structured api that is very stable, and its versioning is always back-compatible. The authors have in mind that you should be able to use `data.table` in production environment, potentially with large data.
+- `dplyr` is a part of the `tidyverse` that has taken the R language by storm. Rather than the concision of `data.table`, `dplyr` instead prefers conversational code, and relies on the concept of *verbs* that have natural language equivalents -- for example, rather than slicing a data.frame, `dplyr` would might call for a `filter(...)` of that dataframe. This is nice because collaborators can quickly read your code, nearly in natural language. 
 
 In what remains, I'll include a little write-up about data.table, which is probably less approachable out of the box, but does scale into medium size data (e.g. 100GB in memory) more readily than `dplyr`. This is *much less* comprehensive than the great guides that are available from the package authors: 
 
@@ -80,7 +83,7 @@ dt[ , age := sample(18:30, size = 20, replace = TRUE)]
 dt[ , edu := sample(c("Low", "Med", "High"), size = .N, replace = TRUE)]
 ``` 
 
-(What's happening with that `.N` call? This is a shortcut to say "for as many times as there are." This becomes useful when you don't know ahead of time how many time will be present, for example, when you pass a query that you don't know that answer to ahead of time. More on this in a moment. )
+(What's happening with that `.N` call? This is a shortcut to say "for as many times as there are." This becomes useful when you don't know ahead of time how many time will be present, for example, when you pass a query that you don't know that answer to ahead of time. More on this in a moment.)
 
 Notice that there is no indexing in the row position in this first case
 that is:
@@ -113,9 +116,9 @@ There is a similar construct in a data table.
 dt[ , list(value, type)] # which produces the same output
 ``` 
 
-Why are those in a list, rather than a character vector? Don't get too lost in it just yet, but a *huge* benefit is that we're going to be able to perform functions against columns. Since those locums might return something that has as different shape than what we started with, we're going to use the more flexible list structure, than the character vector structure. 
+Why are those in a list, rather than a character vector? Don't get too lost in it just yet, but a *huge* benefit is that we're going to be able to perform functions against columns. Since those columns might return something that has as different shape than what we started with, we're going to use the more flexible list structure, than the character vector structure. 
 
-Note that in a `data.table` we do NOT quote the variable names. Note too that typing `list()`  could get a little old, so there is an alias to this call: `.()`
+Note that in a `data.table` we do NOT quote the variable names. Note too that typing `list()`  could get a little old, so there is a *strongly recommended* alias to this call: `.()`
 
 ```{r} 
 dt[ , .(value, type)]
@@ -135,48 +138,56 @@ as.data.frame(dt[ , .(value, type)]) == df[ , c("value", "type")]
 
 ## Returning mappings of vectors
 
+Fine, being able to reference things in the row and column space is a good start, but what if we want to summarize the data in some way? Here's where we start making headway with the idiom. You can perform *any* transformation you like against the columns -- simple call for that transformation in the column space of the data.table.
 
-What if we want to summarize the data in some way? You pick the way that seems
-reasonable. In a data.table, we can call for that mapping in the column
-position.
+What we've called to this point hasn't made any transformations; instead, we've just been returning the whole vector. 
 
 ```{r}
 dt[ , value] # will print all of the values
 ``` 
 
-But if we want the average of those values: 
+But if we want the average of that vector of columns? Then, we can call for the `mean` function of the column that we're interested in, *within* the column space of the data.table. 
 
 ```{r}
 dt[ , mean(value)] # will print that mapping of values
 ``` 
 
+I might read this aloud as:
+
+> From `dt` for all values calculate the mean of `value`. 
+
+Naturally, we can also perform other univariate calculations in this column space:
+
 ```{r} 
 dt[ , sd(value)]
 dt[ , var(value)]
+```
+But, other actions -- such as plotting a histogram, or running a regression, are also simply functions applied to columns. So these, too can work in the column space.
+
+``` 
 dt[ , hist(value)]
 dt[ , lm(value ~ type)]
-``` 
-Note that if we call for a simple summary, what we get back is in the form of a vector. 
+```
+
+## What gets returned? 
+
+Note that if we call for a simple aggregation of a single summary, what we get back is in the form of a vector -- in this case a single element vector. 
 
 ```{r}
+dt[ , mean(value)]
 class(dt[ , mean(value)])
 ``` 
+This is useful for all kinds of tasks, especially if you're passing into another function. 
 
-If we pass that same call, but wrapped in a list, then we will return an
-object whose class is a data.table. Meaning that we can keep this as a data.table for further work, or storage. 
+But, if we pass that same call, but wrapped in a list, then we will return an object whose class is a data.table. Meaning that we can keep this as a data.table for further work, or storage. An added benefit, is that since this is a data.table, we can also name the returns, or return multiple concepts. 
 
 ```{r}
 dt[ , .(mean(value))]
 class(dt[ , .(mean(value))])
-``` 
 
-This might become useful if we want to make a smaller data table that is a summarization of several features: 
-
-```{r}
 dt[ , .(mean_value = mean(value),
-        sd_value = sd(value))]
+        sd_value   = sd(value)) ] 
 ``` 
-
 But, why might this be useful?
 
 We can map several pieces of data, perhaps to move from a stored table into something that we want to use for analysis.
@@ -186,15 +197,22 @@ dt[ , .(mean(value), sum(type == "A"))]
 ``` 
 
 Note that what came back is a data.table, with two variables created,
-V1 and V2. We could name those in the last call:
+`V1` and `V2`. These are generic names assigned because we didn't provide a name for the new columns.
+
+We could name those in the last call:
 
 ```{r}
-dt[ , .(m.value = mean(value), num.A = sum(type == "A")) ]
+dt[ , .(m_value = mean(value), num_A = sum(type == "A")) ]
 ``` 
 
 ## Grouping 
 
-One of the core things we do with data is group it, and map down the information in it to a lower dimensional space. Seriously, that is probably the VAST majority of what happens.
+One of the core things we do with data is group it, and map down the information in it to a lower dimensional space. No really, think about how much we do this:
+
+- PCA
+- Random Forests
+- Word-vector embeddings
+- And so on and so on.
 
 Grouping in a data.frame can be a little clunky (though it does
 again show that the tilde is in *all places*). 
@@ -206,8 +224,7 @@ aggregate(value ~ type, FUN = function(x) sqrt(var(x)), data = df)
 
 Grouping in data.tables, is a little less clunky. Rather than using the
 aggregate call, we can pass a function into the column position, just like
-earlier, but we can add an additional argument that is `by = ` after the
-column position.
+earlier, but we pass an additional argument: either `by` or `keyby` after the column position.  (The difference between `by` and `keyby` is that `keyby` sorts the results by the grouping feature, while `by` instead returns the result in the order that they are observed in the data.table. 
 
 ```{r} 
 dt[ , .(mean(value))]
@@ -219,4 +236,23 @@ dt[ , . (m.value = mean(value), sd.value = sqrt(var(value)) ),
    by = type ]
 
 dt[ , .(mean(value)), keyby = .(type, edu)]
-``` 
+```
+
+# Very Quick Practice
+
+Do some *very* quick practice using the **Titanic** data set that I'm sure you've all seen 100 times before.
+
+```{r}
+install.packages('titanic')
+library(titanic)
+
+d <- titanic_train
+```
+
+## Questions to answer
+
+1. Use the `mean` function to calculate the average rate of survival. 
+2. Use the `table` function to count the distribution of `Pclass`.
+3. In a single return table, show the proportion who are female `mean(Sex == "female")` and the average age. Look into `?mean` to see how to deal with missing numbers, stored as NA in R.
+4. Calculate the survival rate, grouped by Sex.
+5. Calculate the average fare, grouped by where the passengers `Embarked`. 
