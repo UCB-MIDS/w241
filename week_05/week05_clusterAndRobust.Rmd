@@ -2,16 +2,17 @@
 title: "Cluster and Robust"
 author: "Alex"
 date: \today
-output: pdf_document
+output: github_document 
 ---
 
 # Theory 
+
 How should one estimate robust and clustered variance covariance matrices?
 
 We talk about assumptions for regression. These assumptions are the Gauss-Markov set of assumptions, but boil down to:
 
 1. We have written down the right model;
-2. The data iid
+2. The data iid;
 3. The variance of the data is finite, and constant.
 
 In this little demo, we're really just talking about the last of these.
@@ -48,7 +49,6 @@ right.
 ```{r, message=FALSE}
 library(lmtest)
 library(sandwich)
-library(multiwayvcov)
 library(data.table)
 library(stargazer)
 ``` 
@@ -57,10 +57,9 @@ Begin by loading the sample data
 
 ```{r}
 rm(list = ls())
-data(petersen)
-p <- petersen           # who has time to type that a bunch of times? 
-rm(petersen)
-ls()
+d <- fread(
+  'https://www.kellogg.northwestern.edu/faculty/petersen/htm/papers/se/test_data.txt', 
+  col.names = c('firmid', 'year', 'x', 'y'))
 ``` 
 
 This data is simulated data with 500 firms identified over 10 separate years.
@@ -71,50 +70,57 @@ This data is simulated data with 500 firms identified over 10 separate years.
 - `y`     : the LHS variable 
 
 ```{r}
-head(p)
+head(d)
 ``` 
 
 ## Estimate Coefficients 
+
 Now, we can *really* easily fit a model for this. 
 
 ```{r}
-m1 <- lm(y ~ x, data = p)
+m1 <- d[ , lm(y ~ x)]
 ``` 
 
 ## Estimate Uncertainty  
 
-Robust standard errors are calculated using the `sandwich` package, and via the `vcovHC` function call, which is the **H**eteroskedastic **C**onsistent **V**ariance **Co****V**ariance estimator. 
+Robust standard errors are calculated using the `sandwich` package, and via the `vcovHC` function call, which is the **V**ariance **Co****V**ariance estimator that is **H**eteroskedastic **C**onsistent . 
 
 ```{r}
 ## ? vcovHC
-m1$vcovHC <- vcovHC(m1)
-coeftest(m1)
+m1$vcovHC_ <- vcovHC(m1)
+coeftest(m1, vcov. = m1$vcovHC_)
 ```
 
-```{r, results='asis'}
-stargazer(m1, se=list(sqrt(diag(m1$vcovHC))), header=F)
+```{r, }
+stargazer(
+  m1, 
+  type = 'text',
+  se=list(sqrt(diag(m1$vcovHC_))), 
+  header=F
+  )
 ```
 
 Clustered standard errors are not much more difficult. They are, by their nature, not only estimating the quantity of the covariance within the cluster, but are also estimating robust estimates as well. 
 
 ```{r}
 ## 
-## ?multiwayvcov::cluster.vcov
+## sandwich::vcovCL
 ## 
 
 ## one way clustering 
-m1$cluster1.vcov <- cluster.vcov(m1, ~ firmid)
+m1$vcovCL1_ <- vcovCL(m1, cluster = d[ , firmid])
 ## two way clustering
-m1$cluster2.vcov <- cluster.vcov(m1, ~ firmid + year)
+m1$vcovCL2_ <- vcovCL(m1, cluster = d[ , .(firmid, year)])
 
-coeftest(m1, m1$cluster1.vcov)
-coeftest(m1, m1$cluster2.vcov)
+coeftest(m1, m1$vcovCL1_)
+coeftest(m1, m1$vcovCL2_)
 ```
 
 ```{r, results='asis'}
 stargazer(m1, m1, 
-          se = list(sqrt(diag(m1$cluster1.vcov)), 
-                    sqrt(diag(m1$cluster2.vcov)) ), 
+          type = 'text', 
+          se = list(sqrt(diag(m1$vcovCL1_)), 
+                    sqrt(diag(m1$vcovCL2_)) ), 
           header=F
 ) 
 ```
@@ -122,23 +128,27 @@ stargazer(m1, m1,
 To pull off the SEs from the Variance Covaraince matrix, we need only to pull the squareroot of the diagonals of the VCOV. 
 
 ```{r}
-m1$robust.se <-  sqrt(diag(m1$vcovHC))  # note that this is operating on the
+m1$robust.se <-  sqrt(diag(m1$vcovHC_))  # note that this is operating on the
                                         # object we already created
-m1$cluster1.se <- sqrt(diag(m1$cluster1.vcov))
-m1$cluster2.se <- sqrt(diag(m1$cluster2.vcov))
+m1$cluster1.se <- sqrt(diag(m1$vcovCL1_))
+m1$cluster2.se <- sqrt(diag(m1$vcovCL2_))
 
 ## for comparison, let's compute the OLS SEs
-m1$ols.vcov <- vcovHC(m1, "const")
-m1$ols.se   <- sqrt(diag(m1$ols.vcov))
+m1$vcovCONSTANT_ <- vcovHC(m1, "const")
+m1$seCONSTANT_   <- sqrt(diag(m1$vcovCONSTANT_))
 ``` 
 
 With each of these esimated, we can produce a table that reports all the estimates. 
 
-```{r, results='asis'}
+```{r}
 stargazer(m1, m1, m1, m1,
-          se = list(m1$ols.se, 
+          type = 'text', 
+          se = list(m1$seCONSTANT_, 
                     m1$robust.se,
-                    m1$cluster1.se,
+                    m1$cluster1.se, 
                     m1$cluster2.se),
+          add.lines = list(
+            c('SE Flavor', 'OLS', 'Robust', 'Cl: firmid', 'Cl: firmid and year')
+          ),
           header=F)
 ```
