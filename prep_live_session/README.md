@@ -24,19 +24,17 @@
 # Week 1: The Importance of Experimentation
 ## News articles with causal claims
 
-First, read the three news articles that we provided as examples for [*Essay 1*](https://docs.google.com/a/davidreiley.com/document/d/1DSuupY-xbNJykxpO3tRA_n7_auozF5gS3gQrC3vk9z8/edit):
+First, read the three news articles that we provided as examples for [*Essay 1*](../assignments/essays/essay1/readme.md):
 -   [*Obesity caused by suburban sprawl*](http://www.cbsnews.com/2100-204_162-570634.html) (2013)
--   ~[*Inducing labor increases the chance of Caesarian section*](http://www.reuters.com/article/2010/06/21/us-induced-labor-c-section-idUSTRE65K6DW20100621) (2010)~
--   ~[*Sexual promiscuity decreases the risk of prostate cancer*](https://www.telegraph.co.uk/news/science/science-news/11192385/Sex-with-21-women-lowers-risk-of-prostate-cancer-academics-find.html) (2014)~ 
 -   [Get Fast?](https://www.nytimes.com/interactive/2018/07/18/upshot/nike-vaporfly-shoe-strava.html) (2018)
 
 For each article, please consider the following discussion questions:
--   What is the causal claim?
--   What is an alternative explanation for the reported correlation?
+- What is the causal claim?
+- What is an alternative explanation for the reported correlation?
 
 ## Cargo Cult Science
 
-Next read [*“Cargo Cult Science”*](https://drive.google.com/file/d/0BxwM1dZBYvxBVlctRHo3MDR3OHM/view) by Nobel laureate [*Richard P. Feynman*](http://en.wikipedia.org/wiki/Richard_Feynman). As you read this article, consider the following discussion questions:
+Next read [*“Cargo Cult Science”*](../readings/Feynman.1974.pdf) by Nobel laureate [*Richard P. Feynman*](http://en.wikipedia.org/wiki/Richard_Feynman). As you read this article, consider the following discussion questions:
 -   How does data science, as practiced, tend to be different from natural science as practiced?
 -   What are characteristics of *true* science?
 -   What are ways that individuals fool themselves?
@@ -96,9 +94,6 @@ As you complete the asynchronous content, you might want to look at some of the 
 
 # Week 3: Quantifying uncertainty
 
-## Randomization Inference
-See the code in the `./code/` folder called _week3.Rmd_ or the corresponding .pdf or .html files. You may want to have this on hand while David is running through the examples of code that he presents with the async material. I think that it is better constrcuted than what he presents, but it _very_ closely follows the layout and structure that he presents. 
-
 ## Lewis & Rao reading
 When doing the reading on Lewis and Rao for live session, please consider the following questions to promote your understanding. We will discuss a subset of these questions in class, depending on our time constraints. Let us know in advance if you want to make sure to discuss one of these in particular.
 -   On the topic of statistical power, several questions:
@@ -108,39 +103,11 @@ When doing the reading on Lewis and Rao for live session, please consider the fo
     -   d. Why is it harder to show that a campaign is profitable than to show that its effects are statistically significant?
 
 ## Exercises we intend to do in class
--   FE, 3.1, a through c
--   **Exercise on randomization inference**.
-    -   For this exercise, **please try to write code from scratch**, rather than just copying code provided in the async material. If you can’t remember the correct syntax, see if you can look it up. Ask the instructor for help if you need it. **Only refer to the R code from the async as a last resort,** because you will learn more from thinking this through!
-    -   R functions that may be useful for you (use online help to learn syntax):
-        -   `read.csv()` - read a csv file into memory
-        -   `rep()` - repeat a given number a set number of times. e.g., 00000
-        -   `replicate()` - repeat a function call N times and return the results
-        -   `sample()` - randomly sample or sort values, depending on specification
-        -   way to define a function:
-		```
-		functionName() {
-		do stuff here
-		return(value.to.return)
-		}
-		```
--   Use donations data from Box 3.7, on page 65 of GG. Data here: [*https://drive.google.com/file/d/0B\_Qj0otlErJqMFkzTEF3aXN0Y28/edit?usp=sharing*](https://drive.google.com/file/d/0B_Qj0otlErJqMFkzTEF3aXN0Y28/edit?usp=sharing)
-    -   Note: In the online data, the variable called Z records treatment (if Z is 1) or control (if Z is 0).
-    -   Click the little “download” link at the middle top to download.
--   For the exercise, do the following tasks:
-    -   Compute the ATE
-    -   Compute the p-value under randomization inference
-    -   Visualize the sampling distribution under the sharp null with a histogram
-        -   If time: To add the ate, use abline(v=ate)
-    -   Explain what causes this distribution to be bimodal.
--   FE 3.1 e (if time)
+- We're going to talk through `./week03_apply_these_concepts.Rmd` in live session. Please have worked through this code ahead of time, and be ready to talk about what you think is happening with that distribution of treatment effects under the sharp null. 
+-   FE, 3.1, (a), (b), (c), maybe (e) 
 -   FE 3.5, a, b, and d (if time)
 
 # Week 4: Blocking and Clustering
-
-## Essay 2 critique
-<!-- -   Please **make sure you have shared your Essay 2** with the members of the group we assigned you to last week. Those groups are posted to the Essay 2 forum for your convenience. -->
-<!-- -   Please read your classmates’ essays before class, so that you will be able to give them feedback during class. -->
-<!-- -   In your feedback, please critique your classmate’s answers to the four main questions in the [*Essay 2 assignment*](https://docs.google.com/a/davidreiley.com/document/d/1pyfGMUrcGZbTpbO3vwXTz9v0yf-fLVC8e_2FHNncSm4/edit). Also provide feedback on anything that needs to be made more clear. -->
 
 ## Exercises for discussion: Blocking, or Clustering?
 -   Example: Suppose we want to measure the effect of snowplowing on local retail activity. We design an experiment that plows some locations but not others. Which of the following do you prefer? Explain the relative advantages and disadvantages of each option.
@@ -177,7 +144,6 @@ When doing the reading on Lewis and Rao for live session, please consider the fo
 
 Here are some questions to guide your reading:
 -   First breakout
-
     -   Overall, what do we learn from the article about energy consumption behavior?
     -   Do you see an example of clustered treatment assignment in the article, even though they don’t use that language for it?
     -   In Table 1, which is the treatment variable of interest? What are the covariates in the two sets of regression results?
@@ -197,14 +163,6 @@ Here are some questions to guide your reading:
 
 Note: While you are preparing for this live session, it would be an excellent time for you to be thinking about Problem Set \#3. By the end of this class, you should be able to answer all of the questions on the problem set.
 
-## Reading Montgomery
-
-This is a nice article that both demonstrates treatment effects using the language that we have built in this course, and also the issues that exist when conditioning on ``bad controls.''
--  Section 1: Introduces the problem
--  Section 2: Can be skipped -- it just decribes how prevalent conditioning on post-treatment controls (i.e. bad controls) happens in political science
--  Section 3: Ensure that you can map how we move from the causal notation into the notation of the causal graph in Figures 1 and 2. Do you find this notation useful? Additionally, how does dropping observations based on post-treatment measured variables "ruin" the randomization? Can you follow along with the method of argument in section 3.4? Here, the authors are generating simulated data that has *no* treatment effect (on Y) but does have a treatment effect on the bad-control. How does this show the dangers of bad controls?
--  Section 4: These are instructive examples of when people make a mistake and condition on post-treatment variables (the first example by Dickson, Gordon and Huber (2015)); and do NOT make the mistake (our very own Broockman and Butler (2015)). 
-
 ## Practicing regression with the Colin/José example from FE (p. 304-307)
 
 Note that equation \[9.16\] only gives estimated coefficients, and lacks estimates of those coefficients’ standard errors. Let’s fix this by doing the regression ourselves.
@@ -213,7 +171,7 @@ Note that equation \[9.16\] only gives estimated coefficients, and lacks estimat
 -   Which of the coefficients are statistically significant at the 5% level, and which are not?
 -   How do you interpret the magnitudes of the significant coefficients?
 -   Now that you’ve practiced doing a simple regression, it’s a really good thing to get in the habit of using heteroskedasticity-robust standard errors. Re-run your regression model with robust standard errors, and re-answer the previous problems.
-    -   Hint: [*the top of this page*](http://drewdimmery.com/robust-ses-in-r/) describes how to implement robust standard errors in R.
+-  We work through this in [week4](../week04_demo_of_robust_ses.Rmd)
 
 ## Back to the [*Opower article*](http://www.nber.org/papers/w15386.pdf) from last week
 
@@ -221,16 +179,16 @@ Note that equation \[9.16\] only gives estimated coefficients, and lacks estimat
 -   Return to Table 1. Note that the title section of the table clarifies that there is “clustering by household ID.” What does this mean?
 -   What impact would you expect this clustering to have on the results in the table?
 
+## Reading Montgomery
+
+This is a nice article that both demonstrates treatment effects using the language that we have built in this course, and also the issues that exist when conditioning on ``bad controls.''
+-  Section 1: Introduces the problem
+-  Section 2: Can be skipped -- it just decribes how prevalent conditioning on post-treatment controls (i.e. bad controls) happens in political science
+-  Section 3: Ensure that you can map how we move from the causal notation into the notation of the causal graph in Figures 1 and 2. Do you find this notation useful? Additionally, how does dropping observations based on post-treatment measured variables "ruin" the randomization? Can you follow along with the method of argument in section 3.4? Here, the authors are generating simulated data that has *no* treatment effect (on Y) but does have a treatment effect on the bad-control. How does this show the dangers of bad controls?
+-  Section 4: These are instructive examples of when people make a mistake and condition on post-treatment variables (the first example by Dickson, Gordon and Huber (2015)); and do NOT make the mistake (our very own Broockman and Butler (2015)). 
+
 ## If time: Fundamentally Unanswerable Questions
 -   According to MHE, what constitutes a FUQ? Brainstorm examples of them.
-
-##  If time: [*List and Lucking-Reiley*](./readings/List_2002.pdf) (*Journal of Political Economy*, 2002)
-
-This was the progenitor of a line of many field experiments that have subsequently been done on the economics of charitable giving. You can merely skim the article; all I care about is that you be able to answer the following three questions:
--   What is the experimental design? Give dimensions, and describe the treatments.
--   What is the most important result you learn from the study?
--   Can you think of examples of covariates that might help to improve the precision of the estimates? The authors did not manage to collect any, but imagine that you are redoing the study now - what covariates would you like to collect?
--   Can you think of a research question that we might be able to answer if we had more precision in our estimated results?
 
 # Week 7: Heterogeneous Treatment Effects
 
