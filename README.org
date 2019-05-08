@@ -62,14 +62,13 @@ We use two books in this course, and read a third book in the second week. We re
 
 * Office Hours 
 
-| *Day*     | *Time*      | *Instructor* | *Link* |
-|-----------+-------------+--------------+--------|
-| Monday    | 12:30-1:30p | Alex         |        |
-| Tuesday   | 5:30-6:30   | Carson       |        |
-| Tuesday   | 6:30-8:30p  | Daniel       |        |
-| Wednesday | 5:30-6:30p  | Alex & Carson|        |
-| Thursday  | 5:30-6:30   | Micah        |        |
-| Friday    | TBD.        | Ross         |        |
+| *Day*     | *Time*      | *Instructor* | 
+|-----------+-------------+--------------|
+| Monday    | 12:00-1:30p | Alex         |
+| Tuesday   | 6:30-8:30p  | Daniel       |
+| Wednesday | 3:00-4:00p  | Carson       |
+| Thursday  | 2:00-3:00p  | Carson       |
+| Thursday  | 5:30-6:30   | Micah        |
  
 * Grading and Scoring 
 
@@ -78,5 +77,3 @@ We use two books in this course, and read a third book in the second week. We re
   - At this point, the course has lived for a number of semesters, and we have shared solution sets each semester. We note in particular that struggling with the problems is a key part of the learning in this course.  Copying from past solutions constitutes academic dishonesty and will be punished as such; you should know that we have included language in the solutions that will make it clear when something has been merely copied rather than understood.
 - *Essays* (20%, 10% each) 
 - *Class Experiment* (30%) In teams of 3-5 studetns, carry out a pilot experiment that measures a causal effect of interest. 
-
-v2 - 4/23/19
