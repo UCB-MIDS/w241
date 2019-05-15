@@ -43,7 +43,7 @@ right.
   - For clustering: load the additional package `multiwayvcov`
 - Compute Appropriate VCOV
   - robust : `vcovHC`
-  - cluster: `cluster.vcov`
+  - cluster: `vcovCL`
 
 # Demos 
 ```{r, message=FALSE}
