@@ -67,6 +67,7 @@ We use two books in this course, and read a third book in the second week. We re
 | Monday    | 12:00-1:30p | Alex         |
 | Tuesday   | 6:30-8:30p  | Daniel       |
 | Wednesday | 3:00-4:00p  | Carson       |
+| Wednesday | 5:30-6:30p  | Alex         |
 | Thursday  | 2:00-3:00p  | Carson       |
 | Thursday  | 5:30-6:30   | Micah        |
  
@@ -76,4 +77,5 @@ We use two books in this course, and read a third book in the second week. We re
   - We encourage you to work together on problem sets, because great learning can come out of helping each other get unstuck.  We ask that each person independently prepare his or her own problem-set writeup, to demonstrate that you have thought through the ideas and calculations and can explain them on your own.  This includes making sure you run any code yourself and can explain how it works.   Collaboration is encouraged, but mere copying will be treated as academic dishonesty.
   - At this point, the course has lived for a number of semesters, and we have shared solution sets each semester. We note in particular that struggling with the problems is a key part of the learning in this course.  Copying from past solutions constitutes academic dishonesty and will be punished as such; you should know that we have included language in the solutions that will make it clear when something has been merely copied rather than understood.
 - *Essays* (20%, 10% each) 
-- *Class Experiment* (30%) In teams of 3-5 studetns, carry out a pilot experiment that measures a causal effect of interest. 
+- *Class Experiment* (25%) In teams of 3-5 studetns, carry out a pilot experiment that measures a causal effect of interest. 
+- *Experiment Pilot Data* (5%) Pilot data analysis of distribution of outcome variable and covariate balance check 
