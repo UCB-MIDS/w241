@@ -31,7 +31,7 @@ ATE
 (Note that you could also accomplish the same thing without the "pipe" using chaining of operations in data.table 
 
 ```{r}
-d[ , .('group_mean' = ), keyby = .()][ , .('ate' = 'diff())])
+d[ , .('group_mean' = ), keyby = .()][ , .('ate' = diff())]
 ``` 
 
 2. Assess, using randomization inference, whether this effect is a _surprising_ effect, or instead if this effect could just have arisen from randomization error. 

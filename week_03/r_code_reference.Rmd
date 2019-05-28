@@ -4,6 +4,8 @@ title: "Formatted Async 3 Code"
 # Introduction 
 In this code we're going to work though an extended example that demonstrates how randomization inference works. As noted in the lecture, we are working through the example of a randomized assignment of men and women to eat (or not eat) soybeans and we are measuring the level of estrogen present in each of their bloodstreams (perhaps in parts/million).
 
+You *do not* have to work through this whole worksheet at once. In fact, it might make more sense to only work through it alongside the examples that David and David are talking about. 
+
 First, we create a grouping variable with two groups, one called "Man", and another called "Woman". 
 ```{r}
 group <- c(rep("Man",20),rep("Woman",20))
