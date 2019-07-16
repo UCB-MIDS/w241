@@ -1,0 +1,278 @@
+---
+title: "Untitled"
+output: 
+  html_document: 
+    toc: true
+---
+
+**Regression Discontinuity Designs** (RDD) generate inferences about causal quanitites that *very* nearly meet conditions that are produced by an experiment that has been explicitly randomized. Namely, if falling "just above" or "just below" the threshold where a **policy** is applied occurs at random, then at least for some people the efect of this policy is causally identified. 
+
+Broadly there are two strategies for estimating RDD estimates: Subset data to only use data that is very near the cuttoff or fit a model whose assumptions permit inference at the cuttoff. 
+
+# Create Data 
+
+```{r load packages, result='hide', message=FALSE, warning=FALSE}
+library(MASS)
+library(data.table) 
+library(stargazer)
+options(digits=3) # only print two 2 sig digits
+```
+
+```{r set variables}
+N = 10000
+TREAT_SIZE = 2
+```
+
+We're going to create data that is *intentionally* confounded. To do so, let's create two variables that are correlated with one another. We'll use the `MASS::mvrnorm` -- multivariate random normal distribution -- to produce these values. This takes three arguments: 
+- The number of draws: `N`
+- The mean of the vectors: `mu` 
+- The variance covariance matrix of the vectors: `sigma` 
+
+```{r make input data}
+sigma_ <- matrix(data=c(2,1,1,1), ncol = 2, nrow = 2)
+input_data <- mvrnorm(n=N, mu=c(5,0), Sigma=sigma_)
+
+plot(input_data[,1], input_data[,2], pch = '.', 
+     main = 'Running vs. Covariate', 
+     xlab = 'Running Variable', 
+     ylab = 'Covariate')
+```
+
+With that made, it is possible to produce data in the typical way: There is a treatment effect, `tau`; potential outcomes to control, `y_0`; and revealed potential outcomes that we can actually measure, `Y`. 
+
+If folks are in treatment, then we observe `Y := y_0 + tau`; if they're in control, then we observe `Y := y_0`. 
+
+```{r make data}
+d <- data.table(
+  id = 1:N, 
+  running = input_data[ , 1], 
+  covariate = input_data[ , 2], 
+  tau = rnorm(n=N, mean=TREAT_SIZE)
+)
+d[ , y_0 := 1 + 2 * covariate]
+```
+
+What determines if an individual is in treatment or control? Well, whether they are above or below the threshold where the treatment is applied. 
+
+In this case, suppose that the threshold occurs at whether the running variable is greater than five. Cases with `running <= 5` are in control; cases with `running > 5` receive the treatment. 
+
+```{r}
+d[ , Y := ifelse(running > 5, y_0 + tau, y_0)]
+```
+
+If someone has a value greated than 5 on the running variable, then they receive the treatment. And so, although it isn't *strictly* necessary, we can encode this information into a concise variable. 
+
+```{r}
+d[ , treat := 1 * (running > 5)]
+```
+
+Here, I just multiply one $\times$ the boolean that returns from the `running > 5` test. This converts it to a numeric, rather than the bool. This is not strictly necessary, but is just how I prefer to see it represented. 
+
+```{r}
+head(d)
+```
+
+What do we know about this data?
+
+- There is *definately* some non-experimental relationship between covariates and the outcome.
+
+```{r}
+covariate_model <- d[ , lm(Y ~ covariate)]
+summary(covariate_model)$coefficients
+```
+- There is also *definaetely* some non-experimental relationship between the covariates and the **treatment** policy being implemented. 
+
+```{r}
+treatment_model <- d[ , lm(treat ~ covariate)]
+summary(treatment_model)$coefficients
+```
+And so, as a result, we have a problem that the two group estimator that has produced unbiased estimates of the causal effect $(\tau)$ will not work in this case. 
+
+*Check your remembering*. What is the treatment effect that was built into the data? 
+
+```{r}
+confounded_model <- d[ , lm(Y ~ treat)]
+summary(confounded_model)$coefficients
+```
+
+In this particular case, we could solve the confounding problem by including the covariate in this regression. But, because this is just one of (uncountably) *many* confounders that might be out there, regression adjustment isn't a generally useful solution.
+
+```{r}
+impossible_model <- d[ , lm(Y ~ treat + covariate)]
+summary(impossible_model)$coefficients
+```
+
+# Data Subsetting Solution 
+
+What would happen if we restricted our data to only use data that is *very* close to the discontinuity? Not only would this preserve the "assignment" of some units to treatment and control, but it will also reduce the amount of covariance between the `covariate` and the treatment indicator. **Why?**
+
+## Question of Understanding
+
+Before you scroll down to the section, consider this question: 
+
+Imagine two cases: 
+
+1. You use the entire data table that you have built to this point; 
+2. You use the following subset of the data table: the subset where the `running` variable falls within one unit of the treatment cuttoff: that is, `running > 4 & running < 6`. 
+
+Will one of these two scenarios have more variance in the `running` variable? If so, which? 
+
+Will one of these two scenarios have more variance in the `covariate` variable? If so, which? 
+
+Will one of these two scenarios have more variance in the `treat` variable? If so, which? 
+
+## Answer to questions
+
+No seriously, don't peek! Think about them first! 
+
+By compressing the range on the running variable, there is just less variance in the running variable. Because the running and covariate are correalted with one another, there is also less variance in the covariate. 
+
+**But** because we are ensuring that we have coverage on both sides of the place where the policy is applied, we have no reduction in the amount of variance in the *treatment* indicator. 
+
+```{r}
+d[ , .(running_var   = var(running), 
+       covariate_var = var(covariate), 
+       treat_var     = var(treat))]
+```
+
+```{r}
+d[running > 4 & running < 6,
+  .(running_var   = var(running), 
+    covariate_var = var(covariate), 
+    treat_var     = var(treat))]
+```
+
+What if we get *really* close to the cuttoff? 
+
+```{r}
+d[running > 4.9 & running < 5.1,
+  .(running_var   = var(running), 
+    covariate_var = var(covariate), 
+    treat_var     = var(treat))]
+```
+
+What are the implications of this? Because this subsetting is limiting the variance in the covariate variable, there will be a *mechanical* reduction in the amount of covariance between the `treat` and `covariate` variables. And, as a result, there is ever less omitted variables bias that is generated in the estimates of the treatment effect. 
+
+```{r}
+subset_treatment_model <- d[
+  running > 4.9 & running < 5.1, 
+  lm(treat ~ covariate)]
+summary(subset_treatment_model)$coefficients
+```
+
+We can compare this directly: 
+
+```{r}
+stargazer(
+  treatment_model, 
+  subset_treatment_model, 
+  type = 'text'
+)
+```
+
+And, can show how this subsetting affects the estimates of the treatment indicators. 
+
+```{r}
+subset_effect_model <- d[
+  running > 4.9 & running < 5.1, 
+  lm(Y ~ treat)
+]
+
+```
+
+
+```{r}
+stargazer( 
+  confounded_model, 
+  subset_effect_model, 
+  type = 'text'
+  )
+```
+
+Of course, you'll also note the decrease in power that we're generating by throwing away all this data. Doing so has increased the standard errors of our estimates four-fold.
+
+# Model Based Solution 
+
+## Very Simple Data 
+Let's again plot the data that is in memory. 
+
+```{r plot simple data incorrectly}
+d[ , plot(x=running, y=Y, pch = 19, col=rgb(1,0,0,0.4), 
+          main='Simple RDD Plot')]
+d[ , lines(lowess(x=running, y=Y))]
+```
+
+What is difficult about this plot is that the line is smoothing across the discontinuity. Since it is known where the policy is being implemented, *break* the smoother at that point. 
+
+```{r plot simple data correctly}
+d[ , plot(x=running, y=Y, pch = 19, col=rgb(1,0,0,0.4), 
+          main='Simple RDD Plot')]
+d[running < 5, lines(lowess(x=running, y=Y), lwd=2)]
+d[running > 5, lines(lowess(x=running, y=Y), lwd=2)]
+```
+
+With this plot, it is easy to see the discontinuity -- there is a two unit difference at the point that that policy is implemented. 
+
+How would one fit a model to this data? Well, you will need: 
+
+1. A term for hte intercept; 
+2. A term for the trend through the `running` variable; 
+3. A term for the displacement at the policy point. 
+
+```{r}
+simple_model <- d[ , lm(Y ~ treat + running)]
+summary(simple_model)$coefficients
+```
+
+## Slightly more realistic data 
+
+The first set of data is easy to solve for; what if there is some relatively more complex relationship that is present in the data. 
+```{r medium data}
+d <- data.table(
+  running   = input_data[, 1], 
+  covariate = input_data[, 2]
+  )
+d[ , treat := running > 5]
+d[ , Y := (running * .1) - (2 * covariate) - (4 * running > 5) + (1 *running) * (running > 5) ]
+```
+
+What does this data look like? 
+
+```{r}
+d[ , plot(x=running, y=Y, col=rgb(0,1,0,.4))]
+d[running < 5,  lines(lowess(x=running, y=Y), lwd=2)]
+d[running >= 5, lines(lowess(x=running, y=Y), lwd=2)]
+```
+
+What is the treatment effect? Use the subsetting approach to estimate it. 
+
+```{r}
+subset_model <- d[running > 4.95 & running < 5.05, 
+  lm(Y ~ treat)
+  ]
+summary(subset_model)$coefficients
+```
+
+If you failed to subset, and failed to get the model form correct, what would you estimate? 
+
+```{r}
+wrong_model <- d[ , lm(Y ~ treat)]
+summary(wrong_model)$coefficients
+```
+
+And, if you got the model form correct? 
+
+```{r}
+complex_model <- d[ , lm(Y ~ running + treat + running * treat)]
+```
+
+Where is the treatment effect here? Well, because the treatment indicator is interacted with the running variable, it is not possible to interpret one of the coefficients independently of the others. 
+
+```{r}
+pred_data <- data.table(
+  running = c(4.99, 5.01), 
+  treat = c(FALSE, TRUE)
+)
+predictions <- predict(complex_model, newdata=pred_data)
+diff(predictions)
+```
