@@ -46,12 +46,12 @@ able to download it and execute without any problems.
 - [Section 6](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2019-section6)
 
 ## Problem Set 5
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2019-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2019-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2019-section3)
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-section3)
 - [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2019-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2019-section5)
-- [Section 6](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2019-section6)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-section5)
+- [Section 6](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-section-6)
 
 We come from PhD programs where all of the students (now
 faculty @ UCB, Harvard, Princeton, UCLA, UofMichigan, UT-Austin)
