@@ -23,7 +23,13 @@ You've got three groups of people who will be *very* interested in the results o
 
 1. *The advertisers*: These are the people who are producing the creative on the ads and selling the products. They will want to know whether, and which kinds, of people are viewing the ads. They will also want to know whether the ads are leading to increased recall/remembering of the spot.
 2. *The leadership*: These are the people internal to the company. They will also want to know whether and what kinds of ads work, but the will also want to know how the mid-video advertisement affects users' behavior on the platform. 
-3. *The machine learning team*: Part of the task in this full-stack data science is identifying at what point in a video an advertisement can be insert. Put it in mid sentence and people are confused; but, if you put it in just before the person starts their death defying jump, and they'll stay; you put it anywhere in a [[https://youtu.be/AIXUgtNC4Kc?t=105][Die Antwoord]] video and 70% will thank you but leave the video and 30% will be so confused that they will not remember the ad. 
+3. *The machine learning team*: Part of the task in this full-stack
+   data science is identifying at what point in a video an
+   advertisement can be insert. Put it in mid sentence and people are
+   confused; but, if you put it in just before the person starts their
+   death defying jump, and they'll stay; you put it anywhere in a Die
+   Antwoord  video and 70% will thank you but leave the video and 30%
+   will be so confused that they will not remember the ad.  
 
 * Design the study. 
 With these stakeholders to satisfy, how would you design an experiment to answer these causal questions? 
