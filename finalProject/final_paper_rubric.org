@@ -1,0 +1,68 @@
+* Introduction 
+This rubric is a guide for you to use as you are writing your final paper for *Experiments and Causality*. There are a many ways to structure this paper -- as a report, as a journal article -- but no matter the specific form of the output, you will have to have to address each of the following points. 
+
+* General Report Structure 
+1. Structure - the structure of the paper is follows a coherent process. The best versions of this will follow a process that unfolds information to the reader in the order that he or she requires it; less desirable, but still reasonably well structured presentations will follow a chronological timeline; poor examples will be unstructured 
+2. Grammar - grammar structures (e.g. verb-tense) are used appropriately
+3. Vocabulary - the choice of vocabular is appropriate for use with a peer data scientists who is reviewing a report based on an experiment. For example, where necessary, the report will refer to "potential outcomes" and "attrition" and will make plain that these concepts are being used appropriately. 
+4. Level of Detail - The level of detail in the report is appropriate for a peer to read. Components that are necessary to understand the high-level takeaway from the project are all reported in the main body; components that are necessary to understand technical components of the execution are either well-placed, and in their own sections, or are included in a supplementary document (e.g. an appendix).
+
+* Report 
+1. An introduction that poses the research question.
+2. Do not include a signposting paragraph. These are tedious and your paper should be well structured enough that it stands without one.
+3. A justification -- based on either previous research (theory), business intuition (inductive theory), or some other structure (lazy theory) -- that informs your reader why you have chosen to conduct this specific experiment.
+4. A specific statement of the hypotheses that are up for test and why you think they should show a difference (this comes from #3 above). 
+
+* Experimental Details 
+1. Comparison of Potential Outcomes - A clear statement is made that describes what potential outcomes are going to be compared to which other. This could come in the form of an explicit appeal to the ROXO comparison, but it need not necessarily be. Clarity in this exposition is crucial.
+2. Randomization Process - Given the design that you've written down, how will you actually go about creating random assignment into one or more of the groups? If this is not *explicitly* random, then detail what tradeoffs you are having to make.
+   1. If you have any reason to doubt that randomization was not conducted according to plan -- that is, it isn't random -- then checks to evaluate any deviations should be presented, consequences for these deviations considered, and remedies -- to the extent they are possible -- proposed. 
+3. Treatment - What is the treatment? Specifics of the feature, or experience, or intervention should be provided somewhere in the document; frequently this works well in the main body; it can also work well in an appendix.
+   1. If there was not perfect compliance to the treatment regime, then checks to evaluate deviations should be presente and deviations considered. To the extent that they are possible, remedies should be proposed.
+4. CONSORT document -- Detailed on p. 439, your report should make clear who was considered for involvement in your experiment, who was assigned, and whose data will eventually be used.
+5. Power Calculation -- Given *pre-experiment* assumptions about effect size and experiment size, how much power does the experiment anticipate generating. 
+
+* Analysis
+
+1. Data: the data is clearly detailed, and the reader can understand at a conceptual and operational level
+   1. The outcome that is being measured and reasoned about
+   2. How the treatment that was described in the /Experimental Details/ section maps into the operational space for the models. 
+   3. Important covariate features that will be used in the analysis. 
+2. Models: there is a clear, structured, and progressive plan for testing and reporting. 
+   1. Data - Models use data from units that is appropriate for estimating the causal quantity of interest. 
+   2. Design - Estimates for causal effects identify the same quantities that are designed for in the /Experiment Details/ section.
+   3. Models - Models first estimate simple "treatment-control" contrast, unadorned with additional model features intended to improve precision;
+   4. Models - To the extent that it was designed for, models increase precision of estimates using 'good controls'
+   5. If implicated in the Theory or Hypotheses, either HTE or subgroup analysis are handled appropriately.
+3. Tables: The findings of the experiment can be read through a limited number of tables. Tables:
+   1. Communicate a specific point
+   2. Are titled, have axes labeled, and legends included.
+   3. Include a caption that is informative enough that the figure is readable without reading more than the Abstract of the paper and knowing the treatments and outcome measures. 
+4. Figures: The key findings of the experiment can be read through a limited number of figures. Figures:
+   1. Communicate a specific point
+   2. Are titled, have axes labeled, and legends included.
+   3. Include a caption that is informative enough that the figure is readable without reading more than the Abstract of the paper and knowing the treatments and outcome measures. 
+
+
+| Topic         | 1 | 2 | 3 | 4 | 5 | Comments |
+|---------------+---+---+---+---+---+----------|
+| Structure     |   |   |   |   |   |          |
+| Grammar       |   |   |   |   |   |          |
+| Vocabulary    |   |   |   |   |   |          |
+| Detail        |   |   |   |   |   |          |
+|---------------+---+---+---+---+---+----------|
+| Research Q    |   |   |   |   |   |          |
+| ~Signpost~    |   |   |   |   |   |          |
+| Theory        |   |   |   |   |   |          |
+| Hypotheses    |   |   |   |   |   |          |
+|---------------+---+---+---+---+---+----------|
+| Potential O   |   |   |   |   |   |          |
+| Randomization |   |   |   |   |   |          |
+| Treatment     |   |   |   |   |   |          |
+| CONSORT       |   |   |   |   |   |          |
+| Power Calc    |   |   |   |   |   |          |
+|---------------+---+---+---+---+---+----------|
+| Data          |   |   |   |   |   |          |
+| Models        |   |   |   |   |   |          |
+| Tables        |   |   |   |   |   |          |
+| Figures       |   |   |   |   |   |          |
