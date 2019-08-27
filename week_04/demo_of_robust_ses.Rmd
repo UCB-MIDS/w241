@@ -402,4 +402,53 @@ legend("topright", legend = c("right"),
 
 # What is a person to do?? 
 
+```{r}
+simulate_bad_clustering <- function(
+  number_clusters = 10, 
+  tau = 1,
+  number_simulations = 1000) { 
+
+    d <- data.table(
+      cluster_id = rep(LETTERS[1:number_clusters], times = 1:number_clusters), 
+      cluster_offset = rep(1:number_clusters, times = 1:number_clusters),
+      individual_offset = sequence(1:10)
+    )
+
+    d[ , po_control := cluster_offset + individual_offset]
+    d[ , po_treat   := po_control + tau]
+
+    ate <- rep(NA, number_simulations)
+
+    for(i in 1:number_simulations) { 
+      d[ , D := 0]
+      d[sample(1:10, size=5, replace = FALSE), D := 1]
+      d[ , Y := ifelse(D==1, po_control, po_treat)]
+
+      ate[i] <- d[ , .(group_mean = mean(Y)), keyby = .(D)][ , diff(group_mean)]
+    }
+
+      par(mfrow = c(1,2))
+      plot(d$po_control, pch = 19, col = 'steelblue')
+      points(d$po_treat, pch = 19, col = 'darkorange')
+      legend('topleft', 
+             fill = c('steelblue', 'darkorange'), 
+             legend=c('control', 'treat'))
+      hist(ate, col = 'black')
+}
+
+simulate_bad_clustering(10)
+
+```
+
+
+```{r}
+repeating_function <- function(stop_point) { 
+    res_list <- sequence(1:10)
+    res      <- unlist(res_list)
+
+    return(res)
+} 
+
+repeating_function(5)
+```
 

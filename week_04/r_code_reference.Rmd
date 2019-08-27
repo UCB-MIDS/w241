@@ -1,5 +1,6 @@
 ---
 title: "Formatted Async 3 Code"
+output: pdf_document
 ---
 # Introduction 
 In this code we're going to work though an extended example that demonstrates how randomization inference works. As noted in the lecture, we are working through the example of a randomized assignment of men and women to eat (or not eat) soybeans and we are measuring the level of estrogen present in each of their bloodstreams (perhaps in parts/million).
@@ -37,16 +38,25 @@ randomizeV2 <- function() {
   }
 
 randomize()
-randomizeV2()
 ```
 
 With our randomization function in hand, we can now set up our vector of treatment assignments. This is simply storing the results of our function randomize in a vector object called treatment. 
+
+What happens when you run this next cell a few times? Are you satisfied that you're getting a distribution of treatment assignemnts that is 50-50 every time? 
 
 ```{r}
 treatment <- randomize() #Conduct randomization for this experiment
 treatment
 table(treatment)
 ```
+
+But, what happens when we also look at the distribution of the treatments, *within* the men and women? Run the next cell a few times. Are you satisfied that this assignment is producing randomizations that are also 50-50 with the sets of men and within the sets of women? 
+
+```{r}
+treatment <- randomize() 
+table(group, randomize())
+```
+
 
 Recall that we are setting up an experiment that has **no** effect. As Green and Gerber point out in *Field Experiments* in the case of the sharp-null, we are actually testing against the possiblity that we observe both the potential outcomes! (As a comprehension check, explain why this is true).
 
