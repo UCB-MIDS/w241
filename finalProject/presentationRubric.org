@@ -1,0 +1,22 @@
+#+TITLE: Presentation Feedback 
+#+DATE: \today 
+#+OPTIONS: texht:t toc:nil
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS:
+#+LATEX_HEADER:
+#+LATEX_HEADER_EXTRA:
+
+* Team Members 
+
+* Rubric Scores
+
+| *Weight* | *Topic*           | *Poor* | *Fair* | *Good* | *Excellent* |
+|----------+-------------------+--------+--------+--------+-------------|
+|      10% | Clarity           |        |        |        |             |
+|      10% | Organization      |        |        |        |             |
+|      10% | Mechanics         |        |        |        |             |
+|      30% | Argument/Strategy |        |        |        |             |
+|      30% | Storytelling      |        |        |        |             |
+|      10% | Other             |        |        |        |             |
+
+* Comments 
