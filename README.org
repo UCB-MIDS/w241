@@ -64,7 +64,7 @@ We use two books in this course, and read a third book in the second week. We re
 
 | *Day*     | *Time*      | *Instructor* | 
 |-----------+-------------+--------------|
-| Monday    | 12:00-1:30p | Alex         |
+| Monday    | 12:00-1:30p | [[Alex][https://zoom.us/j/757560269]]         |
 | Tuesday   | 6:30-8:30p  | Daniel       |
 | Wednesday | 3:00-4:00p  | Carson       |
 | Wednesday | 5:30-6:30p  | Alex         |
