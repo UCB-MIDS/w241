@@ -1,0 +1,154 @@
+---
+title: "Cluster and Robust"
+author: "Alex"
+date: \today
+output: github_document 
+---
+
+# Theory 
+
+How should one estimate robust and clustered variance covariance matrices?
+
+We talk about assumptions for regression. These assumptions are the Gauss-Markov set of assumptions, but boil down to:
+
+1. We have written down the right model;
+2. The data iid;
+3. The variance of the data is finite, and constant.
+
+In this little demo, we're really just talking about the last of these.
+In practice, especially with regression analysis of experiments, but also
+more broadly, we often either don't have strong theoretical reasons to
+expect the variance in our residuals (the squared deviations from the
+regression line) to be constant at all points in the distribution.
+At least, I don't have strong priors for most types of data; which makes
+me think that you probably shouldn't either.
+
+Think about what such a strong prior would mean! You would have to:
+
+1. Have a mental model of the data generating process;
+2. Have a mental model of the best fitting linear trend about that DGP;
+3. Know that there is no difference in the performance of the model at
+   different points in the model. That's deep.
+
+Here's the process when we're thinking about Standard Errors, and getting them
+right.
+
+1. Estimate your linear model. Whether this is gaussian (OLS), binomial (logit,probit), counting (Poisson), time to failure (exponential), or some other more esoteric form *IT DOESN'T MATTER* -- the estimation of coefficients is a distinct task from getting the uncertainty about those estimates correct.
+2. Think about the data generating process. Does the assignment to treatment have any clustering to it? If not, then estimate robust standard errors. If yes, then estimate cluster-robust standard errors. Do the outcomes have some clustering to them? Are there groupings in the data? Then you should probably include a fixed-effect for each group, and also estimate cluster-robust standard errors.
+3. The estimation process is straightforward.
+
+- Load Packages
+  - For both: load the `lmtest` package for easy testing.
+  - For both: load the `sandwich` package for estimating robust SEs
+  - For clustering: load the additional package `multiwayvcov`
+- Compute Appropriate VCOV
+  - robust : `vcovHC`
+  - cluster: `vcovCL`
+
+# Demos 
+```{r, message=FALSE}
+library(lmtest)
+library(sandwich)
+library(data.table)
+library(stargazer)
+``` 
+
+Begin by loading the sample data 
+
+```{r}
+rm(list = ls())
+d <- fread(
+  'https://www.kellogg.northwestern.edu/faculty/petersen/htm/papers/se/test_data.txt', 
+  col.names = c('firmid', 'year', 'x', 'y'))
+``` 
+
+This data is simulated data with 500 firms identified over 10 separate years.
+
+- `firmid`: the firm identifier 
+- `year`  : the year, ordered from 1-10
+- `x`     : the RHS variable
+- `y`     : the LHS variable 
+
+```{r}
+head(d)
+``` 
+
+## Estimate Coefficients 
+
+Now, we can *really* easily fit a model for this. 
+
+```{r}
+m1 <- d[ , lm(y ~ x)]
+``` 
+
+## Estimate Uncertainty  
+
+Robust standard errors are calculated using the `sandwich` package, and via the `vcovHC` function call, which is the **V**ariance **Co****V**ariance estimator that is **H**eteroskedastic **C**onsistent . 
+
+```{r}
+## ? vcovHC
+m1$vcovHC_ <- vcovHC(m1)
+coeftest(m1, vcov. = m1$vcovHC_)
+```
+
+```{r, }
+stargazer(
+  m1, 
+  type = 'text',
+  se=list(sqrt(diag(m1$vcovHC_))), 
+  header=F
+  )
+```
+
+Clustered standard errors are not much more difficult. They are, by their nature, not only estimating the quantity of the covariance within the cluster, but are also estimating robust estimates as well. 
+
+```{r}
+## 
+## sandwich::vcovCL
+## 
+
+## one way clustering 
+m1$vcovCL1_ <- vcovCL(m1, cluster = d[ , firmid])
+## two way clustering
+m1$vcovCL2_ <- vcovCL(m1, cluster = d[ , .(firmid, year)])
+
+coeftest(m1, m1$vcovCL1_)
+coeftest(m1, m1$vcovCL2_)
+```
+
+```{r, results='asis'}
+stargazer(m1, m1, 
+          type = 'text', 
+          se = list(sqrt(diag(m1$vcovCL1_)), 
+                    sqrt(diag(m1$vcovCL2_)) ), 
+          header=F
+) 
+```
+
+To pull off the SEs from the Variance Covaraince matrix, we need only to pull the squareroot of the diagonals of the VCOV. 
+
+```{r}
+m1$robust.se <-  sqrt(diag(m1$vcovHC_))  # note that this is operating on the
+                                        # object we already created
+m1$cluster1.se <- sqrt(diag(m1$vcovCL1_))
+m1$cluster2.se <- sqrt(diag(m1$vcovCL2_))
+
+## for comparison, let's compute the OLS SEs
+m1$vcovCONSTANT_ <- vcovHC(m1, "const")
+m1$seCONSTANT_   <- sqrt(diag(m1$vcovCONSTANT_))
+``` 
+
+With each of these esimated, we can produce a table that reports all the estimates. 
+
+```{r}
+stargazer(m1, m1, m1, m1,
+          type = 'text', 
+          se = list(m1$seCONSTANT_, 
+                    m1$robust.se,
+                    m1$cluster1.se, 
+                    m1$cluster2.se),
+          add.lines = list(
+            c('SE Flavor', 'OLS', 'Robust', 'Cl: firmid', 'Cl: firmid and year')
+          ),
+          header=F)
+```
