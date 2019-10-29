@@ -1,6 +1,6 @@
 # Do Some Short Yoga! 
 
-Head over to this [EGAP](https://egap.shinyapps.io/spillover-app/) hosted demonstration of the reading that we do in the book about geographic spillovers. This is a small tool that will let you reason about how spillover between units affect what you estimate from a model. 
+Head over to this [EGAP](https://egap.shinyapps.io/spillover-app/) hosted demonstration of the reading that we do in the book about geographic spillovers. This is a small tool that will let you reason about how spillover between units affect what you estimate from a model. :sweat_smile:
 
 Note a few things about this demo: 
 
