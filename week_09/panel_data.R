@@ -24,7 +24,7 @@ d <- data.table(
 )
 
 d[ , group := rep(LETTERS[1:2], each = .N/2)]
-d[ , time  := rep(0:1)]
+d[ , time  := rep(0:1, length.out=.N)]
 
 d[group=='A' & time==0, treat := 0]
 d[group=='A' & time==1, treat := 1]
@@ -146,7 +146,7 @@ simulate_and_analyze_effect <- function(effect_size=0) {
     )
 
     d[ , group := rep(LETTERS[1:2], each = .N/2)]
-    d[ , time  := rep(0:1)]
+    d[ , time  := rep(0:1, length.out=.N)]
 
     d[group=='A' & time==0, treat := 0]
     d[group=='A' & time==1, treat := 1]
