@@ -1,9 +1,9 @@
-Mississipping Bank Data
+Mississipping Causal Bank Data
 ================
 Alex
 1/8/2020
 
-We can esstimte the difference-in-difference regressions that are
+We can estimate the difference-in-difference regressions that are
 reported in section 6.1. Let’s do so\!
 
 # Get Data
@@ -39,11 +39,11 @@ banks
     ## 1877: 12651    Monday  20     8 1934  102  103  109  108
     ## 1878: 12652   Tuesday  21     8 1934  102  103  109  109
 
-This data has nine columms:
+This data has nine columns:
 
-  - `date` maybe this is the date, but it sure seems strangly formatted
+  - `date` maybe this is the date, but it sure seems strangely formatted
   - `weekday` The day of the week; if this is properly recorded, then it
-    is superflous to the other date information
+    is superfluous to the other date information
   - `day` The date
   - `month` The month of the observation
   - `year` The year of the observation
@@ -55,13 +55,13 @@ This data has nine columms:
 This is the kind of analysis that that is both fun, and annoying.
 
   - The fun part is that we’ve got a bunch of data
-  - The annyoing part is that we’ve got to figure out what any of it
+  - The annoying part is that we’ve got to figure out what any of it
     means.
 
 **Note that I’m going to break every rule and make a pile of
 sub-datasets, change names, and generally set up a wickedly tottering
 data pipeline.** But, this is always how exploratory work goes, then you
-clean and refactor to build toward something more hardened.
+clean and redactor to build toward something more hardened.
 
 # Learning about the data
 
@@ -80,8 +80,8 @@ becomes necessary.
 
 Let’s clean those dates into a single date string.
 
-I’ll use the `lubridate` package to make date handling just a litte bit
-easier. But, we could also use the base funciton `asDate`.
+I’ll use the `lubridate` package to make date handling just a little bit
+easier. But, we could also use the base function `asDate`.
 
 ``` r
 banks[ , date_string := paste0(year, month, day)]
@@ -224,8 +224,8 @@ banks[ , .(difference = bib6 - bio6)] %>%
 
 Wow, actually there’s a lot of difference in these. If I were going to
 use `bio*`, I’d have to learn what the heck in happening in here. Rather
-unsatisfyingly, I happen to have outside information that the analysis
-that is reported in *Mastering Metrics* uses the `bib*` varaibles. I
+unsatisfying, I happen to have outside information that the analysis
+that is reported in *Mastering Metrics* uses the `bib*` variables. I
 will choose to throw away the `bio` variables.
 
 ``` r
@@ -344,9 +344,9 @@ banks_long[ , .(average_banks_in_business = mean(banks_in_business)),
 
 ![](yoga_mississippi_banks_did_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
-If we belived the parallel trends assumption, then the difference in the
-number of banks in business in the pre-treatment period (that is, 1929)
-should continue to exist later.
+If we believed the parallel trends assumption, then the difference in
+the number of banks in business in the pre-treatment period (that is,
+1929) should continue to exist later.
 
 ``` r
 difference_of_banks_in_business <- banks_long[
@@ -450,7 +450,7 @@ banks_long[ , .(average_banks_in_business = mean(banks_in_business)),
 ![](yoga_mississippi_banks_did_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 Here, if we believe the DID assumptions, we can interpret the difference
-beetween the points in district 6 and the points in counterfactual 8 as
+between the points in district 6 and the points in counterfactual 8 as
 the treatment effect of receiving the treatment.
 
 # Estimate a model
@@ -485,11 +485,11 @@ Y \\sim \\beta_{0} + \\beta_{1} * group + \\beta_{2} * time + \\beta_{3} * (grou
 
   - *What are the groups?* Just the district indicator. District 6 got
     the bail out; district 8 did not.
-  - *What are the time indidcators?* Just whether the data is observed
+  - *What are the time indicators?* Just whether the data is observed
     before 1930.
 
 I’ll just make some very clean indicators for ease of reading the
-regression. This isn’t strictly necessaey.
+regression. This isn’t strictly necessary.
 
 ``` r
 banks_regression <- banks_long[ 
@@ -555,13 +555,13 @@ difference_of_banks_in_business
 
     ## [1] 28.55978
 
-Which piece of this regression is contains the causal inforation? **The
+Which piece of this regression is contains the causal information? **The
 third coefficient** that is the interaction between the group and time.
 
 What then is estimated in the second coefficient? That’s the change over
 time, in the control group.
 
-# Comparsion
+# Comparison
 
 What would we have estimated as the (incorrect) causal effect if we had
 not used the difference in differences estimator?
