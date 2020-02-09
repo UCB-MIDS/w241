@@ -1,0 +1,213 @@
+---
+title: "Synthetic Controls"
+author: "Alex"
+date: "1/9/2020"
+output:
+    github_document: 
+    pandoc_args: --webtex
+
+---
+
+```{r load packages, echo=TRUE, message=FALSE, warning=FALSE}
+library(data.table) 
+library(gsynth)
+library(ggplot2)
+library(magrittr)
+
+theme_set(theme_minimal())
+knitr::opts_chunk$set(dpi = 300)
+```
+
+# Goal of this Yoga 
+
+In this yoga, you will work through an example of a synthetic controls analysis in the context of California's change in cigarette tax policy. 
+
+Unlike most of the other parts of this course, the process of creating these synthetic controls requires considerable work to code. Whereas at every other point we have chosen to code the estimators ourselves, in this case we're going to turn to prepackaged software. 
+
+The benefits of this choice are that we can more readily get to the interpretation and investigation of these estimates. But, the limitations are that neither Alex nor David can speak **very** clearly about the fitting algorithm that is working under the hood on this method. 
+
+# Data 
+
+To begin, we load `smoking.csv` data. This data has the following columns: 
+
+- `V1` an artifact / index
+- `state` the number of the state 
+- `year` the year the data was recorded 
+- `cigsale` total sales of cigarettes 
+- `lnincome` the natural log of the state gross income 
+- `beer` total sales of beer
+- `age15to24` the proportion of the population between 15 - 24
+
+
+
+```{r}
+d <- fread('./smoking.csv')
+d
+```
+
+We have outside information that California is the third state in this dataset. Make that coding really clear, because it took a long time to learn that California was the third state. 
+
+```{r}
+d[ , is_california := ifelse(state == 3, 'California', 'Not California')]
+```
+
+# Treatment 
+
+When does treatment come out? Well, the policy that raises that taxes in California occurs in 1988. And so, the treatment is rolled out only in California in the time after 1987. To encode this, we create a new variable, `treat` that is zero if: 
+
+- The `year` is 1987 or before
+- The `state` is not California 
+
+And so, is one if and only if: 
+
+- The `year` is 1988 or later **AND** the `state` is California. 
+
+```{r} 
+d[ , treat := I(year > 1987) * I(is_california == 'California') * 1]
+```
+
+Notice that I'm using a small trick -- rather than casting this to a numeric feature using `as.numeric`, instead I'm multiplying the Boolean result that we get from the two tests by `1`. This will force an implicit casting to numeric from the Boolean. 
+
+# Plot Cigarette Sales in California and Other States 
+
+Before starting the synthetic controls method, confirm that our data looks as the data in the published paper. 
+
+```{r}
+d[ , .(mean_sales = mean(cigsale)),
+   by = .(is_california, year)] %>%  
+  ggplot(aes(x = year, y = mean_sales, color = is_california)) + 
+  geom_line() + 
+  theme_minimal() + 
+  labs( 
+    title = 'Cigarette Sales in California and Other State Average Sales', 
+    x = 'Year', 
+    y = 'Cigarette Sales', 
+    color = 'State')
+```
+
+# Conduct Synthetic Controls 
+
+One of the rather disappointing part of this one-liner is that *so much* of what is happening is buried under the hood. After all, in the lectures David just said,
+
+> All we need to produce synthetic controls is an algorithm that can create weights of untreated units that produce similar values on the outcome. 
+
+Indeed, for the simple case that we only want to produce a "treatment-vs-synthetic-control" comparison, this is all that would be necessary. The `gsynth` method proposes to also permit the use of covariates. Though, we've not done that here (or even used this functionality in our own work). 
+
+In this call I'm: 
+
+- Calling out the outcome, cigarette sales, and the indicator for when a unit is placed into treatment. I'm also noting the features that define grouped observations: 
+
+- States are the same through time
+- Time is common across states
+
+```{r}
+result <- gsynth(
+  formula = cigsale ~ treat, 
+  data = d, 
+  index = c('state', 'year'), 
+  se = TRUE
+)
+```
+
+# Plotting Results 
+
+Just like differences in differences models, synthetic controls, tell the results of their analysis very clearly through plots. Here, we report two plots that clearly describe the difference between California and *Counter factual Californias*. 
+
+```{r}
+plot(
+  result, 
+  type = 'gap', 
+  main = 'Difference between California and Synthetic Controls', 
+  theme.bw = TRUE
+  )
+```
+
+```{r} 
+plot(
+  result, 
+  type = 'counterfactual', raw = 'all', ylim = c(0, 150),
+  theme.bw = TRUE
+  )
+```
+
+Although we're not going provide where David and Alex discuss it, you might consider whether you can use the concept of a placebo check to evaluate whether this method is able to *fail to find a positive result* in places where there should not be a positive result.  The authors, in the paper, suggest that one might examine the sales of beer in these states at the same time. 
+
+# A Placebo Check? 
+
+It would be nice to check whether this method would *not* produce a difference where it should not. Indeed, the `beer` variable is intended to do just this. However, there are not enough pre-treatment values of beer sales in the data for the algorithm to converge. You can uncomment this line to see for yourself -- but it breaks the knitting of the document. 
+
+```{r}
+# result <- gsynth(
+#   formula = beer ~ treat, 
+#   data = d, 
+#   index = c('state', 'year'), 
+#   se = TRUE
+# )
+```
+
+Let's do a little bit of imputation (which I'm worried about) to fix this issue. 
+
+1. We'll back-fill values for `beer` before it is recorded in a state
+2. We'll forward-fill values for `beer` after it is recorded in a state
+
+This is pretty sketchy. Just know that. 
+
+```{r}
+d[ , table(is.na(beer), year)]
+```
+
+It looks like there are no observations of `beer` before 1984, and there are no observations of it after 1997. Fill away! 
+
+```{r}
+beer_before_1984 <- d[year < 1984, .(year, state)]
+beer_after_1997  <- d[year > 1997, .(year, state)]
+
+beer_1984 <- d[year == 1984, .(beer, state)]
+beer_1997 <- d[year == 1997, .(beer, state)]
+
+beer_before_1984 <- merge(
+  beer_before_1984, 
+  beer_1984, 
+  all.x = TRUE, 
+  by = 'state'
+  )
+beer_after_1997 <- merge(
+  beer_after_1997, 
+  beer_1997, 
+  all.x = TRUE, 
+  by = 'state'
+)
+
+beer <- rbind(
+  beer_before_1984,
+  beer_after_1997, 
+  d[year > 1983 & year < 1997 , .(state, year, beer)]
+)
+
+d[ , beer := NULL]
+
+d <- merge(d, beer, by = c('state', 'year'))
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x=year, y=beer, color = as.factor(state))) + 
+  geom_line()
+```
+
+
+```{r}
+result_beer <- gsynth(
+  formula = beer ~ treat, 
+  data = d[!(state %in% c(34, 35))], 
+  index = c('state', 'year'), 
+  se = FALSE
+)
+```
+
+
+```{r}
+plot(result_beer, xlim = c(0,4))
+plot(result)
+```
+
