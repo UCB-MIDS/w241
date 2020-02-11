@@ -1,0 +1,296 @@
+---
+title: "Mississipping Causal Bank Data"
+author: "Alex"
+date: "1/8/2020"
+output: 
+  github_document: 
+    pandoc_args: --webtex
+
+---
+
+We can estimate the difference-in-difference regressions that are reported in section 6.1. Let's do so! 
+
+# Get Data 
+
+```{r load packages, message=FALSE, warning=FALSE}
+library(data.table) 
+library(lubridate)
+library(ggplot2)
+library(magrittr)
+library(lmtest)
+library(sandwich)
+library(stargazer)
+
+knitr::opts_chunk$set(dpi = 300)
+theme_set(theme_minimal())
+```
+
+```{r load data}
+banks <- fread('http://masteringmetrics.com/wp-content/uploads/2015/02/banks.csv')
+banks
+```
+
+This data has nine columns: 
+
+- `date` maybe this is the date, but it sure seems strangely formatted
+- `weekday` The day of the week; if this is properly recorded, then it is superfluous to the other date information 
+- `day` The date
+- `month` The month of the observation 
+- `year` The year of the observation 
+- ` bib6` Banks in business in the 6th district
+- `bib8` banks in business in the 8th district 
+- `bio6` banks in [operation?] in the 6th district 
+-` bio8` banks in [operation?] in the 8th district
+
+This is the kind of analysis that that is both fun, and annoying.
+
+- The fun part is that we've got a bunch of data
+- The annoying part is that we've got to figure out what any of it means. 
+
+**Note that I'm going to break every rule and make a pile of sub-datasets, change names, and generally set up a wickedly tottering data pipeline.** But, this is always how exploratory work goes, then you clean and redactor to build toward something more hardened. 
+
+# Learning about the data 
+
+1. It seems like this data is structured in a *wide* format. This means that for the same date, we've got measurements for two different outcomes: one set of outcomes in the 6th district, and another set of outcomes in the 8th district. 
+
+While this is how we might expect to see it if we were typing this into a spreadsheet, this **always** this *wide* format isn't conducive to analysis. I bet that later on, we are going to have to convert this to *long*, sometimes called *tidy* data. We'll make that change when it becomes necessary. 
+
+2. We've got dates. Shoots. 
+
+Let's clean those dates into a single date string. 
+
+I'll use the `lubridate` package to make date handling just a little bit easier. But, we could also use the base function `asDate`. 
+
+```{r}
+banks[ , date_string := paste0(year, month, day)]
+banks[, ymd(date_string)][1:200]
+```
+
+That's strange. We seem to be producing an awful lot of `NA` values. Can you tell what is happening? 
+
+.
+.
+.
+
+It seems that the `ymd` package is balking at the single digit months. Let's fix those. 
+
+```{r month function}
+banks[ , month_character := ifelse(month > 10, as.character(month), paste0(0, month))]
+banks[ , date_string := paste0(year, month_character, day)]
+banks[ , date_formatted := ymd(date_string)]
+banks
+```
+
+
+3. What is going on with the `bio` vs. `bib` distinction? A quick eyeballing makes it seem that these are giving us similar information. Let's ask if this is always the case. I can ask for this test with a simple relational comparison. 
+
+```{r bib same as bio?, echo = TRUE}
+banks[ , .(same_same = bib6 == bio6)]
+```
+
+And then I can look at a cross-tab of the frequency of these. 
+
+```{r summarise bib same as bio}
+banks[ , .(same_same = bib6 == bio6)][ , table(same_same)]
+```
+
+Actually, there are about as many cases that this isn't true, as it is true. Interesting. Let's look more closely at the distribution of these differences. 
+
+```{r}
+banks[ , .(difference = bib6 - bio6)] %>% 
+  ggplot(aes(difference)) + 
+  geom_histogram(bins = 5)
+```
+
+Wow, actually there's a lot of difference in these. If I were going to use `bio*`, I'd have to learn what the heck in happening in here. Rather unsatisfying, I happen to have outside information that the analysis that is reported in *Mastering Metrics* uses the `bib*` variables. I will choose to throw away the `bio` variables. 
+
+```{r}
+banks[ , ':='(
+  bio6 = NULL, 
+  bio8 = NULL
+)]
+banks
+```
+
+```{r}
+yearly_average <- banks[ , .(
+  average_bib6 = mean(bib6),
+  average_bib8 = mean(bib8)), 
+  by = .(year)
+  ]
+yearly_average
+```
+
+But, I think that now I'm starting to want to shape these into a tidy format. In a tidy format, then I can aggregate across the single variable that has the outcome data, and I can group that by the features that produce the uniqueness of that outcome data. 
+
+```{r}
+banks_long <- melt(
+  data = banks, 
+  id.vars = c('date_formatted', 'day', 'month', 'year'),
+  measure.vars = c('bib6', 'bib8'), 
+  value.name = 'banks_in_business'
+)
+banks_long[ , ':='(
+  district = substr(variable, start = 4, stop = 4), 
+  variable = NULL)
+  ]
+banks_long
+```
+
+Now, I can quickly make this call in a way that is more natural. 
+
+```{r}
+banks_long[ , .(average_banks_in_business = mean(banks_in_business)), 
+  keyby = .(district, year)
+  ]
+```
+
+```{r}
+banks_long[ , .(average_banks_in_business = mean(banks_in_business)), 
+  keyby = .(district, year)
+  ] %>% 
+  ggplot(aes(x = year, y = average_banks_in_business, color = district)) + 
+  geom_point() +
+  geom_line() + 
+  geom_vline(xintercept = 1930)
+```
+
+If we believed the parallel trends assumption, then the difference in the number of banks in business in the pre-treatment period (that is, 1929) should continue to exist later. 
+
+```{r}
+difference_of_banks_in_business <- banks_long[
+  year == 1929, 
+  .(banks_in_business = mean(banks_in_business)), 
+  by = district
+  ][ , diff(banks_in_business)]
+difference_of_banks_in_business
+```
+
+A rough way of producing this counterfactual would be to subtract this difference from every observation of district 8. There are two ways we could make this data. 
+
+1. Make a new column on the wide data that is for the *counterfactual* information, and then go through the melting process again. 
+2. Make a new set of rows in the long data that contain the counterfactual information, and then attach these new rows onto the data. 
+
+## New column with wide data, then reshaping 
+
+This is relatively easier, and so David and I are not going to present it here. But, we will leave the code in case you're interested. 
+
+```{r}
+banks[ , bib8_cf := bib8 - difference_of_banks_in_business]
+banks_long <- melt(
+  data = banks, 
+  id.vars = c('date_formatted', 'day', 'month', 'year'),
+  measure.vars = c('bib6', 'bib8', 'bib8_cf'), 
+  value.name = 'banks_in_business'
+)
+banks_long[ , ':='(
+  district = substr(variable, start = 4, stop = 10), 
+  variable = NULL)
+  ]
+banks_long
+```
+
+## New rows in long data
+
+This might be less intuitive at first -- we're so accustomed to thinking in spreadsheets that I find thinking in rows to *still* be challenging. 
+```{r}
+counterfactual_district8 <- banks_long[
+  district == 8, 
+  .(
+    date_formatted = date_formatted, 
+    day = day, 
+    month = month, 
+    year = year,
+    banks_in_business = banks_in_business - difference_of_banks_in_business, 
+    district = 'cf8'
+  )
+]
+
+banks_long <- rbind(
+  banks_long,
+  counterfactual_district8
+  )
+```
+
+Which we can again plot 
+
+```{r}
+banks_long[ , .(average_banks_in_business = mean(banks_in_business)), 
+  keyby = .(district, year)
+  ] %>% 
+  ggplot(aes(x = year, y = average_banks_in_business, color = district)) + 
+  geom_point() +
+  geom_line() + 
+  geom_vline(xintercept = 1930) 
+```
+
+Here, if we believe the DID assumptions, we can interpret the difference between the points in district 6 and the points in counterfactual 8 as the treatment effect of receiving the treatment. 
+
+# Estimate a model 
+
+We've got repeated observations of similar units. This means that we've got correlation through time, which is probably bad news for us. It is not going to bias our estimates of the effects, but it *is* going to make us **falsely** confident in our conclusions. 
+
+- This is because as far as a regression is concerned, each observation holds independent data (think back to w203 and the i.i.d. assumptions that we made for inference to be unbiased). But, when you looked at the data in the first part -- checking to see what was going on in `bib6` and `bio6` -- you saw that there was very little change in the number of banks in any time period. This is going to cause use to estimate **inappropriately** precise uncertainty. 
+- We can fix this the *right* way if we take 271 and learn about finding stationary processes when fitting time series models. 
+- For now, for 241, we will ignore the bias, and note that our inference on this is **very** suspect. 
+
+Difference in differences models *always* have the same form: 
+
+\[
+Y \sim \beta_{0} + \beta_{1} * group + \beta_{2} * time + \beta_{3} * (group * time) + \epsilon
+\]
+
+- *What are the groups?* Just the district indicator. District 6 got the bail out; district 8 did not. 
+- *What are the time indicators?* Just whether the data is observed before 1930. 
+
+I'll just make some very clean indicators for ease of reading the regression. This isn't strictly necessary. 
+```{r}
+banks_regression <- banks_long[ 
+  district %in% c(6,8), # we don't want that counterfactual any more
+  ':='(
+    treatment_district = district == 6, 
+    post_treatment = year > 1929
+  )]
+banks_regression
+```
+
+
+```{r}
+mod <- banks_regression[ , 
+  lm(banks_in_business ~ treatment_district * post_treatment)
+  ]
+
+stargazer(
+  mod,
+  type = 'text', 
+  covariate.labels = c(
+    'District 6?', 'Post-treatment', 'District 6 and Post-treatment'
+    )
+)
+```
+
+Notice how similar some of these pieces are very similar to what we've already seen. In particular, the first coefficients is **very** similar to the `difference_of_banks_in_business`. When we calculated it with the subset at first, we estimated a value of `r round(difference_of_banks_in_business, 2)`. When we estimated a value using the difference in differences regression, we estimated a value of `r round(coef(mod)['treatment_districtTRUE'], 2)`. Yay! 
+
+```{r}
+difference_of_banks_in_business
+```
+
+Which piece of this regression is contains the causal information? **The third coefficient** that is the interaction between the group and time.
+
+What then is estimated in the second coefficient? That's the change over time, in the control group. 
+
+# Comparison
+
+What would we have estimated as the (incorrect) causal effect if we had not used the difference in differences estimator? 
+
+We would have instead, naively used the naive post-bailout difference, which also contained pre-treatment differences. 
+
+```{r}
+naive_difference <- banks_long[
+  post_treatment == TRUE, 
+  .(bib = mean(banks_in_business)),
+  by = .(district)][ , 
+    diff(bib)]
+```
+
+That estimate of the `naive_difference`, which is `r round(naive_difference, 2)` is *considerably* smaller than the correct, true value that we estimated via the difference in differences regression. 

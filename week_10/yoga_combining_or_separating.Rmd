@@ -1,6 +1,6 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: github_document
 ---
 
 ```{r load package} 
@@ -10,19 +10,21 @@ library(magrittr)
 ``` 
 
 # Task 
-Can you create the data from p. 359, the study of towel use in Arizona?
 
-In the first study:
+On page 359 of *Field Experiments* Green and Gerber present an apocryphal story about towel reuse in Arizona. In some rooms, assigned at random, guests were asked to reuse their towels as a measure of environmental stewardship (and cost savings). In other rooms, they were not. 
 
-- 35.1 percent of the control group (N=222) used their towels twice
-- 44.1 percent of the treatment group (N=211) used their towels twice
+On these pages, the authors provide us with a summarized table that contains the reuse rates in the different rooms. But, how should we estimate a model from this data? Receiving summarized data is *all too common* an occurrence, and something that we have to deal with as data scientists. In order to work through the rest of this worksheet, we're asking that you create the data that would have produced the table that is reported on page 359. 
 
-In the second study:
+As a reminder, 
 
-- 37.2 percent in the control group (N=277) used their towels twice
-- 42.3 percent in the treatment group (N=334) used their towels twice.
+- **In the first study:**
+    - 35.1 percent of the control group (N=222) used their towels twice
+    - 44.1 percent of the treatment group (N=211) used their towels twice
+- **In the second study:**
+    - 37.2 percent in the control group (N=277) used their towels twice
+    - 42.3 percent in the treatment group (N=334) used their towels twice.
 
-## Specific Tasks 
+# Specific Tasks 
 
 1. How many rows should there be in the dataset? 
 2. When you think about the dataset, do you naturally think of it as a "wide" or a "long" dataset? Which of these shapes is going to be more natural for a set of analysis, and why? 
@@ -32,20 +34,26 @@ In the second study:
 
 ```{r make data} 
 d <- data.table(
-  id = 1: 
+  id = 1:1
 )
 ```
 
-# Estimate the effectiveness of the treatment twice: 
+# Estimate Treatment Effectiveness
 
-1. Estimate the effect of the treatment in the first study period; 
-2. Estimate the effect of the treatment in the second study period. 
+This study was conducted in two distinct time periods. Estimate the effect of receiving the towel hanging in both of these periods! 
 
-In doing so, slice the dataset that you're using, rather than creating a new "sub-dataset". 
+1. First, estimate the effect of the treatment in the first study period; 
+2. Second, estimate the effect of the treatment in the second study period. 
 
-```{r estiamte first models} 
+In doing so, slice/index the dataset that you're using rather than creating a new "sub-dataset". 
+
+```{r model estimate for first time period} 
 
 ``` 
+
+```{r model estimate for second time period}
+
+```
 
 3. Is the response to treatment "different" between the first and second studies? Use an interaction to test this question. 
 4. So, now make a recommendation to the hotelier -- should they put out signs, or not, based on the data and analysis that you've got. Why or why not? 
@@ -56,7 +64,7 @@ Estimate the precision weighted $\hat{ATE}_{pooled}$ that is described in equati
 
 I'll start it for you. 
 
-```{r}
+```{r precision weighting ate}
 precision_weighted_ate <- function(mu_1, se_1, mu_2, se_2){
   ## this funciton takes arguments for means and standard deviations
   ## for two studies that are to be analyzed as a fixed-effects 
@@ -76,8 +84,6 @@ You can pull the quantities for this from the regression that you've run above.
 - How different is the overall estimate in this case from the estimate that you produce using "all" the data -- that is, a regression that does not differentiate between the first and second studies. 
 - What are the characteristics of a repeated study (i.e. a "first study", "second study") that would lead to the pooled estimate you've just produced to diverge from the precision weighted estimate? 
 
-<!-- Not to complete for this semster, but you can dabble if you like
+# Stretch Goal 
 
 Can we use the 'weights' argument to the `lm` call to produce the same thing as a precision weighted estimate? 
-
---> 
