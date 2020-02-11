@@ -1,2 +1,5 @@
-# Do Some Short Yoga! 
-Head [here](http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https://github.com/UCB-MIDS/w241&branch=master&urlpath=rstudio) and navigate to `week_09>unsuccessfully_estimating_in_the_presence_of_spillover.Rmd` to work on an exercise.
+# Task Complete
+
+Rather than rehashing work that we have already done in the Green and Gerber spillover example, we going to let you know,
+
+You're done with this week's work! 
