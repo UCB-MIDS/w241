@@ -249,7 +249,14 @@ effect.
 d[ , .(group_average = mean(Y), treat = mean(treat)), keyby = .(group, time)] %>%  
   ggplot(aes(x = time, y = group_average, color = group)) + 
   geom_line() + 
-  geom_point(aes(x = time, y = group_average, color = group, shape = as.factor(treat)), size = 5)
+  geom_point(aes(x = time, y = group_average, color = group, shape = as.factor(treat)), size = 5) + 
+  labs(
+    title = 'Sparkle Plot', 
+    x = 'Time', 
+    y = 'Group Average', 
+    color = 'Treatment Group', 
+    shape = 'Treatment Indicator'
+  )
 ```
 
 ![](estimating_with_clustered_standard_errors_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
