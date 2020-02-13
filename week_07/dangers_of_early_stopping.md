@@ -1,20 +1,16 @@
----
-title: "Consequences of Early Stopping"
-author: "Alex"
-output: github_document
----
+Consequences of Early Stopping
+================
+Alex
 
-```{r, include=FALSE}
-rm(list = ls())
-```
+# What happens if we stop early?
 
+Write a small simulation to learn about what happens if we write a test
+that stops **as soon** as there is as “stat sig” treatment effect.
 
-# What happens if we stop early? 
-Write a small simulation to learn about what happens if we write a test that stops **as soon** as there is as "stat sig" treatment effect. 
+Here’s the catch, make it so that there is *exactly* zero treatment
+effect.
 
-Here's the catch, make it so that there is *exactly* zero treatment effect. 
-
-```{r, good_simulation}
+``` r
 whole_experiment <- function(experiment_size, number_of_experiments, crit_val) { 
   ## What happens if we run this the right way? 
   ##  --- 
@@ -35,17 +31,20 @@ whole_experiment <- function(experiment_size, number_of_experiments, crit_val) {
 }
 ```
 
-If we've got this built, then we can run it in the next cell, and save the results of the simulation into an object called `res`. 
+If we’ve got this built, then we can run it in the next cell, and save
+the results of the simulation into an object called `res`.
 
-```{r}
+``` r
 res <- whole_experiment(experiment_size = 100, number_of_experiments = 1000, 0.05)
 ```
 
-And so, presuming that we set our rejection criteria to be 0.05, we had about `r mean(res)` of these experiments come back with a false positive result. That isn't too bad at all! 
+And so, presuming that we set our rejection criteria to be 0.05, we had
+about 0.051 of these experiments come back with a false positive result.
+That isn’t too bad at all\!
 
-Let's see what happens if we work through this the *wrong* way. 
+Let’s see what happens if we work through this the *wrong* way.
 
-```{r}
+``` r
 cheat_experiment <- function(experiment_size, number_of_experiments, crit_val) { 
     ## 
     ## What happens if we run it the wrong way? 
@@ -95,30 +94,39 @@ cheat_experiment <- function(experiment_size, number_of_experiments, crit_val) {
 }
 ```
 
-With that function made, we can ask the question, what is our false rejection rate? 
+With that function made, we can ask the question, what is our false
+rejection rate?
 
-```{r}
+``` r
 false_rejections <- cheat_experiment(100, 100, 0.05)
 mean(false_rejections)
 ```
-Oh goodness. 
 
-If we have 100 observations, and we're willing to stop the experiment as soon as we observe *any* type of "stat sig" result, then, rather than having a 5% chance of a result being just noise, instead we're going to have a `r  mean(false_rejections)*100`% chance of this result being just noise. 
+    ## [1] 0.38
+
+Oh goodness.
+
+If we have 100 observations, and we’re willing to stop the experiment as
+soon as we observe *any* type of “stat sig” result, then, rather than
+having a 5% chance of a result being just noise, instead we’re going to
+have a 38% chance of this result being just noise.
 
 # Not to worry though
 
-This is the kind of problem that goes away if we have more data... 
+This is the kind of problem that goes away if we have more data…
 
-... right? 
+… right?
 
-## Task to do together: 
+## Task to do together:
 
-Individually, or as a group: pick a *few* values of an experiment size, some smaller than 100, and some larger than 100. 
+Individually, or as a group: pick a *few* values of an experiment size,
+some smaller than 100, and some larger than 100.
 
-- Before you run the simulation: Make a guess in your group about whether there will be a relationship between the size of the experiment group and the false discovery rate. 
-- Will a larger experiment falsely reject with higher, lower, or the same probability? 
-- Once you "experiment" (aka: goof around with this code) and see the pattern, can you explain what is happening that is leading to the pattern that you observe? 
-
-```{r fill in this code with your experiment}
-
-```
+  - Before you run the simulation: Make a guess in your group about
+    whether there will be a relationship between the size of the
+    experiment group and the false discovery rate.
+  - Will a larger experiment falsely reject with higher, lower, or the
+    same probability?
+  - Once you “experiment” (aka: goof around with this code) and see the
+    pattern, can you explain what is happening that is leading to the
+    pattern that you observe?
