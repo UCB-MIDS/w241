@@ -1,0 +1,290 @@
+---
+title: "Estimating with Clustered Standard Errors"
+author: "Alex, for w241"
+output: github_document
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+library(data.table)
+library(magrittr)
+library(ggplot2)
+library(lmtest)
+library(stargazer)
+library(sandwich)
+
+theme_set(theme_minimal())
+knitr::opts_chunk$set(dpi = 300)
+
+set.seed(1)
+```
+
+# Introduction 
+
+In this tutorial we're going to introduce you to just a little bit of modeling in the presence of repeated observations. A technical treatment of this is beyond the goals of both this worksheet and 241 in general. Good news, though -- in 271 we spend considerable time addressing these concepts. 
+
+# Data Setup 
+
+Let's make data, as we have typically done. But, in this case, suppose that you have a series of data that we observe for each individual across several time periods. We will work with the minimal example that makes sense in this case: repeated observations across four time periods. 
+
+Suppose that your experimental design is the following: 
+
+- Split your respondents into two groups, an *A* group and a *B* group
+- **In the first group:**
+    - Give the members of *A* control for two periods, measuring in each period. 
+    - Then, give the members *A* treatment for two periods, measuring in each period. 
+- **In the second group:**
+    - Give the members of *B* treatment for two periods, measuring in each period. 
+    - Then, give the members of *B* control for two periods, measuring in each period. 
+    
+In the *research design grammar* of Trochim and Donnelly, we might write this out as, 
+
+```
+R O Y X Y O Y O Y 
+R O Y O Y O Y X Y 
+```
+
+Within any *one* of these groups we have a treatment-control comparison -- the first two vs. the second two sets of observations. But, within these groups the comparisons of these potential outcomes is clearly confounded by time. However, across the groups, the observations are *not* confounded by time. 
+
+To further fit with the reality of repeatedly observing people, presume that their performance at the task changes systematically over time. We're going to presume they get better -- as in taking a test -- but the reality of whether it is positive or negative is context dependent. 
+
+```{r make input data}
+NUMBER_OF_SUBJECTS <- 10
+
+d <- data.table(
+    id = rep(1:NUMBER_OF_SUBJECTS, each = 4)
+)
+
+d[ , group := rep(LETTERS[1:2], each = .N/2)]
+d[ , time  := rep(1:4, length.out = .N)]
+
+d[group == 'A', treat := ifelse(time %in% 1:2, yes = 1, no = 0)]
+d[group == 'B', treat := ifelse(time %in% 3:4, yes = 1, no = 0)]
+```
+
+This has produced pretty sensible data. 
+
+```{r show data, echo=FALSE}
+d
+```
+
+Assumptions about the data: 
+
+- Assume that people have a baseline level that is normally distributed at 60, with standard deviation 5. 
+- Assume that they improve by 3 units on average, with a standard deviation of 2 over each time period. 
+- Assume that the treatment causes an increase of 10 units when it is applied, and that the effect of treatment disappears immediately when it is taken away. 
+
+Because each subsequent time period depends on the value of the time period before that, it actually makes sense to write a short loop to create these values. 
+
+```{r make outcome data}
+d[time == 1, Y := rnorm(n = .N, mean = 60, sd = 20)]
+```
+
+```{r}
+d
+```
+
+```{r}
+for(present_time in 2:4) {
+  d[time == present_time, Y := d$Y[d$time == (present_time - 1)] + rnorm(.N, 0,2)]
+}
+
+```
+
+To see that this is working, inspect only the first ten units, observed over all four time periods. In general, we observe that values are increasing, and that the results seem to be related within each unit. 
+
+```{r}
+d[id %in% 1:10] %>% 
+  ggplot(aes(x = time, y = Y, color = as.factor(id))) + 
+  geom_line()
+```
+
+## Create Treatment Effect 
+
+Suppose that there is a strong effect of treatment. On average people score 10 points higher when they receive treatment. Building this into the data is considerably easier. 
+
+```{r}
+treatment_effect_table <- data.table(
+  id = 1:NUMBER_OF_SUBJECTS, 
+  tau = rnorm(NUMBER_OF_SUBJECTS, 4, 3)
+)
+
+d <- merge(d, treatment_effect_table)
+d[ , Y := ifelse(treat == 1, Y + tau, Y)]
+head(d)
+```
+
+Sheesh! All this work just to create data! But, we can now see that the data is doing what we would like it to. 
+
+```{r}
+d %>%  
+  ggplot(aes(x = time, y = Y, color = as.factor(id))) + 
+  geom_line()
+```
+
+And, we can see quite clearly that if we take averages of these at the group level, there is a very clear treatment effect. 
+
+```{r}
+d[ , .(group_average = mean(Y), treat = mean(treat)), keyby = .(group, time)] %>%  
+  ggplot(aes(x = time, y = group_average, color = group)) + 
+  geom_line() + 
+  geom_point(aes(x = time, y = group_average, color = group, shape = as.factor(treat)), size = 5) + 
+  labs(
+    title = 'Sparkle Plot', 
+    x = 'Time', 
+    y = 'Group Average', 
+    color = 'Treatment Group', 
+    shape = 'Treatment Indicator'
+  )
+```
+
+
+# Estimate Effects 
+
+Fantastic, the data is set up! 
+
+Our typical estimator compares one group of people to another. 
+
+If we were only to estimate a model that compares *Group A's* realized potential outcomes to *Group B's* realize potential outcomes, would we estimate the treatment effect? Why or why not? 
+
+```{r}
+model_group <- d[ , lm(Y ~ group)]
+coeftest(model_group)
+```
+
+What about if we were to only compare outcomes measured in the first two and second two periods? Would this identify the treatment effect? Why or why not? 
+
+```{r}
+model_time <- d[ , lm(Y ~ time > 2)] 
+coeftest(model_time)
+```
+
+The correct model, that you've probably anticipated is the model that compares observations when people receive treatment against observations where people do not receive treatment. 
+
+```{r treatment estimate}
+mod_treatment <- d[ , lm(Y ~ treat)]
+coeftest(mod_treatment)
+```
+# Best powered and fair? 
+
+But, is this the best powered, *fair* estimate? Or, to be more statistically parsing, are the parameters that are estimated in this model unbiased? Is this model using as much information in the data as possible? Does this model have information about the unit-dependent nature of the data? 
+
+For this last point, we can frame it crisply in the terms of w203, 
+
+> Are the data being produced by a process that is i.i.d?
+
+While the *individuals* might be thought of as being drawn i.i.d. from a population, once we have a single observation of their information, repeated data observations no longer meet this criteria. Specifically, they are not independent draws.  
+
+Said another way that might be more intuitive, the model that is estimated above does *not* have any indication that rows 1:4 are all drawn from the same person. Nor does it have any indication than times periods are arranged from 1-4. The implications for this are that there is additional information that is present in the data that is not present in how the model is estimated. 
+
+Naturally, there is nearly always information that is not represented in our models. After all, 
+
+> All models are wrong, but some are useful. 
+>   - George Box
+
+However, in this case, the lack of information means that the model is going to produce an estimate that is *overly cavalier* in its statement of certainty, potentially leading you to reject null hypotheses at rates that are higher than your nominal goal. Said somewhat differently, you might aim to make a statement with a specific level of confidence (i.e. produce a 95% confidence interval), but in the case where there are groupings to your data that are not represented in your model, the 95% confidence intervals that you estimate and report will be narrower (i.e. incorrectly certain, or incorrectly precise) compared to the true values that should be represented. 
+
+# Very simple solution 1
+
+The simplest solution, which in this case is going to discard data would be to use a paired t-test that acknowledges and corrects for the dependence in the data. The major limitation is that this paired test extends only to two time periods. 
+
+First, examine what we would learn if we simply used these two time periods, but we did not acknowledge the dependence structure in the data. This is akin taking straightforward difference in means. 
+
+```{r unpaired t.test}
+d[time %in% 2:3, t.test(Y ~ treat, paired = FALSE)]
+```
+
+That is, there is **no** way given this data and this test that we would reject the null hypothesis that there is a treatment effect. But, there is enormous baseline spread in the data. And, once we know a unit's baseline outcomes, we know quite a bit about them that we would like to bring into our estimates. This is the motivation for the paired test. 
+
+```{r paired t.test}
+d[time %in% 2:3, t.test(Y ~ treat, paired = TRUE)]
+```
+
+Subsetting and using a paired t-test now correctly represents the dependency structures that are in the data and conducts a test that is appropriate given the data at hand. But it does so by leaving out considerable information -- namely information about the observations taken in the first and fourth time period. 
+
+This is a useful starting place because once we introduce them, we can assess whether other more general solutions recover similar estimates to this paired test. 
+
+# Very simple solution 2 
+
+The second simple solution, which is also inefficient because it discards information, computes a within-subject average for each unit when it is in treatment, a within-subject average when each unit is in control, and then compares these two points via a paired t.test. 
+
+This approach now incorporates the data that was gathered in the first and fourth time periods -- which is an improvement -- but it does so in a way that once again produces only a single observation for each outcome when it is in treatment and a single observations for each outcome when it is in control. This, once again, is leaving information on the table.
+
+```{r}
+d[ , .(y_average = mean(Y)), keyby = .(id, treat)][ , t.test(y_average ~ treat, paired = T)]
+```
+
+As you can see, there is very little improvement in the estimates as a result of this strategy vis-a-vis the strategy that did not even include measurements taken in the first and fourth periods. 
+
+Recall that there are changes in the scores over time -- every unit does better the more it is measured. Is this a problem for the model? Does this information mean that the model is confounded by time? Or, has the design effectively eliminated this confound? Perhaps the easiest way to assess this is to return to the group-average plot. 
+
+```{r group averages - suite}
+d[ , .(group_average = mean(Y), treat = mean(treat)), keyby = .(group, time)] %>%  
+  ggplot(aes(x = time, y = group_average, color = group)) + 
+  geom_line() + 
+  geom_point(aes(x = time, y = group_average, color = group, shape = as.factor(treat)), size = 5) + 
+  labs(
+    title = 'Sparkle Plot', 
+    x = 'Time', 
+    y = 'Group Average', 
+    color = 'Treatment Group', 
+    shape = 'Treatment Indicator'
+  )
+```
+
+# Enter the clustered model 
+
+In this section we estimate a relatively simple model that: 
+
+1. Estimates an unbiased treatment effect; 
+2. Uses information about each unit; and, 
+3. Acknowledges that non-independence in the data generating process. 
+
+The basis for this model is the same `lm` model call as we have been using for several weeks: 
+
+```
+d[ , lm(Y ~ treat)]
+```
+
+To incorporate information about each individual, we will include an indicator each individual using an `as.factor(id)` call. This produces the set one-hot encoded, dummy variables that distinguish each unit from the first.
+
+```{r cluster model }
+mod_cluster <- d[, lm(Y ~ treat + as.factor(id))]
+```
+
+This model addresses points (1) and (2) above, but it does address the dependence in the data. This failure means that estimates of uncertainty (the standard errors) will be inappropriately *certain*. 
+
+This model has included the important information about the baseline levels of each individual, but it has *also* taken repeated observations from each individual. Here, we will first report the incorrect vanilla homoskedastic errors (you know, those ones that are nearly never appropriate). 
+
+```{r}
+coeftest(mod_cluster)
+```
+
+Then, we estimate the amount of *within* cluster covariance that is present. The larger is the within-cluster covariance -- just as we have talked about in earlier weeks with clustered designs -- the less certain should we be about our estimates. This is due to the fact that when data is highly correlated within the cluster, repeated observations just provide no information gain. 
+
+```{r compare vanilla SEs with cluster SEs}
+coeftest(mod_cluster, vcov = vcovCL(mod_cluster, cluster = d[ , id]))
+```
+
+```{r}
+stargazer(
+  mod_cluster, mod_cluster, 
+  se = list(
+    sqrt(diag(vcov(mod_cluster))), 
+    sqrt(diag(vcovCL(mod_cluster, cluster = d[ , id])))
+  ), 
+  type = 'text', omit = 'id'
+)
+```
+
+# Concluding thoughts 
+
+When an experiment design uses more than a single observation per individual it is important that we get all of the information lift that is possible from those additional measurements, while also meeting the fundamental assumptions that underlie the statistics. Model (2), a model that includes individual level measurements, and clusters the estimates of the standard errors, meets these requirements. 
+
+1. The model produces an unbiased estimate of the treatment effect; 
+2. Uses all the information it can; and 
+3. Accounts for the dependent nature of the sampling process. 
+
+:tada: Nice! :tada: 
+
+This model *may* be overly cautious compared to some linear mixed models (estimated via `lme4`, with a nice explainer [here](https://rpsychologist.com/r-guide-longitudinal-lme-lmer)) or panel models (estimated via `plm`). However, the use of those models is **well** outside what we want to cover in 241. 
+

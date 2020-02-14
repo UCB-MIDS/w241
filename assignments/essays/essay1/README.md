@@ -32,6 +32,10 @@ We are expecting one to two pages, single spaced. This should read as an essay, 
 - For this week, a Google Doc probably works great to write and collaborate; though you can also use your editor of choice.
 - We are going to circulate these drafts with classmates; discuss and provide feedback before turning in a **final** draft next week.
 
+## Professional Examples 
+
+You don't have to be this professional about it, but here is an example of an _experiment_ that makes a causal claim, and a careful rejoinder to that experiment. Note that while the criticism does point to several concerns about measurement, it principally focus on research design questions. Specifically, the author is making an argument that the exclusion restriction (a requirement from _Field Experiments_ 2.7.1) is not met in this design. Original research [here](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0223095) and criticism [here](https://www.nytimes.com/2020/01/22/magazine/can-mindfulness-evolve-from-wellness-pursuit-to-medical-treatment.html). 
+
 ## Rubric
 
 We'll be providing specific feedback, but assessing overall on the rubric included in this folder.

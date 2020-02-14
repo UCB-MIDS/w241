@@ -1,0 +1,145 @@
+---
+title: 'Yoga: Attrition'
+author: "Alex"
+date: "2/8/2020"
+output: github_document
+---
+
+```{r setup, echo = TRUE, warning=FALSE, message=FALSE}
+library(data.table)
+library(stargazer)
+library(sandwich)
+library(lmtest)
+library(ggplot2)
+
+theme_set(theme_minimal())
+
+robust_se <- function(mod, type = 'HC3') { 
+  sqrt(diag(vcovHC(mod, type)))
+  }
+```
+
+# Problem Setup 
+
+Let's begin by creating the right-hand side data that will feed into the determination about whether a unit is observed or not. Because we are dealing with relatively finicky estimates, let's create quite a bit of data. This way, *when* thing go wrong, we'll be certain that it isn't the sampling process that has caused the problem. 
+
+```{r make data}
+d <- data.table(id = 1:10000)
+
+d[ , ':='(
+  x1 = runif(n = .N, min = 0, max = 5),
+  d  = sample(c(0L,1L), size = .N, replace = TRUE),
+  missing = 0L)
+  ]
+```
+
+Notice that, as a baseline, we've decided to make *none* of the data be missing. That is, all of this data is observed. 
+
+If we have the right hand side data built, we can now write down the function that creates the outcome data. 
+
+```{r make outcomes}
+d[ , y := 1 + (2 * x1) + (2 * d) + rnorm(.N)]
+```
+
+Rather unsurprisingly, with all of the data fully observed, the simple OLS regression estimator produces an unbiased estimate of the treatment effect. And, when we include a predictive (good) covariate the efficiency of the estimate increases, and the treatment effect does not change. 
+
+```{r estimate with all data}
+mod_fully_observed_1 <- d[ , lm(y ~ d)]
+mod_fully_observed_2 <- d[ , lm(y ~ d + x1)]
+
+stargazer(
+  mod_fully_observed_1, mod_fully_observed_2, 
+  type = 'text', 
+  se = list(
+    robust_se(mod_fully_observed_1), 
+    robust_se(mod_fully_observed_2)
+  ), 
+  omit.stat = c('ser', 'F')
+)
+```
+
+# Attrition at random 
+
+The best case of a bad problem is that attrition occurs completely at random. Suppose that we have a **really** bad case of the data-dropsies and 80% of our sample attrits. *But*, suppose that they drop out in a way that is not related to treatment assignment. 
+
+```{r make random attrition}
+d_random_attrition <- d[sample(1:.N, size = 2000), ]
+```
+
+Among these folks, we can estimate the same model as before. 
+
+```{r estimate with random attrition}
+mod_random_attrition <- d_random_attrition[ , lm(y ~ d + x1)]
+
+stargazer(
+  mod_fully_observed_1, mod_fully_observed_2, mod_random_attrition,
+  type = 'text', 
+  se = list(
+    robust_se(mod_fully_observed_1), 
+    robust_se(mod_fully_observed_2), 
+    robust_se(mod_random_attrition)
+  ), 
+  omit.stat = c('ser', 'F')
+)
+```
+
+Unsurprisingly (hopefully) you'll see that there is no change in the parameter estimates for treatment or the covariates. 
+
+# Missingness Potentially at Random 
+
+In general, it is unlikely to be the case that when there is missingness it has occurred completely at random. Or at least, because you can't see the data for the people who don't give you their data, you'll never be able to credibly, dispositively assert that missingness occurred at random. :sweat_smile:. 
+
+What happens as a consequence of this missingness? As you might have anticipated, it breaks the two group estimator so that it now estimates something that is not guaranteed to be an unbiased estimator of the causal effect. 
+
+## Make Non Random Missingness 
+
+Let's make non random missingness in the following way: 
+
+- For the control, 25% of the population chooses not to respond; 
+- For the treatment group, the same 25% of the population chooses not to respond; but, 
+- In addition, the highest scoring people are also bored with your experiment, and so choose not to respond at higher rates. 
+
+```{r make nonrandom attrition}
+d[d == 0, missing := rbinom(.N, 1, .25)]
+d[d == 1, missing := rbinom(.N, 1, .25)]
+d[d == 1 & y > 7 , missing := rbinom(.N, 1, .9)]
+
+d_nonrandom_attrition <- d[missing == 0]
+```
+
+*Question for pondering:* 
+
+- How many people will there be represented in our data now? 
+- Which direction do you think that our treatment effect will be biased? 
+
+```{r plot outcomes without and with attrition}
+ggplot(d, aes(y, fill = as.factor(d))) + 
+  geom_histogram(bins = 10, position = 'dodge')
+
+ggplot(d_nonrandom_attrition, aes(y, fill = as.factor(d))) + 
+  geom_histogram(bins = 10, position = 'dodge')
+```
+
+Let's see what the standard two group estimator produces! 
+
+```{r model with non-random missingness}
+mod_nonrandom_attrition_1 <- d_nonrandom_attrition[ , lm(y ~ d)]
+mod_nonrandom_attrition_2 <- d_nonrandom_attrition[ , lm(y ~ d + x1)]
+```
+
+```{r report of all four models}
+stargazer(
+  mod_fully_observed_1, mod_fully_observed_2, 
+  mod_random_attrition, 
+  mod_nonrandom_attrition_1, mod_nonrandom_attrition_2,
+  type = 'text', 
+  se = list(
+    robust_se(mod_fully_observed_1), 
+    robust_se(mod_fully_observed_2), 
+    robust_se(mod_random_attrition), 
+    robust_se(mod_nonrandom_attrition_1), 
+    robust_se(mod_nonrandom_attrition_2)
+  ), 
+  omit.stat = c('ser', 'F')
+)
+```
