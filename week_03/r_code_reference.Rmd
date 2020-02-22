@@ -1,256 +1,300 @@
 ---
 title: "Formatted Async 3 Code"
+output: github_document
 ---
+
+```{r setup, warning=FALSE, message=FALSE}
+library(data.table)
+library(ggplot2)
+
+knitr::opts_chunk$set(dpi = 300)
+
+set.seed(1)
+```
+
 # Introduction 
-In this code we're going to work though an extended example that demonstrates how randomization inference works. As noted in the lecture, we are working through the example of a randomized assignment of men and women to eat (or not eat) soybeans and we are measuring the level of estrogen present in each of their bloodstreams (perhaps in parts/million).
+
+In this code we're going to work though an extended example that demonstrates how randomization inference works. We hope that at the end of this section you are able to: 
+
+1. Understand the sharp null hypothesis 
+2. Apply randomization inference to produce a sharp null distribution of the focal test-statistic, the *ATE*
+3. Produce and evaluate probabilistic statements of belief about the plausibility of the sharp-null hypothesis
+
+# The sharp null through an Anodyne Example: Estrogen and Soybeans
+
+Suppose that e are working through the example of a randomized assignment of men and women to eat (or not eat) soybeans and we are measuring the level of estrogen present in each of their bloodstreams (perhaps in parts/million).
 
 You *do not* have to work through this whole worksheet at once. In fact, it might make more sense to only work through it alongside the examples that David and David are talking about. 
 
 First, we create a grouping variable with two groups, one called "Man", and another called "Woman". 
+
 ```{r}
-group <- c(rep("Man",20),rep("Woman",20))
+d <- data.table(id = 1:40)
+d[ , group := c(rep("Man",20),rep("Woman",20))]
 ``` 
 
-To these groups, we assign silly, but schematically heplful *potential outcomes* to treatment and control. We say that, by some chance, we sampled men into our study that had estrogen ppm levels that ranged from 1-20, in perfect increments. Also, what luck, but we sampled women into the study that had estrogen levels that ranged from 51-70. So, the women have on average higher estrogen beginning the study. 
+To these groups, we assign silly, but schematically helpful *potential outcomes* to treatment and control. We say that, by some chance, we sampled men into our study that had estrogen ppm levels that ranged from 1-20, in perfect increments. Also, what luck, but we sampled women into the study that had estrogen levels that ranged from 51-70. So, the women have on average higher estrogen beginning the study. 
 
 ```{r}
-po_control <- c(seq(from = 1, to = 20), seq(from = 51, to = 70))
-po_treatment <- po_control #no effect because potential outcomes in treatment are the same
-po_control
-po_treatment
+d[ , po_control := c(seq(from = 1, to = 20), seq(from = 51, to = 70))]
+
+# no effect because potential outcomes in treatment are the same
+d[ , po_treatment := po_control + 0] 
+
+head(d)
 ```
 
 Per our randomization scheme, we are going to randomly assign the individuals to either eat lots of tofu `(treatment == 1)` or to eat no tofu `(treatment == 0)`. To do this, we write a simple function that will randomly place zeros and ones for the treatment and control. 
 
 ```{r}
-randomize <- function() { 
-  sample(c(rep(0,20),rep(1,20)))
+randomize <- function(units_per_group) { 
+  ## an (unnecessary) function to randomize units into 
+  ## treatment and control 
+  ## ---
+  ## args: 
+  ##  - units_per_group: how many zero and one should be returned
+  
+  assignment_vector <- rep(0:1, each = units_per_group)
+  sample(assignment_vector)
 } 
-## from the help file
-## For sample the default for size is the number of items inferred from the first argument
-```
 
-As is the case with David R's comments in the async material, if this code isn't strictly intuitive to you, we have lots of options to write other randomization functions. 
-
-```{r} 
-cases <- c(0,1)
-randomizeV2 <- function() { 
-  sample(cases, size = length(group), replace = TRUE)
-  }
-
-randomize()
-randomizeV2()
+randomize(4)
 ```
 
 With our randomization function in hand, we can now set up our vector of treatment assignments. This is simply storing the results of our function randomize in a vector object called treatment. 
 
 ```{r}
-treatment <- randomize() #Conduct randomization for this experiment
-treatment
-table(treatment)
+d[ , treatment := randomize(.N/2)]
 ```
 
-Recall that we are setting up an experiment that has **no** effect. As Green and Gerber point out in *Field Experiments* in the case of the sharp-null, we are actually testing against the possiblity that we observe both the potential outcomes! (As a comprehension check, explain why this is true).
-
-Next, we create a vector of realized outcomes, first using the compact notation that Green and Gerber prefer using maths. For those randomized to treamtent, we multiply the potential outcome to treatment time the treatment vector (which is a 1 when they were assigned to treatment), and for those in control, into this vector we assign the potential outcome to control time the quantity `(1 - treatment)` which will be one when they are in the treatment group. 
+Check that this has worked as intended. 
 
 ```{r}
-outcomes <- po_treatment * treatment + po_control*(1-treatment)
-outcomes
+d[1:5, ]
 ```
 
-One of the points that David R. and David B. make in their lecture is that we could have alternatively written this as a *very* simple subset, if math isn't your thing but programming control flows is. 
+```{r}
+d[ , table(treatment)]
+```
 
-Standard practice in R would be the follow style of subset: 
+Recall that we are setting up an experiment that has **no** effect. As Green and Gerber point out in *Field Experiments* in the case of the sharp-null, we are actually testing against the possibility that we observe both the potential outcomes! (As a comprehension check, explain why this is true).
+
+Next, we create a vector of realized outcomes. first using the compact notation that Green and Gerber prefer using maths. For those randomized to treatment, we multiply the potential outcome to treatment time the treatment vector (which is a 1 when they were assigned to treatment), and for those in control, into this vector we assign the potential outcome to control time the quantity `(1 - treatment)` which will be one when they are in the treatment group. 
 
 ```{r}
-outcomesV2 <- rep(NA, length(group))
-outcomesV2[treatment == 0] <- po_control[treatment == 0]
-outcomesV2[treatment == 1] <- po_treatment[treatment == 1] 
-``` 
+d[ , outcomes := (treatment * po_treatment) + (1 - treatment) * po_control]
+```
 
-Although if you're coming from another language that doesn't place such a high value on vectorized operations, you might go for it in the following way: 
+But, this is little different than an `ifelse` statement that produces the same result. 
 
 ```{r}
-outcomesV3 <- rep(NA, length(group))
-for(i in 1:length(group)) { 
-  if(treatment[i] == 0) { 
-    outcomesV3[i] <- po_control[i]
-    } else if(treatment[i] == 1) { 
-      outcomesV3[i] <- po_treatment[i]
+d[ , outcomes := ifelse(treatment == 1, po_treatment, po_control)]
+```
+
+Notice the nice concision that comes with these *vectorized* operations. It is possible to write a process that produces the same result, but that does so by looping through each row of the data.table to do so. 
+
+    outcomes <- rep(NA, length(group))
+    for(i in 1:length(group)) { 
+      if(treatment[i] == 0) { 
+        outcomes[i] <- po_control[i]
+        } else if(treatment[i] == 1) { 
+          outcomes[i] <- po_treatment[i]
+          }
       }
-  }
+
+# Randomization inference is sampling the treatment vector
+
+Now that we have the data set up, we can begin to examine what the lecture is really about, what is the distribution of ATE that we observe due to the different possibly assignments to treatment and control. 
+
+A few points to remember: 
+
+1. When we randomly assign people to a group -- either treatment or control -- we are producing an i.i.d. assignment process. **As a result,** for any concept that you might care about, and for any statistic calculated against that concept, this random assignment of people will produce at least a consistent estimate. *In the case of the sample mean, this will produce an unbiased estimate*. 
+2. When we **intervene** in the system to provide people treatment or control we *reveal* and then *measure* either their potential outcome to treatment or their potential outcome to control. 
+
+This does not imply that any one realization of treatment/control assignment and measurement will provide the exact value of the ATE. Instead, it means that across all treatment and control assignment vectors that are possible, the average of these vectors will be the true ATE. 
+
+In this data, we can write an estimator that naturally follows the two-step process described above. 
+
+First, 
+
+```{r estimate group averages}
+group_averages <- d[ , .(group_mean = mean(outcomes)), keyby = .(treatment)]
 ```
 
-Check that they're all doing the same thing
+Then, 
+
+```{r difference in group averages}
+ate <- group_averages[ , group_mean[treatment == 1] - group_mean[treatment == 0]]
+```
+
+We can use the R base function `diff` to compute the differences in means of the treatment and control groups. This `diff` function just computes how much changes between positions in a vector. 
 
 ```{r}
-table(outcomes == outcomesV2)
-table(outcomes == outcomesV3)
+diff(c(1,2,4,7,11))
 ```
 
-To my eye, the clarity of either the math version or the vector subset version are much more transparent in what they're accomplishing -- they have the added benefit of working more quickly in R if you have a large number of opertaions to run. 
-
-# Ok so we've got our data set up. Now what? 
-Now that we have the data set up, we can begin to examine what the lecture is really about, what is the distribution of ATE that we observe due to the different possibly assignments to treatment and control. A few points to remember: 
-
-1. From last week: The difference in sample means between the treatment and control groups is an unbiased estimator of the ATE. 
-2. Also from last week: This does not imply that any one realization of treatment/control assignment is guaranteed to exactly produce that ATE.
-
-This is the entire point of understanding the distribution of the ATE. 
-
-To get here, first lets write another function that will calculate the ATE. 
+And so, with the `group_averages` object, we could call for, 
 
 ```{r}
-est_ate <- function(outcome, treat) { 
-  mean(outcome[treat==1]) - mean(outcome[treat==0])
-  } 
-est_ate
+group_averages[ , diff(group_mean)]
 ```
 
-And then, let's actually compute the average treatment effect for this experiment: 
+Another useful feature of working in this `data.table` paradigm is that we can aggregate data.tables just as we have done to produce the `group_mean` variable. But, this aggregation is *itself* a data.table, and so it is possible to continue to produce further aggregations -- namely to produce this difference we have just computed. 
 
-```{r} 
-ate <- est_ate(outcomes, treatment) 
-ate 
+So, the entire process can be represented in a transparent one-line call. 
+
+```{r}
+d[ , .(group_mean = mean(outcomes)), keyby = .(treatment)][ , diff(group_mean)]
 ```
 
-**What gives!** We created this data such that there is *exactly* zero treament effect.  Note, even more specifically than creating the data so that there was no *average treatment effect* we constructed this so that there was no effect at all -- this is at the potential outcomes level! Recall that Y(0) = Y(1).  
+**But wait!** We created this data such that there is *exactly* zero treatment effect.  Note, even more specifically than creating the data so that there was no *average treatment effect* we constructed this so that there was no effect at all -- this is at the potential outcomes level! Recall that $Y_{i}(0) = Y_{i}(1), \forall i$.  
 
-# How big is that difference likely to be on average?
+## Producing a RI-based Assignment Distribution
+
 We can figure out what would happen if we did this same randomization a few of times. 
 
 ```{r}
-est_ate(outcomes, randomize())
-est_ate(outcomes, randomize())
-est_ate(outcomes, randomize())
+d[ , .(group_mean = mean(outcomes)), keyby = .(randomize(20))][ , diff(group_mean)]
+d[ , .(group_mean = mean(outcomes)), keyby = .(randomize(20))][ , diff(group_mean)]
+d[ , .(group_mean = mean(outcomes)), keyby = .(randomize(20))][ , diff(group_mean)]
 ``` 
 
-So, what we're seeing is that there are some slightly different outcomes to different trement regimes. We can do this, a bunch more times using the `replicate` function. Specifically, do this 5,000 to get a sense of the distribution
+What is evident here is that there are some slightly different outcomes to different treatment regimes. 
+
+What if we were to repeat this process a number of times, and stored the result for each of the times that we repeated the process?
+
+- Each randomization, produced by `randomize()` is a random sample of one vector from all of the possible randomization vectors. If this is the case, then by the same sampling theory we've used earlier, the set of estimates that come from this process will be an unbiased estimate of the true ATE if the sharp-null were true. 
+- As well, since we are sampling the assignment distribution, it is possible to directly generate information about the shape of the treatment distribution if the sharp-null were true.
 
 ```{r}
-distribution_under_sharp_null <- replicate(5000, est_ate(outcomes, randomize()))
-```
-
-What does this look like if we examine it a little more? 
-```{r}
-plot(density(distribution_under_sharp_null), 
-     main = "Density under Sharp Null")
-hist(distribution_under_sharp_null, 
-     main = "Histogram under Sharp Null")
-```
-
-How big was our observed difference?
-
-```{r}
-par(mfrow = c(1,2))
-plot(density(distribution_under_sharp_null), 
-     main = "Density Plot of ATE")
-abline(v = ate, col = "blue")
-hist(distribution_under_sharp_null, 
-     main = "Histogram of ATE", 
-     freq = FALSE)
-abline(v = ate, col = "blue")
-``` 
-
-As it turns out, that was pretty similar to what we saw in our draw! In fact, what we've got here is pretty likely to turn up by chance. 
-
-Following David B. statment, we can really easily draw a probability of seeing an ATE of a given size under the repeated randomization regime. 
-
-```{r}
-m <- mean(ate <= distribution_under_sharp_null) #p-value
-m
-``` 
-And so we we see that there is a `r m` probability of observing an ATE of this size, given the repreated randomization regime, under the sharp null hypothesis. 
-
-#Simulate an experiment with a large effect
-
-We have seen that when there is no effect, our Randomization Inference regime does a good job at assigning a high probability of observing an effect size equal to or larger than the ATE we calculate from our particular randomization. 
-
-Now, let's show that when there is a big effect, our Randomization Inference regime does a good job at assigning a low probability of observing an effect size equal to or larger that the ATE we calculate in our regression. 
-
-```{r}
-po_treatment <- po_control + 25 # this is a big effect! 
-po_control
-po_treatment
-# Randomize
-treatment <- randomize()
-outcomes <- po_treatment * treatment + po_control*(1-treatment)
-outcomes
-# Estimate ate
-ate <- est_ate(outcomes, treatment)
-ate
-# What is the uncertainty?
-distribution_under_sharp_null <- replicate(5000, est_ate(outcomes,
-                                                         randomize()))
-plot(density(distribution_under_sharp_null), 
-     xlim = c(-50, 50), 
-     main = "Density under Sharp Null")
-abline(v=ate, col = "darkgreen", lwd = 2)
-mean(ate < distribution_under_sharp_null) #p-value
-```
-
-# Statistical power
-
-To get a sense for how power increases or decreases with sample size and effect size, here we're going to wrap *everything* that we've done before in another function that will simulate our entire study. 
-
-As we note in the lecture, there is a third component to power that we are going to leave for next week: the variation in outcomes. (*Preview: if we decrease variation in outcomes either by including pre-treatment covariates, or explicitly designing our sampling to reduce this variation by blocking, we will increase our power.*)
-
-```{r}
-# Function to simulate a study of a given 
-# treatment effect and get the p-value
-
-simulate_study <- function(treatment_effect_size) {
-  po_control <- c(seq(from = 1,  to = 20), 
-                  seq(from = 51, to = 70) )
-  po_treatment <- po_control + treatment_effect_size
-  treatment <- randomize()
-  outcomes <- po_treatment * treatment + po_control * (1- treatment)
-  ate <- est_ate(outcomes, treatment)
-  distribution_under_sharp_null <- replicate(1000, est_ate(outcomes, randomize()) )
-  return(mean(ate < distribution_under_sharp_null))
+ri <- function(simulations = 5000) {
+  
+  res <- NA   
+  
+  for(sim in 1:simulations) { 
+    res[sim] <- d[ , .(group_mean = mean(outcomes)), 
+                   keyby = .(randomize(20))][ , diff(group_mean)]
+  }
+  return(res)
 }
 ```
 
-With that function in hand, we can run with our simulations! 
+```{r}
+dist_sharp_null <- ri(5000)
+```
+
+Examine the results of this distribution. First, visually inspect the first 10 instances to assess that the randomization process is producing numeric results that see plausible. Then, to show the distribution of the ATE under the assumption that the sharp null is true, plot a histogram of these 5,000 simulations. 
 
 ```{r}
-simulate_study(0) # p-value for no effect
-p_values <- replicate(1000, simulate_study(0)) # distribution of pvalues
-plot(density(p_values, from = 0, to = 1), xlim = c(0,1), 
-     main = "Density of p-values \n t = 0") # uniform distribution
-# how often is p_value under 0.05 when there is no effect?
+dist_sharp_null[1:10]
+
+hist(
+  dist_sharp_null, 
+  col = 'black', 
+  xlab = 'Estimated ATE', 
+  main = 'ATE under assumption that sharp null is true'
+  )
+```
+
+How large was the observed difference in the single experiment that we conducted? Recall that we stored this estimate in the object called `ate`. 
+
+```{r}
+hist(
+  dist_sharp_null, 
+  col = 'black', 
+  xlab = 'Estimated ATE', 
+  main = 'ATE under assumption that sharp null is true'
+  )
+abline(v = ate, col = 'blue', lwd = 3)
+```
+
+As it turns out, that was pretty similar to what we saw in our draw! In fact, what we've got here is pretty likely to turn up by chance. 
+
+# Producing a p-value 
+
+Once we have simulated this distribution of the test statistic under the assumption that the sharp-null is true, how do we produce a statement about the plausibility of this assumption? 
+
+In frequentist statistics -- much of the statistics we learn in w203 -- we rely on sampling processes, the weak law of large numbers, and the central limit theorem to produce test statistics that follow known reference distributions. (Think of the *t-distribution* the *normal distribution* and the *F-distribution*.) Given data that follows the sets of frequentist assumptions, it is possible to analytically compose a statement of probability that the data was generated under the null hypothesis (recall the sets of integrals computed in 203). 
+
+In *stark* contrast to frequentist statistics, Randomization Inference (sometimes called Fisherian Randomization Inference), does not rely on data following some reference distribution to produce analytic p-values through integration. Instead, RI simulates the distribution of the test statistic under the supposition that the sharp null hypothesis were true.
+
+To produce a p-value from this distribution, the task is simply to ask, 
+
+> What proportion of the simulated distribution of the test-statistic is more extreme than the value that was observed in the experiment that was *actually* conducted. 
+
+Though we would never advocate for conducting a one-tailed test it is pedagogically useful to begin here. 
+
+To answer the question plain-language question, "How likely is it that the treatment effect is smaller than zero?" first translate the question into the specific formulation that you will recognize from Frequentist stats: 
+
+> What is the probability of observing a treatment effect smaller (in absolute scale) than what was observed, given that the sharp-null hypothesis were true?
+
+```{r}
+p_value <- mean(dist_sharp_null < ate) #p-value
+p_value
 ``` 
-That line is kind of warbeling around as a result of statistical noise, but more or less, we have a horizontal line -- or at the very least, a line that would not be very informative if we had to place a bet about where on the range the p-value is most likely to lie. 
+And so we we see that there is a `r p_value` probability of observing an ATE of this size, given the repeated randomization regime, under the sharp null hypothesis. 
 
-In fact, if we look at the average p-value from this distribution, we see that it is `r mean(p_values < 0.05)`. This means that the *average* probability of seeing a treatment size of size $\hat{ATE}$ under the sharp null hypothesis, across all 5,000 of our replications is `r mean(p_values < 0.05)`. That is really, *really* likely. 
+# Simulate an experiment with a large effect
 
-What happens if we incrase the effect size in our simulated study? Now, we're moving from a simulation that supposes there is no effect of soy on estrogen levels to a simulation that supposes there is a 10 unit increase in the estrogen levels of subjects who are treated with soy. 
+We have seen that when there is no effect, our Randomization Inference regime does a good job at assigning a high probability of observing an effect size equal to or larger than the ATE we calculate from our particular randomization. 
+
+Recall the steps to conduct randomization inference. 
+
+1. Conduct the experiment, using random assignment to produce two unbiased samples of the desired test statistic. 
+2. Compute the desired test statistic (here the ATE) on this experimental data.
+3. Suppose that the sharp null hypothesis is true, thereby solving the *missing data* problem that is at the heart of the fundimental problem of causal inference, and permitting the complete observation of all potential outcomes under the supposition of the sharp null were true. 
+4. Repeatedly sample the treatment assignment vector and under each assignment, for each sample, compute the test statistic in the same manner as in step 1. 
+5. Compare the measured treatment effect to the distribution of treatment effects under the sharp null supposition and directly draw a p-value. 
+
+Now, let's show that when there is a big effect, our Randomization Inference regime does a good job at assigning a low probability of observing an effect size equal to or larger that the ATE we calculate in our regression. 
+
+## 0. Create the universe 
 
 ```{r}
-p_values <- replicate(1000, simulate_study(10))
-plot(density(p_values, from = 0, to = 1), 
-     main = "Density of p-values \n t = 10")
+rm(d) 
+
+d <- data.table(
+  id = 1:40, 
+  group = rep(c('Man', 'Woman'), each = 20), 
+  po_control = c(1:20, 51:70)
+)
+
+d[ , po_treatment := po_control + 25]
 ```
 
-In the proceeding plot, we have quite a bit more information about the distribution of the p-values (which are themselves the result of a distribution...stay with us here). In this case, the average p-value from the 1,000 replications of the experiment under the sharp-null is `r mean(p_values)`. This is *lower* than before -- which is sensible given we have increased the simulated effect. With a larger effect, we should think that it is less likely to see an effect size of $\hat{ATE}$ due only to random chance, and as such, the mean p-value should be smaller to reflect this state of the world. 
-
-A little more about the average p-values: What does the "average" p-value look like under this regime? And how often do we see p-values that are smaller than 0.05? This is the RI relative to a classical hypothesis test that relies on strong statistical assumptions about sampling, distributions and the law of large numbers. 
+## 1. Conduct the experiment 
 
 ```{r}
-mean(p_values) 
-mean(p_values < 0.05) # somewhat likely to detect this effect
-table(p_values < 0.05)
+## Assign 
+d[ , treatment := randomize(.N/2)]
+
+## Treat and Measure 
+d[ , outcomes := ifelse(treatment == 1, po_treatment, po_control)]
 ```
 
-Now, do it again, but with a simulated treatment effect size of twenty: $\tau_{i} = 20$ for everyone in the study. What then are the chances that we see an effect size as large as we do for a single randomization, just by chance? 
+## 3. Calculate ATE 
 
 ```{r}
-p_values <- replicate(1000, simulate_study(20))
-plot(density(p_values, from = 0, to = 1), 
-     main = "Density of p-values \n t = 20")
-# What do those p-values look like? 
-mean(p_values)
-mean(p_values < 0.05)   # very likely to 
-table(p_values < 0.05)  # detect this effect
+ate <- d[ , .(group_mean = mean(outcomes)), keyby = treatment][ , diff(group_mean)]
+ate 
+```
+
+We see, that in the particular experiment, the treatment/control assignment produced an estimate of the treatment effect of `r ate` (the true value is 25). 
+
+## 4. Conduct Randomization Inference 
+
+```{r}
+dist_sharp_null_large <- ri(5000)
+```
+
+## 5. Generate a p-value 
+
+```{r}
+hist(dist_sharp_null_large, col = 'black')
+abline(v = ate, col = 'blue', lwd = 4)
+```
+
+```{r}
+p_value <- mean(abs(dist_sharp_null_large) > ate)
+p_value
 ```
