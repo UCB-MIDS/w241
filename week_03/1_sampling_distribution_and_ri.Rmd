@@ -1,0 +1,70 @@
+---
+title: "Formatted Async 3 Code"
+output: 
+  beamer_presentation: 
+    theme: metropolis
+    slide_level: 2
+    incremental: no
+    keep_tex: no
+  header-includes: 
+      \setbeamercolor{frametitle}{bg=gray}
+---
+
+```{r setup, include = FALSE, warning=FALSE, message=FALSE}
+library(data.table)
+library(ggplot2)
+
+knitr::opts_chunk$set(dpi = 300)
+
+set.seed(1)
+```
+
+# Introduction 
+
+## Introduction 
+
+In this code we're going to work though an extended example that demonstrates how randomization inference works. We hope that at the end of this section you are able to: 
+
+1. Understand the sharp null hypothesis 
+2. Apply randomization inference to produce a sharp null distribution of the focal test-statistic, the *ATE*
+3. Produce and evaluate probabilistic statements of belief about the plausibility of the sharp-null hypothesis
+
+# Three Inferential Paradigms 
+
+## Three Inferential Paradigms 
+
+1. Frequentist Inference 
+2. Bayesian Inference 
+3. Fisherian Inference 
+
+## Frequentist Inference 
+
+- Theoretically unappealing 
+    - $P(Data\ |\ Null\ Hypothesis) \neq P(Hypothesis\ |\ Data)$ 
+    - Requires assumptions that are frequently implausible
+- Analytically challenging 
+
+$$\int_{-\infty}^{x} \frac{e^{\frac{1}{2}\left(\frac{x-\mu}{\sigma} \right)^2}}{\sigma\sqrt{2\pi}}, is\ hard.$$
+
+- Computationally solved 
+    - Look in the back of any book; or, 
+    - `pnorm`, `pt`, `pf`, `pchisq` 
+
+## Bayesian Inference
+
+- Theoretically appealing 
+    - $P(Hypothesis\ |\ Data) \propto P(Data\ |\ Hypothesis)*P(Hypothesis)$
+    - Though requires potentially controversial statement of prior beliefs about $P(Hypothesis)$
+- Analytically challenging 
+    - Correctly specifying priors so they are both (a) plausible; and (b) conjugate with Likelihood statement requires skill
+- Computationally challenging 
+    - Sampling likelihood space requires informed, principled samplers (e.g. Metropolis, Gibbs) that require cycles 
+
+## Fisherian Inference 
+
+- Theoretically unappealing 
+    - $P(Data\ |\ Sharp\ Null\ Hypothesis) \neq P(Hypothesis\ |\ Data)$ 
+- Analytically simple 
+- Computationally Straightforward
+
+

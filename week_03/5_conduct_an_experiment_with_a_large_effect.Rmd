@@ -1,0 +1,150 @@
+---
+title: "RI With a Large Effect"
+output: github_document 
+---
+
+Begin this workbook by reloading all functions from the week.
+
+  - These function loads are not echoed into the final `.md` file
+  - Better coding practice (but not pedagogical practice) would be to 
+    place these repeatedly used functions somewhere that is commonly
+    available to the project (e.g. `./src/`) and to import them. 
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+
+knitr::opts_chunk$set(dpi = 300)
+```
+
+```{r define randomization function, echo=FALSE}
+randomize <- function(units_per_group) { 
+  ## an (unnecessary) function to randomize units into 
+  ## treatment and control 
+  ## ---
+  ## args: 
+  ##  - units_per_group: how many zero and one should be returned
+  
+  assignment_vector <- rep(c('control', 'treatment'), each = units_per_group)
+  sample(assignment_vector)
+} 
+```
+
+```{r define make_data function, echo = FALSE}
+make_data <- function(number_of_subjects = 40) {
+  ## makes data in the same form as earlier worksheets 
+  ## returns only the data.table of data 
+  
+  d <- data.table(id = 1:number_of_subjects)
+  d[ , group := c(rep("Man", .N/2),rep("Woman", .N/2))]
+
+  d[ , po_control := c(
+    seq(from = 1,  to = 20, length.out = .N/2), 
+    seq(from = 51, to = 70, length.out = .N/2))
+    ]
+  d[ , po_treatment := po_control + 0] 
+
+  d[ , condition := randomize(.N/2)]
+  d[ , outcomes := ifelse(condition == 'treatment', po_treatment, po_control)]
+}
+```
+
+```{r define ri, echo = FALSE}
+ri <- function(simulations = 5000) {
+  
+  res <- NA   
+  
+  for(sim in 1:simulations) { 
+    res[sim] <- d_experiment[ , .(group_mean = mean(outcomes)), 
+                   keyby = .(randomize(20))][ , diff(group_mean)]
+  }
+  return(res)
+}
+```
+
+
+```{r make data}
+set.seed(2)
+
+d <- make_data(number_of_subjects = 40)
+d_experiment <- d[ , .(id, outcomes, condition, group)]
+```
+
+# Simulate an experiment with a large effect
+
+We have seen that when there is no effect, our Randomization Inference
+regime does a good job at assigning a high probability of observing an
+effect size equal to or larger than the ATE we calculate from our
+particular randomization.
+
+Recall the steps to conduct randomization inference.
+
+1.  Conduct the experiment, using random assignment to produce two
+    unbiased samples of the desired test statistic.
+2.  Compute the desired test statistic (here the ATE) on this
+    experimental data.
+3.  Suppose that the sharp null hypothesis is true, thereby solving the
+    *missing data* problem that is at the heart of the fundimental
+    problem of causal inference, and permitting the complete observation
+    of all potential outcomes under the supposition of the sharp null
+    were true.
+4.  Repeatedly sample the treatment assignment vector and under each
+    assignment, for each sample, compute the test statistic in the same
+    manner as in step 1.
+5.  Compare the measured treatment effect to the distribution of
+    treatment effects under the sharp null supposition and directly draw
+    a p-value.
+
+Now, let’s show that when there is a big effect, our Randomization
+Inference regime does a good job at assigning a low probability of
+observing an effect size equal to or larger that the ATE we calculate in
+our regression.
+
+## 1. Create the universe and assign to treatment and control
+
+Create a universe where there is a *very* large treatment effect. Specifically, **edit the `make_data` function so that for every subject, their potential outcomes to treatment are 25 units higher than their potential outcomes to control. 
+
+After you have edited `make_data` run the chunk below. 
+
+```{r}
+set.seed(2)
+
+d <- make_data(number_of_subjects = 40)
+d_experiment <- d[ , .(id, outcomes, condition, group)]
+
+d_experiment[1:5]
+```
+
+## 2. Calculate ATE
+
+Use `data.table` to calculate the average of the realized potential outcomes, grouped by whether a unit was in treatment or control. Then, compute the difference between these two means. 
+
+```{r}
+
+```
+
+## 3. Conduct Randomization Inference
+
+From the observed outcomes, create a randomization inference distribution of how large or small the treatment effects could have been if the sharp null were true. 
+
+```{r}
+
+```
+
+  1. Think back to the last worksheet -- in this data the treatment
+     effect is *much* larger than before.
+  2. How do you think the shape of the RI distribution will change as 
+     a result of this much larger treatment effect? 
+     1. Will the distribution become more dispersed? 
+     2. Will the distribution become less dispersed? 
+     3. Will the distribution not change? 
+
+## 5. Generate a p-value
+
+Finally, generate a two sided p-value that makes a probabilisitc statement about the proportion of treatment assignments that could have produced a treatment effect larger than the observed `ate`, even if the sharp null hypothesis were true. 
+
+```{r} 
+
+```
+
+Given this p-value, would you say that the data suggests that the supposition of the sharp null leads to an absurd conclusion? 

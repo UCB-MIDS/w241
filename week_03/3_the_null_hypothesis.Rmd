@@ -1,0 +1,231 @@
+---
+title: "The Sharp Null Hypothesis"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+
+knitr::opts_chunk$set(dpi = 300)
+```
+
+After completing this segment, you will be able to clearly describe the sharp null hypothesis, and how the role that the supposition that the sharp null hypothesis is true plays in the *Randomization Inference* paradigm. 
+
+To begin this worksheet: 
+
+  1. Load the `randomize()` function that we used earlier this week
+  2. Re-load the data, now wrapping this process in a function called
+     `make_data`
+
+```{r define randomization function}
+randomize <- function(units_per_group) { 
+  ## an (unnecessary) function to randomize units into 
+  ## treatment and control 
+  ## ---
+  ## args: 
+  ##  - units_per_group: how many zero and one should be returned
+  
+  assignment_vector <- rep(c('control', 'treatment'), each = units_per_group)
+  sample(assignment_vector)
+} 
+```
+
+```{r define make_data function}
+make_data <- function(number_of_subjects = 40) {
+  ## makes data in the same form as earlier worksheets 
+  ## returns only the data.table of data 
+  
+  d <- data.table(id = 1:number_of_subjects)
+  d[ , group := c(rep("Man", .N/2),rep("Woman", .N/2))]
+
+  d[ , po_control := c(
+    seq(from = 1,  to = 20, length.out = .N/2), 
+    seq(from = 51, to = 70, length.out = .N/2))
+    ]
+  d[ , po_treatment := po_control + 0] 
+
+  d[ , condition := randomize(.N/2)]
+  d[ , outcomes := ifelse(condition == 'treatment', po_treatment, po_control)]
+}
+```
+
+# Make data 
+
+To begin, reproduce the data that we used previously. 
+
+```{r make data with set.seed(2)}
+set.seed(2)
+
+d <- make_data(number_of_subjects = 40)
+```
+
+And after creating this data, estimate the average treatment effect. 
+
+```{r estimate ate}
+ate <- d[ , mean(outcomes), keyby = .(condition)][ , diff(V1)]
+ate
+```
+
+# Producing a RI-based Assignment Distribution
+
+When we conduct an experiment, we make real specific subsets of the *science table* that Green and Gerber describe. Specifically, by randomly assigning some people to treatment and some to control, we produce and then measure two unbiased estimates of the population potential outcomes to treatment and potential outcomes to control. 
+
+As we have seen, in this particular randomization we generate a treatment effect of `r ate`. But, this is just *one* experiment that we've run; just a single sample from the treatment assignment vector. Knowing this, when we observe giving soybeans to people causes a treatment effect of `r ate`, when we present this to colleagues, are we able to trumpet this effect as the single, and absolute truth? 
+
+> Hey everybody! I have a very important announcement to make! Soybeans will make your estrogen increase by `r ate`! 
+
+Two specific questions: 
+
+  1. Will *every person's* estrogen increase by the same amount? Does 
+     this estimator have the ability to inform your thoughts? 
+  2. Are we *sure* that `r ate` is the actual value that we should 
+     expect people's estrogen to increase?
+
+The rest of this notebook will work to provide specific answers to these questions. 
+
+# An experiment samples potential outcomes once 
+
+Any experiment samples two vectors -- the vector of potential outcomes to treatment and the vector of potential outcomes to control -- in a way that intentionally creates an unbiased estimate of the treatment effect. 
+
+But, there are different outcomes for different to different treatment regimes that we might have drawn. 
+
+```{r run many experiments}
+# run this cell repeatedly
+
+much_experiment <- make_data(number_of_subjects = 40)
+
+much_experiment[condition == 'treatment' , mean(po_treatment)] - 
+  much_experiment[condition == 'control', mean(po_control)] 
+
+much_experiment[ , .(group_mean = mean(outcomes)), 
+    keyby = .(condition)][ , diff(group_mean)]
+```
+
+With the experiment that we *actuallty* conducted, compute the ate. 
+
+```{r compute the ate}
+ate <- d[ , mean(outcomes), keyby = .(condition)][ , diff(V1)]
+ate
+```
+
+Our goal, given the experiment that we have run, is to make an accurate, statistically sound statement about whether the treatment effect we observed could have arisen by chance. 
+
+A statement that says simply, 
+
+> :mega: **The treatment effect we estimate is `r ate`!** :mega:  
+
+Doesn't have any information about chance. Randomization Inference will provide us that statement about chance. 
+
+As we conduct it, randomization inference is intentionally circumspect about all of the *other* experiments that we could have conducted. 
+
+When we actually conduct the experiment, we lose the ability to observe the counterfactual potential outcomes -- the potential outcomes for the condition that subjects are not assigned to. To make this very clear, let's create a new objected called `d_experiment` that is a subset of the science table that contains only the data that is *actually* observable. 
+
+```{r}
+d_experiment <- d[ , .(id, outcomes, condition, group)]
+d_experiment[1:10]
+```
+
+# The Sharp Null Hypothesis 
+
+In the data that we actually posses we have observed outcomes and a label about whether the outcome is a subject's potential outcome to treatment or potential outcome to control. Are these labels meaningful? 
+
+Randomization inference uses a simple Socratic method of argumentation toward absurdity: 
+
+  1. Make a supposition or claim; 
+  2. Evaluate whether this supposition leads to an absurd reality; 
+  3. If so, conclude that the supposition must not be true. 
+
+For example: 
+
+  - Stanford is a better university than Berkeley; their graduates are 
+    technical, ethical and managerial thought leaders
+  - Caffeine has no effect on alertness; drinking a cup of coffee at 
+    8:00pm has no effect on one's ability to sleep
+
+Or, in the case our experiments: 
+
+  - Placing a unit in treatment is no different than placing that unit 
+    in control; potential outcomes are not different between the two 
+    conditions.  
+
+# Randomization Inference is Re-sampling the Treatment Vector 
+
+If the sharp null were true, the the set of potential outcomes that we observe have the following attributes: 
+
+  - They are representative draws of from the treatment condition that
+    they are associated with;
+  - But also, they are representative draws of the treatment condition
+    that they are *not* associated with! 
+
+As a result, with an experiment that has only observable outcomes, if the sharp null were true, it would be possible to fill in the unobserved, counterfactual potential outcomes. 
+
+This means that:
+
+  - The experiment we conduct reveals a subset of potential outcomes
+  - Randomization Inference repeatedly permutes the labels of treatment
+    and control of the set of outcomes that are observed. 
+
+If we were to repeat this process a number of times and stored the
+result each time, what would we get? 
+
+  - Each randomization, produced by `randomize()` is a random sample of
+    one vector from all of the possible randomization vectors. 
+    Thus, by the same sampling theory we’ve used earlier,
+    the set of estimates that come from this process will be an unbiased
+    estimate of the true ATE if the sharp-null were true.
+  - As well, since we are sampling the assignment distribution, it is
+    possible to directly generate information about the shape of the
+    treatment distribution if the sharp-null were true.
+
+```{r}
+ri <- function(simulations = 5000) {
+  
+  res <- NA   
+  
+  for(sim in 1:simulations) { 
+    res[sim] <- d_experiment[ , .(group_mean = mean(outcomes)), 
+                   keyby = .(randomize(20))][ , diff(group_mean)]
+  }
+  return(res)
+}
+```
+
+```{r}
+dist_sharp_null <- ri(5000)
+```
+
+Examine the results of this distribution. First, visually inspect the first 10 instances to assess that the randomization process is producing
+numeric results that see plausible. Then, to show the distribution of
+the ATE under the assumption that the sharp null is true, plot a
+histogram of these 5,000 simulations.
+
+```{r}
+dist_sharp_null[1:10]
+```
+
+```{r}
+hist(
+  dist_sharp_null, 
+  col = 'black', 
+  xlab = 'RI ATE', 
+  main = 'ATE under assumption that sharp null is true'
+  )
+```
+
+How large was the observed difference in the single experiment that we
+conducted? Recall that we stored this estimate in the object called
+`ate`.
+
+```{r}
+hist(
+  dist_sharp_null, 
+  col = 'black', 
+  xlab = 'RI ATE', 
+  main = 'ATE under assumption that sharp null is true'
+  )
+abline(v = ate, col = 'blue', lwd = 3)
+```
+
+As it turns out, that was pretty similar to what we saw in our draw! In
+fact, what we’ve got here is pretty likely to turn up by chance.

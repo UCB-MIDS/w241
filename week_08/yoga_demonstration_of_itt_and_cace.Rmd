@@ -7,6 +7,7 @@ author: 'Alex'
 ```{r load packages, echo=TRUE, message=FALSE, warning=FALSE}
 library(data.table)
 library(stargazer)
+
 ```
 
 # What is non-compliance
