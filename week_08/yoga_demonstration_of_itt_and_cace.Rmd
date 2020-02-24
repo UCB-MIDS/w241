@@ -1,0 +1,358 @@
+---
+title: "Consequences of Noncompliance"
+output: github_document
+author: 'Alex'
+---
+
+```{r load packages, echo=TRUE, message=FALSE, warning=FALSE}
+library(data.table)
+library(stargazer)
+
+```
+
+# What is non-compliance
+
+> "Hey, **you**! That's right you!" you yell at your participant. "You're in the treatment group, don't you even think about not taking the treatment I told you you."
+> 
+> The subject looks you straight in your face and says, "Yeah, I know this is important for your so called 'experiment', and I know that I told you I was your friend, and that I would do what you said, but now... 
+> 
+> ... Well, TBH I'm kind of lazy, and you know. "
+
+And so goes every experiment for all time. You build a group of people who are systematically unrelated to the stimulus -- random -- and they do their best to build back structured relationships. 
+
+What is the consequence of people deciding that they don't want to comply with the set of things you've told them to do? *How can you think about this as a form of selection bias coming back into the data again?* 
+
+## What can't you know
+
+When some people are systematically unable to receive the treatment that you've assigned them to receive, it is *by definition*  impossible to observe a treatment effect. If people are unwilling to take the treatment, you cannot reveal their potential outcomes to treatment, and so you cannot produce an estimate -- of any form -- for their values of $\tau$. 
+
+## Question of Understanding 
+
+- Because it would be practically impossible to *estimate* the treatment effect for the population of non-compliers, does that mean that they don't have a treatment effect? Why does thinking of this in terms of potential outcomes help to answer the question? 
+
+
+## What don't you want to know 
+
+It might be very tempting to simply let your population of *non-compliers* simply go into the control group. After all, since they didn't receive any treatment, **why not?** Well, you're going to create a comparison of two types of folks: 
+
+1. The group of people who are assigned to treatment and can take the treatment; 
+2. The group of people who are assigned to control + the group of people who are assigned to treatment and cannot take it. 
+
+Of course this is a classic **apples to oranges** comparison, and one that we don't want to make. But, how bad can it really be? 
+
+Well, pretty bad, depending on the "arrangement of the Xs". 
+
+# Make Data 
+
+Let's create a function to load our data. 
+
+```{r data setup}
+make_data <- function(nrows=1000, non_compliance=c('none', 'random', 'non-random')) { 
+    ## this function will make data for the purposes of learning
+    ## about how  random or non-random non-compliance will change
+    ## a two-group difference estimate of those who are treated.
+
+    require(data.table)
+    
+    d <- data.table(id = 1:nrows) 
+
+    d[ , y0  := rnorm(nrows, mean = 10)]
+    d[ , tau := rnorm(nrows, mean = 1)]
+    d[ , y1  := y0 + tau]
+
+    ## randomly ASSIGN people to treatment 
+    d[ , Z := sample(0:1, .N, replace=T, prob = c(0.5, 0.5))]
+    
+    if(non_compliance == 'none') { 
+      
+      ## if there is full compliance, everyone is a complier 
+      
+      d[ , compliance := 'complier']
+      d[Z==1, D := ifelse(compliance == 'complier', 1, 0)]
+    } else if(non_compliance=='random') {
+
+      ## if random_non_compliance, then make the choice to comply 
+      ## occur totally at random. 
+      d[ , compliance := sample(c('complier', 'noncomplier'), .N, TRUE, c(0.7, 0.3))]
+
+    } else if(non_compliance=='non-random'){
+      
+      ## if not random_non_compliance, then make the choice to comply
+      ## conditional on the levels of Y that the person has. 
+      ## in particular, make the highly plausible case: 
+      ## 
+      ## people with "low" levels of of potential outcomes to control are 
+      ## less likely to comply
+      
+      d[y0 > mean(y0), 
+        compliance := sample(c('complier', 'noncomplier'), .N, TRUE, c(0.9, 0.1))]
+      d[y0 < mean(y0), 
+        compliance := sample(c('complier', 'noncomplier'), .N, TRUE, c(0.1, 0.9))]
+    }
+    
+    ## If a unit is assigned to be in the control group, then they do not 
+    ## receive treatment. If the unit is assigned to the treatment group
+    ## and if they are a complier, then they receive the treatment. 
+
+    d[Z==0, D := 0L] 
+    d[Z==1, D := ifelse(compliance == 'complier', 1, 0)]
+    
+    ## If the person takes treatment, then measure their potential outcome
+    ## to treatment in Y.
+    ## If the person takes control, then measure their potential outcome
+    ## to control in Y.
+    
+    d[ , Y := ifelse(D==1, y1, y0)]
+
+    ## return the dataset back
+    return(d)
+
+}
+```
+
+With the function to make our data built, we can "run an experiment" once. 
+
+# Estimate with Full Compliance 
+
+## Estimate Once 
+
+The first time, lets run it so that there is full compliance.  
+
+```{r run experiment with full compliance}
+d <- make_data(nrows = 200, non_compliance = 'none')
+mod_assigned  <- d[ , lm(Y ~ Z)]
+mod_take_treatment <- d[ , lm(Y ~ D)]
+
+stargazer(mod_assigned, mod_take_treatment, type = 'text')
+```
+
+The treatment effect that is baked into the function is 1, and, no big surprise, when everybody that we tell (**at random**) to take the treatment does, we estimate the true treatment effect on both the assignment and the treatment indicators. This is just exactly the same as what we've seen *every single time* to this point. :+1:
+
+## Estimate Many Times 
+
+But, what happens if we run a large number of these experiments, and store the estimates. 
+
+To do ts, let's wrap our `make_data` function in another function called `simulate_experiments`. This function is going to: 
+
+1. Make data, 
+2. Estimate several models, and, 
+3. Return key pieces of those models. 
+
+In particular, let's estimate the following quantities for every simulated data set. 
+
+1. The `itt` estimate -- the difference between the outcomes for the group that was assigned to treatment and the group that was assigned to control. 
+2. The difference between those who took the pill and did not take the pill. There isn't really a name for this quantity in the case of non-compliance, because it is not a well-posed causal quantity. We will call it `d_coef` for lack of a better name. 
+3. The *compliance rate*, which is the proportion of people who take the treatment, among those who were supposed to take the treatment. We will estimate this with a linear model, but you could also produce this estimate with a difference in means for a specific part of the population (those who were assigned to the treatment group). 
+
+```{r create experiment simulator}
+simulate_experiments <- function(n_sims = 200, nrows = 200, non_compliance = 'non_random') { 
+  z_coef <- NA
+  d_coef <- NA
+  true_itt <- NA
+  compliance_rate <- NA 
+  
+  for(i in 1:n_sims){ 
+    d <- make_data(nrows = nrows, non_compliance = non_compliance)
+    z_coef[i] <- coef(d[ , lm(Y ~ Z)])['Z']
+    d_coef[i] <- coef(d[ , lm(Y ~ D)])['D']
+    compliance_rate[i] <- coef(d[ , lm(D ~ Z)])['Z']
+  }  
+  
+  return(list(
+    'z_coef' = z_coef, 
+    'd_coef' = d_coef,
+    'compliance_rate' = compliance_rate))
+}
+```
+
+After defining this function, we can simulate 200 experiments, and plot the results as follow. 
+
+```{r run simulation with random non-compliance}
+simulation_ <- simulate_experiments(n_sims=200, nrows=200, non_compliance = 'none')
+
+source('http://ischool.berkeley.edu/~d.alex.hughes/code/pubPlot.R')
+plot(simulation_[['z_coef']], simulation_[['d_coef']], 
+     pch = 8,
+     xlab = 'Z', ylab = 'D', 
+     xlim = c(0, 1.2), 
+     ylim = c(0, 3))
+abline(v=1, col = 'green')
+abline(v=mean(simulation_[['z_coef']]), col = 'blue')
+abline(h=1, col = 'green')
+abline(h=mean(simulation_[['d_coef']]), col = 'blue')
+
+legend('topleft', col = c('green', 'blue'), lty = 1, legend = c('truth', 'estimated'))
+```
+
+What do you learn from this plot? 
+
+# Estimate with Random Noncompliance 
+
+## Estimate Once 
+
+Once again, conduct a single experiment and estimate the difference in outcomes in two different models. In the first model, estimate the difference in outcomes between the units that were assigned to treatment and the units that were assigned to control. In the second model, estimate the difference between the people who took the treatment and those who did not. 
+
+The **key** difference in this data is that now a random set of the population is of the "non-complier" type. If you look back to the `random` block in the data creation function, you will notice that the *choice* to comply or non-comply is not related to people's potential outcomes. This is why we're calling it "random". 
+
+```{r}
+d <- make_data(nrows = 200, non_compliance = 'random')
+
+mod_assigned  <- d[ , lm(Y ~ Z)]
+mod_take_treatment <- d[ , lm(Y ~ D)]
+
+stargazer(mod_assigned, mod_take_treatment, type = 'text')
+```
+
+Uh, oh. There is space between the effect of being assigned to treatment and taking the treatment. While we are still able to produce a reliable estimate of the effect of *taking* treatment under the scenario that this choice is random, we are not able to produce this same estimate from the comparison of the group that was *assigned* to treatment vis-a-vis the group that was *assigned* to control.
+
+## Estimate Many Times 
+
+Was this space between the estimate of {the treatment group vs. the control} and {the people who took treatment vs. those that did not take treatment} a fluke, or is this a general pattern? To assess this, conduct the same set of many simulations and assess the results. 
+
+```{r}
+simulation_ <- simulate_experiments(n_sims=200, nrows=200, non_compliance = 'random')
+
+source('http://ischool.berkeley.edu/~d.alex.hughes/code/pubPlot.R')
+plot(simulation_[['z_coef']], simulation_[['d_coef']], 
+     pch = '+',
+     xlab = 'Z', ylab = 'D', 
+     xlim = c(0, 1.2), 
+     ylim = c(0, 3))
+abline(v=1, col = 'green')
+abline(v=mean(simulation_[['z_coef']]), col = 'blue')
+abline(h=1, col = 'green')
+abline(h=mean(simulation_[['d_coef']]), col = 'blue')
+
+legend('topleft', col = c('green', 'blue'), lty = 1, legend = c('truth', 'estimated'))
+```
+
+
+## Questions: 
+
+Reading this plot: 
+
+- Why is the estimate for the takers (**D**)an unbiased estimate of the treatment effect? 
+- Why is the estimate of the causal effect, for those assigned (**Z**)to take treatment *lower* than the truth? 
+- Which of these estimates produces a *compliers average causal effect* and which produces an *intent to treat effect*? 
+
+# Nonrandom Noncompliance 
+
+As you might guess, this is the both the worst case, and the most likely case when you are running your experiments. There is no reason to belie that someone would **choose** to comply or not comply in a way that is not correlated with potential outcomes. In general, if we could assume that problems were unrelated to treatment or potential outcomes, they wouldn't be problems! 
+
+The people who choose not to follow the directions that you provide them are in some way different than the people who chose to follow your directions. Or, said differently, the people who are compliers might be different than the people who are not compliers. We built it to be this way, but here's the evidence: 
+
+```{r}
+d <- make_data(nrows = 200, non_compliance = 'non-random')
+complier_differences <- d[ , lm(y0 ~ compliance)]
+summary(complier_differences)
+```
+
+In this example, the folks who comply have higher potential outcomes than those who non-comply. 
+
+- What will the consequence of this be in our estimates? 
+    - Will the difference in averages in the treatment and control groups tell us anything useful? Why or why not? 
+    - Will the difference in averages between the people who take treatment and take control tell us anything useful? Why or why not?  
+
+```{r make non-random non-compliance data}
+d <- make_data(nrows = 200, non_compliance = 'non-random')
+
+mod_assigned  <- d[ , lm(Y ~ Z)]
+mod_compliers <- d[ , lm(Y ~ D)]
+
+stargazer(mod_assigned, mod_compliers, type = 'text')
+```
+
+Oooooooh goodness gracious. We're a **long** way from the truth now. Both estimates are unhinged from the true values of 1 that they should be estimating? Why is this? What has happened in the data that is *specifically* leading to this behavior? 
+
+Lets look through a number of simulations to see what we learn. Remember, that the causal effect throughout this data is 1. 
+
+```{r run simulation with non-random non-compliance}
+simulation_ <- simulate_experiments(n_sims=200, nrows=200, non_compliance='non-random')
+
+source('http://ischool.berkeley.edu/~d.alex.hughes/code/pubPlot.R')
+plot(simulation_[['z_coef']], simulation_[['d_coef']], 
+     pch = '+',
+     xlab = 'Z', ylab = 'D', 
+     xlim = c(0, 1.2), 
+     ylim = c(0, 3))
+points(x=1,y=1, col = 'red', cex = 4)
+abline(v=1, col = 'green')
+abline(v=mean(simulation_[['z_coef']]), col = 'blue')
+abline(h=1, col = 'green')
+abline(h=mean(simulation_[['d_coef']]), col = 'blue')
+legend('topleft', col = c('green', 'blue'), lty = 1, legend = c('truth', 'estimated'))
+```
+
+## Questions: 
+
+Reading this plot: 
+
+- Why is the estimate for the takers (**D**) now a biased estimate of the treatment effect?  Has this changed from the earlier plot? Why or why not based on what you know about how the data is created? 
+- Why is the estimate of the causal effect, for those assigned to take treatment (**Z**) *lower* than the truth? Has this changed from the earlier plot? Why or why not based on what you know about how the data is created? 
+- Which of these estimates produces a *compliers average causal effect* and which produces an *intent to treat effect*? 
+
+# Fixing these estimates 
+
+## Fixing Intent to Treat Estimates 
+
+One thing is clear, we're not producing causal effects that line up with the truth values that they should. Is there a way to fix these? Well, yes, most of the time there is. 
+
+Begin by thinking about the coefficients that we plotted on the x-axis. The *true* effect of receiving treatment is a single unit (recall, we built that data this way). In these plots, whether there was random or non-random noncompliance, we estimated values that were lower than the true value. Can we correct for this? 
+
+Asked another way, is it possible to compute an effect of being assigned to receive treatment that recovers an estimate of 1? 
+
+> Nope! Well, at least not in a fair way. One way that we could produce an unbiased estimate of the difference between the potential outcomes to control and treatment would be to ensure that everyone who is assigned to treatment receives treatment and that everyone who is assigned to control receives control -- this is just the case of no noncompliance! 
+
+## Fixing Causal Effects of Receiving Treatment 
+
+The estimates that these models produced were also biased away from the true treatment effect of receiving treatment. (Notice that this is different than the effect of being assigned to treatment). Can we produce an estimate of the effect of treatment on the compliers? Yes! And, in two ways. 
+
+### CACE #1: ITT / Compliance Rate 
+
+Perhaps the most straightforward way to produce this estimate actually uses very little information about treatment. This method works in the following way: 
+
+1. **Estimate the ITT**: Was there any difference in outcomes between the people who were assigned to treatment and the group that were assigned to control? Even though there is selection bias in the choice to *take* the treatment, since the groups were assigned at random, there is no selection bias present in this calculation. 
+
+2. **Estimate the compliance rate**: Among the group of people who were assigned to treatment, how many actually took the treatment? This is the compliance rate. 
+
+The reasoning, as is presented in the lectures, is that any difference between the treatment group and control group can *only* be attributed to the treatment. If the exclusion restriction holds -- that being told to take the treatment doesn't affect outcomes, only taking the treatments affects outcomes -- then the only thing that could possibly have changed outcomes is taking the treatment. But, this will only happen for the subset of people who actually take the treatment. 
+
+```{r}
+hist(simulation_$z_coef / simulation_$compliance_rate, 
+     main = 'Distribution of CACE Estimates \n From Re-scaling', 
+     col = 'black', xlab = 'CACE Estimates')
+```
+
+### CACE #2: Two Stage Least Squares 
+
+The second method of estimating this CACE is to use a two-stage least squares (2SLS) estimator. We will cover more of the specifics of 2SLS estimators in live session. 
+
+### CACE #3: Placebo Design 
+
+The third method of estimating this CACE is to specifically identify who the compliers are! Notice what happens if we subset the data so that we are examining only the compliers, and then compare the people who were assigned to the treatment group and the control group. 
+
+```{r}
+d <- make_data(nrows = 1000, non_compliance = 'non-random')
+model_among_compliers <- d[compliance == 'complier', lm(Y ~ Z)]
+
+summary(model_among_compliers)
+```
+Oh hai! That seems to be producing an unbiased effect! It does so because randomization has ensured that the distribution of compliers is evenly balanced between the treatment and control groups. So, if we limit ourselves to only considering the sets of compliers in each group, we are able to make an apples to apples comparison. 
+
+One limitation is that it is hard to know who in the control group is a complier. People don't wear this tag on their shirts, and it is typically not possible to "know" that someone is a complier without trying to give them the treatment. 
+
+This is where the concept of a placebo design originates from -- what if it **were** possible to identify people in the control group that were compliers, and then we could directly compare these sets of compliers in both groups directly against each other. The only trick is figuring out how to identify these folks? Who are the types of people who 
+
+1. Would take a pill if offered to? 
+2. Would click on an ad if served? 
+3. Would open a door if knocked upon? 
+
+Giving a sugar pill, serving a ghost ad, and knocking on a door to encourage recycling are all methods of identifying *who* might be willing to take a treatment, without actually giving any of the treatment package. 
+
+
+
+
+
+
+
+

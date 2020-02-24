@@ -1,0 +1,175 @@
+---
+title: "Producing a P-Value"
+output: github_document 
+---
+
+Begin this workbook by reloading all functions from the week.
+
+  - These function loads are not echoed into the final `.md` file
+  - Better coding practice (but not pedagogical practice) would be to 
+    place these repeatedly used functions somewhere that is commonly
+    available to the project (e.g. `./src/`) and to import them. 
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+
+knitr::opts_chunk$set(dpi = 300)
+```
+
+```{r define randomization function, echo=FALSE}
+randomize <- function(units_per_group) { 
+  ## an (unnecessary) function to randomize units into 
+  ## treatment and control 
+  ## ---
+  ## args: 
+  ##  - units_per_group: how many zero and one should be returned
+  
+  assignment_vector <- rep(c('control', 'treatment'), each = units_per_group)
+  sample(assignment_vector)
+} 
+```
+
+```{r define make_data function, echo = FALSE}
+make_data <- function(number_of_subjects = 40) {
+  ## makes data in the same form as earlier worksheets 
+  ## returns only the data.table of data 
+  
+  d <- data.table(id = 1:number_of_subjects)
+  d[ , group := c(rep("Man", .N/2),rep("Woman", .N/2))]
+
+  d[ , po_control := c(
+    seq(from = 1,  to = 20, length.out = .N/2), 
+    seq(from = 51, to = 70, length.out = .N/2))
+    ]
+  d[ , po_treatment := po_control + 0] 
+
+  d[ , condition := randomize(.N/2)]
+  d[ , outcomes := ifelse(condition == 'treatment', po_treatment, po_control)]
+}
+```
+
+```{r define ri, echo = FALSE}
+ri <- function(simulations = 5000) {
+  
+  res <- NA   
+  
+  for(sim in 1:simulations) { 
+    res[sim] <- d_experiment[ , .(group_mean = mean(outcomes)), 
+                   keyby = .(randomize(20))][ , diff(group_mean)]
+  }
+  return(res)
+}
+```
+
+
+```{r make data}
+set.seed(2)
+
+d <- make_data(number_of_subjects = 40)
+d_experiment <- d[ , .(id, outcomes, condition, group)]
+```
+
+```{r estimate ate}
+ate <- d[ , mean(outcomes), keyby = .(condition)][ , diff(V1)]
+```
+
+```{r create distribution under sharp null}
+dist_sharp_null <- ri(simulations = 1000)
+```
+
+
+# Producing a p-value
+
+Once we have simulated this distribution of the test statistic under the
+assumption that the sharp-null is true, how do we produce a statement
+about the plausibility of this assumption?
+
+```{r}
+hist(
+  dist_sharp_null, 
+  col = 'black', 
+  xlab = 'RI ATE', 
+  main = 'ATE under assumption that sharp null is true'
+  )
+```
+
+In frequentist statistics – much of the statistics we learn in w203 – we
+rely on sampling processes, the weak law of large numbers, and the
+central limit theorem to produce test statistics that follow known
+reference distributions. (Think of the *t-distribution* the *normal
+distribution* and the *F-distribution*.) Given data that follows the
+sets of frequentist assumptions, it is possible to analytically compose
+a statement of probability that the data was generated under the null
+hypothesis (recall the sets of integrals computed in 203).
+
+In *stark* contrast to frequentist statistics, Randomization Inference
+(sometimes called Fisherian Randomization Inference), does not rely on
+data following some reference distribution to produce analytic p-values
+through integration. Instead, RI simulates the distribution of the test
+statistic under the supposition that the sharp null hypothesis were
+true.
+
+To produce a p-value from this distribution, the task is simply to ask,
+
+> What proportion of the simulated distribution of the test-statistic is
+> more extreme than the value that was observed in the experiment that
+> was *actually* conducted.
+
+Though we would never advocate for conducting a one-tailed test it is
+pedagogically useful to begin here.
+
+To answer the question plain-language question, “How likely is it that
+the treatment effect is smaller than zero?” first translate the question
+into the specific formulation that you will recognize from Frequentist
+stats:
+
+> What is the probability of observing a treatment effect smaller (in
+> absolute scale) than what was observed, given that the sharp-null
+> hypothesis were true?
+
+```{r}
+p_value <- mean(dist_sharp_null < ate) #p-value
+p_value
+```
+
+And so we we see that there is a 0.2676 probability of observing an ATE
+of this size, given the repeated randomization regime, under the sharp
+null hypothesis.
+
+# RI distributions are symmetric 
+
+Under the supposition of the sharp null hypothesis, RI distributions are in expectation symmetric about zero. 
+
+  - Why must this be the case? 
+  
+This makes writing a two-tailed test for the likelihood that a treatment effect **more extreme** than what we observed in our actual experiment if the sharp null were true straightforward: 
+
+  - Make all RI ate simulations positive -- reflecting across the zero 
+    symmetri line using the absolute value function, `abs`. 
+  - At the same time, ensure that the `ate` you have calculated falls 
+    on the positive side of the real number line by also taking the 
+    absolute value of the ate. 
+
+```{r}
+hist(
+  abs(dist_sharp_null), 
+  col = 'black', 
+  xlab = 'RI ATE', 
+  main = 'Absolute Value of RI ate simulations'
+  )
+abline(v = abs(ate), col = 'blue', lwd = 4)
+```
+
+Computing a two sided p-value follows along in suit. 
+
+```{r}
+p_value_two_sided <- mean(abs(dist_sharp_null) > abs(ate))
+p_value_two_sided
+```
+
+And the specific read-out of this  p-value is: 
+
+> If the sharp null hypothesis were to be true, then it would be possible to see a treatment effect larger than that generated in our experiment in more than 34% of the possible randomization vectors that are possible. 
+> 
+> Therefore, the data that was generated in this experiment provides no evidence that the sharp-null supposition leads to an absurd conclusion. 

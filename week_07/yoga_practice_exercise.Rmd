@@ -1,11 +1,11 @@
 ---
 title: "The effects of leaving a tip"
-output: html_notebook
+output: github_document
 ---
 
-Do the practice exercize that is provided to us in question 9.6 of *Field Experiments*.
+Do the practice exercise that is provided to us in question 9.6 of *Field Experiments*.
 
-> Rind an Bordia studied the tiping behavior of lunchtime patrons of an "upscale Philadelphia restaurant" who were randomly assigned to  four experimental groups (Rand and Bordia 1996). One factor was server gender, and a second factor was whether the server draws a "happy face" on the back o the bill presented to customers. 
+> Rind and Bordia studied the tipping behavior of lunchtime patrons of an "upscale Philadelphia restaurant" who were randomly assigned to  four experimental groups (Rand and Bordia 1996). One factor was server gender, and a second factor was whether the server draws a "happy face" on the back o the bill presented to customers. 
 
 ```{r setup, message=FALSE}
 library(foreign)

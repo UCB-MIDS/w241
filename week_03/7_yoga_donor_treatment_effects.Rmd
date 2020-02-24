@@ -24,15 +24,9 @@ Here are the column definitions:
 1. Assess whether the treatment _has an effect_. If so, what is that effect, on average? We'll give you the general structure of a solution, but you'll have to fill in the specifics. 
 
 ```{r}
-ATE <- d[ , .('group_mean' = ), keyby = .()] %>% 
-  .[ , .('ate' = diff())]
-ATE
+ate <- d[ , .(group_mean = ), keyby = .()][ , .('ate' = diff())]
+ate
 ```
-(Note that you could also accomplish the same thing without the "pipe" using chaining of operations in data.table 
-
-```{r}
-d[ , .('group_mean' = ), keyby = .()][ , .('ate' = diff())]
-``` 
 
 2. Assess, using randomization inference, whether this effect is a _surprising_ effect, or instead if this effect could just have arisen from randomization error. 
 
@@ -40,13 +34,13 @@ In doing so, **do not** simply copy code from the async, or from another noteboo
 
 What are the steps to any Randomization Inference Task? 
 
-1. Calculate the parameter that you're interested in knowing under the randomization that actually occurred and that we observed. In this case, it is the ATE. 
-2. Assume that the sharp null is true -- this permits us to solve the "missing data problem" that *Field Experiments* highlights. Actually fill in this data. 
-3. Do the following sub-routine many times: 
-  1. "Re-randomize" under the assumption of the sharp null
-  2. Calculate the parameter you want, under these re-randomizations. 
+1. Conduct the experiment, using random assignment to produce two unbiased samples of the desired test statistic. 
+2. Compute the desired test statistic (here the ATE) on this experimental data.
+3. Suppose that the sharp null hypothesis is true, thereby solving the *missing data* problem that is at the heart of the fundimental problem of causal inference, and permitting the complete observation of all potential outcomes under the supposition of the sharp null were true. 
+4. Repeatedly sample the treatment assignment vector and under each assignment, for each sample, compute the test statistic in the same manner as in step 1. 
+5. Compare the measured treatment effect to the distribution of treatment effects under the sharp null supposition and directly draw a p-value. 
 
-You can do it! There are ways that involve loops that are pretty easy to think about. There is also a way that you can do this with a pretty concise one-liner in `data.table` work at whatever level you think is useful for you. 
+You can do it! There are ways that involve loops that are pretty easy to think about. We have even shown them to you in previous worksheets. **But** rather than navigating back to the last worksheet, instead try to write this yourself following the steps. 
 
 (**Note**: You're going to generate a surprising distribution, this doesn't mean that your algorithm isn't working. Why might it look this way? We'll talk about this in live session.)
 

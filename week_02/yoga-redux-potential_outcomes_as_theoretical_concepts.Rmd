@@ -1,6 +1,6 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: github_document 
 ---
 
 # Potential Outcomes 
@@ -10,6 +10,7 @@ The concept of potential outcomes are foundational to the reasoning system that 
 But, despite the somewhat obtuse language that we might use when we're talking about potential outcomes (e.g. "The potential outcome to treatment, when a unit is assigned to treatment.") the math surrounding potential outcomes is actually pretty straightforward. 
 
 # Create Data 
+
 Let's make some toy data that we can use through this demo. 
 
 Suppose that we have 1,000 individuals that we can observe in our study. Furthermore, suppose that for each of these people, there is some *latent*, or unmeasured, response to treatment that they *would* have to treatment if we assigned them to take the treatemnt. 
@@ -41,7 +42,7 @@ Make two new colums, using the `:=` assignment operator in the data.table. We'll
 2. `Age` which is random draws of either 'young' or 'old'. 
 
 ```{r}
-d[ , height := sample(c('tall','short'), size = .N, replace = TRUE)]
+d[ , height := sample(c('tall', 'short'), size = .N, replace = TRUE)]
 ```
 
 In just exactly the same way, we can also think of our units having levels of *potential outcomes to control*. That is, we can suppose that people have some level of the outcome in the case that they do not drink any coffee. For concreteness, suppose that the outcome is people's number of minutes of 241 coding they can accomplish, before they fall asleep. 

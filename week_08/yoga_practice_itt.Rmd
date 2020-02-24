@@ -1,6 +1,6 @@
 ---
 title: "Practice with ITT"
-output: html_notebook
+output: github_document
 ---
 
 ```{r load packages}

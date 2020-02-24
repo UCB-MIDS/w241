@@ -1,0 +1,206 @@
+---
+title: "Sampling Distribution and Ranomization Inference"
+output: github_document
+---
+
+```{r}
+library(data.table)
+library(ggplot2)
+
+knitr::opts_chunk$set(dpi = 300)
+
+set.seed(1)
+```
+
+# The sharp null through an Anodyne Example: Estrogen and Soybeans
+
+Suppose that e are working through the example of a randomized
+assignment of men and women to eat (or not eat) soybeans and we are
+measuring the level of estrogen present in each of their bloodstreams
+(perhaps in parts/million).
+
+You *do not* have to work through this whole worksheet at once. In fact,
+it might make more sense to only work through it alongside the examples
+that David and David are talking about.
+
+First, we create a grouping variable with two groups, one called “Man”,
+and another called “Woman”.
+
+```{r}
+d <- data.table(id = 1:40)
+d[ , group := c(rep("Man",20),rep("Woman",20))]
+```
+
+To these groups, we assign silly, but schematically helpful *potential
+outcomes* to treatment and control. We say that, by some chance, we
+sampled men into our study that had estrogen ppm levels that ranged from
+1-20, in perfect increments. Also, what luck, but we sampled women into
+the study that had estrogen levels that ranged from 51-70. So, the women
+have on average higher estrogen beginning the study.
+
+```{r}
+d[ , po_control := c(seq(from = 1, to = 20), seq(from = 51, to = 70))]
+
+# no effect because potential outcomes in treatment are the same
+d[ , po_treatment := po_control + 0] 
+
+head(d)
+```
+
+Per our randomization scheme, we are going to randomly assign the
+individuals to either eat lots of tofu `(treatment == 1)` or to eat no
+tofu `(treatment == 0)`. To do this, we write a simple function that
+will randomly place zeros and ones for the treatment and control.
+
+```{r}
+randomize <- function(units_per_group) { 
+  ## an (unnecessary) function to randomize units into 
+  ## treatment and control 
+  ## ---
+  ## args: 
+  ##  - units_per_group: how many zero and one should be returned
+  
+  assignment_vector <- rep(c('control', 'treatment'), each = units_per_group)
+  sample(assignment_vector)
+} 
+```
+
+```{r}
+randomize(4)
+```
+
+```{r}
+table(randomize(4))
+```
+
+With our randomization function in hand, we can now set up our vector of
+treatment assignments. This is simply storing the results of our
+function randomize in a vector object called treatment.
+
+```{r}
+d[ , condition := randomize(.N/2)]
+```
+
+Check that this has worked as intended.
+
+```{r}
+d[1:5, ]
+```
+
+```{r}
+d[ , table(condition)]
+```
+
+Recall that we are setting up an experiment that has **no** effect. As
+Green and Gerber point out in *Field Experiments* in the case of the
+sharp-null, we are actually testing against the possibility that we
+observe both the potential outcomes! (As a comprehension check, explain
+why this is true).
+
+Next, we create a vector of realized outcomes. first using the compact
+notation that Green and Gerber prefer using maths. For those randomized
+to treatment, we multiply the potential outcome to treatment time the
+treatment vector (which is a 1 when they were assigned to treatment),
+and for those in control, into this vector we assign the potential
+outcome to control time the quantity `(1 - treatment)` which will be one
+when they are in the treatment group.
+
+```{r}
+d[ , outcomes := (
+  (I(condition == 'treatment') * po_treatment) + 
+    (1 - I(condition == 'treatment') * po_control))
+  ]
+```
+
+But, this is little different than an `ifelse` statement that produces
+the same result.
+
+```{r}
+d[ , outcomes := ifelse(condition == 'treatment', po_treatment, po_control)]
+```
+
+Notice the nice concision that comes with these *vectorized* operations.
+It is possible to write a process that produces the same result, but
+that does so by looping through each row of the data.table to do so.
+
+    outcomes <- rep(NA, length(group))
+    for(i in 1:length(group)) { 
+      if(treatment[i] == 'control') { 
+        outcomes[i] <- po_control[i]
+        } else if(treatment[i] == 'treatment') { 
+          outcomes[i] <- po_treatment[i]
+          }
+      }
+
+# Conducting an experiment is sampling (once) the treatment vector
+
+Now that we have the data set up, we can begin to examine what the
+lecture is really about, what is the distribution of ATE that we observe
+due to the different possibly assignments to treatment and control.
+
+A few points to remember:
+
+1.  When we randomly assign people to a group – either treatment or
+    control – we are producing an i.i.d. assignment process. **As a
+    result,** for any concept that you might care about, and for any
+    statistic calculated against that concept, this random assignment of
+    people will produce at least a consistent estimate. *In the case of
+    the sample mean, this will produce an unbiased estimate*.
+2.  When we **intervene** in the system to provide people treatment or
+    control we *reveal* and then *measure* either their potential
+    outcome to treatment or their potential outcome to control.
+
+This does not imply that any one realization of treatment/control
+assignment and measurement will provide the exact value of the ATE.
+Instead, it means that across all treatment and control assignment
+vectors that are possible, the average of these vectors will be the true
+ATE.
+
+In this data, we can write an estimator that naturally follows the
+two-step process described above.
+
+First,
+
+```{r}
+group_averages <- d[ , .(group_mean = mean(outcomes)), keyby = .(condition)]
+```
+
+Then,
+
+```{r}
+ate <- group_averages[ , group_mean[condition == 'treatment'] - 
+                         group_mean[condition == 'control'] ]
+```
+
+We can use the R base function `diff` to compute the differences in
+means of the treatment and control groups. This `diff` function just
+computes how much changes between positions in a vector.
+
+```{r}
+diff(c(1,2,4,7,11))
+```
+
+And so, with the `group_averages` object, we could call for,
+
+```{r}
+group_averages[ , diff(group_mean)]
+```
+
+Another useful feature of working in this `data.table` paradigm is that
+we can aggregate data.tables just as we have done to produce the
+`group_mean` variable. But, this aggregation is *itself* a data.table,
+and so it is possible to continue to produce further aggregations –
+namely to produce this difference we have just computed.
+
+So, the entire process can be represented in a transparent one-line
+call.
+
+```{r}
+d[ , .(group_mean = mean(outcomes)), keyby = .(condition)][ , diff(group_mean)]
+```
+
+**But wait\!** We created this data such that there is *exactly* zero
+treatment effect. Note, even more specifically than creating the data so
+that there was no *average treatment effect* we constructed this so that
+there was no effect at all – this is at the potential outcomes level\!
+Recall that $Y_{i}(0) \equiv Y_{i}(1), \forall i$. \
