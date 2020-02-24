@@ -1,16 +1,19 @@
 ---
 title: "Why is a random sample an unbiased estimator?"
+output: 
+  github_document: 
+    pandoc_args: --webtex
 ---
 
 **The** crucial feature that makes an experiment an experiment is the *intervention* that we perform. But, since we're not only looking to conduct an experiment, but also reliably demonstrate with data that some outcome was *caused* by some action, we're going to need a way to demonstrate this. 
 
 ## What does it mean for an estimator to be unbiased? 
 
-In order to understand whether an estimator is biased or unbiased, we've got to be able to make a statement about the *truth*. The most interesting questions that we ask as data scientists typically concern statements about population characteristics that we can't *direclty* observe. 
+In order to understand whether an estimator is biased or unbiased, we've got to be able to make a statement about the *truth*. The most interesting questions that we ask as data scientists typically concern statements about population characteristics that we can't *directly* observe. 
 
 - What feeling did this person have when they wrote this sentence? 
 - What *real world object* is in this picture? 
-- What is *this persons's* likelihood to take action? 
+- What is *this person's* likelihood to take action? 
 - What is the *causal* effect of X on Y? 
 
 For each of these circumstances we've got to put together an estimate of the population value. 
@@ -19,15 +22,15 @@ Throughout this course, and in most statistics courses, it is convention to deno
 
 An **unbiased** estimator of an unknown value is an estimator whose *expected value* is equal to the *true* parameter value. And so, in the case of an individual causal effect we might say that an an estimator of an individual causal effect, $\hat{\tau}_{i}$ is unbiased if
 
-\begin{equation} 
+$$
 E[\hat{\tau}_{i}] = \tau
-\end{equation} 
+$$
 
 Or equivalently, if
 
-\begin{equation}
+$$
 E[\hat{\tau}_{i} - \tau] = 0 
-\end{equation}
+$$ 
 
 ## Is the mean an unbiased estimator of a population parameter? 
 Consider the following example: Your section instructor, wanting to choose his or her examples to fit in with the pop-culture references that *you* are most familiar with, wants to asses how old you are. But, the section instructor also is not so impolite as to ask you directly. How could they construct an estimate for your age? 
@@ -137,10 +140,10 @@ for(i in 1:NSIMS){
 
 # Answers from that task
 
-The difference between your age and the estima  tor, across these runs is `r round(mean(diff_vector), 4)`. That's mighty good! 
+The difference between your age and the estimate  tor, across these runs is `r round(mean(diff_vector), 4)`. That's mighty good! 
 
 # Relate this directly to potential outcomes
-How does this relate directly to potential outcomes? Consider the *science* table that is provided to us in table 2.1 of *Field Experients*? 
+How does this relate directly to potential outcomes? Consider the *science* table that is provided to us in table 2.1 of *Field Experiments*? 
 
 ```{r}
 d <- data.table(

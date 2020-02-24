@@ -1,5 +1,7 @@
 ---
 title: "R Notebook"
+output:
+  github_document
 ---
 
 Think back for a moment to w203 -- the introductory stats class in the program. We spent time in the class talking about *sampling*, which is the process of drawing data from a population of places that we could potentially draw that data from. 
@@ -11,14 +13,13 @@ population <- rnorm(n = 1000, mean = 10, sd = 5)
 population <- sort(population)
 ```
 
-In this vector, we've places 1,000 draws from a gaussian distribution with a mean of 10 and a standard deviation of 5. In this case, we can know that the population *parameter* **mean** is just:
+In this vector, we've places 1,000 draws from a Gaussian distribution with a mean of 10 and a standard deviation of 5. In this case, we can know that the population *parameter* **mean** is just:
 
 ```{r}
 mean(population)
 ```
 
-
-(Which, incedentally we can write in line as `r mean(population)`.) 
+(Which, incidentally we can write in line as `r mean(population)`.) 
 
 There isn't any value statement that we are attaching to this parameter value, it just is the average of the population. 
 
@@ -37,21 +38,23 @@ sum(population[1:10])
 mean(population[1:10])
 ```
 
-Not really. Although there is a more natural relationship between the function we're applying to the sample and the population parameter we're looing for -- the population average -- the sample we're drawing from is still systematically different from the population. Specifically, it is always on the *low* side of the average, right? 
+Not really. Although there is a more natural relationship between the function we're applying to the sample and the population parameter we're looking for -- the population average -- the sample we're drawing from is still systematically different from the population. Specifically, it is always on the *low* side of the average, right? 
 
 And so, this estimator is going to  remain a **biased estimator** for any sample size that is smaller than the whole population. 
 
-Interestingly, however, as the size of the sample gets larger, the estimate that the estimator produces gets closer to the truth. When this is the case, we say that the estimator is **consistent.** Although it might be biased in any finite sample, it produces a consistent estimate in an infinate sample. 
+Interestingly, however, as the size of the sample gets larger, the estimate that the estimator produces gets closer to the truth. When this is the case, we say that the estimator is **consistent.** Although it might be biased in any finite sample, it produces a consistent estimate in an infinite sample. 
 
 ```{r}
 sample_1 <- mean(population[1:10])
 sample_2 <- mean(population[1:100])
 sample_3 <- mean(population[1:999])
-
-knitr::kable()
 ```
 
-Woud you say that the first estimator we were using -- the sum of the sample -- was a consistent estimator? Why or why not? 
+| Sample 1     | Sample 2     | Sample 3     | 
+|--------------|--------------|--------------|
+| `r sample_1` | `r sample_2` | `r sample_3` |
+
+Would you say that the first estimator we were using -- the sum of the sample -- was a consistent estimator? Why or why not? 
 
 # A natural estimator
 
@@ -85,6 +88,7 @@ Then we can pull the third letter using a positional index
 ```{r}
 letter_population[3]
 ```
+
 And so we can pull a sample of the letters by calling for
 
 ```{r}
@@ -103,8 +107,9 @@ sample_mean_2a
 sample_mean_2b
 sample_mean_3
 ```
+
 # Questions for Understanding 
 
-1. Are you surprisred that the values are not all the same? Why or why not? Are you surprised that the `sample_mean_2a` and `sample_mean_2b` are not exactly the same? Aren't they the same size? 
+1. Are you surprised that the values are not all the same? Why or why not? Are you surprised that the `sample_mean_2a` and `sample_mean_2b` are not exactly the same? Aren't they the same size? 
 
 2. As the size of the sample that you take gets larger, will the estimate that you calculate tend to get closer to the truth, farther from the truth, or stay the same distance from the truth? Why? 
