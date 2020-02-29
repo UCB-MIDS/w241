@@ -1,2 +1,3 @@
 # Do a Longer Hike! 
-Head [here](http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https://github.com/UCB-MIDS/w241&branch=master&urlpath=rstudio) and navigate to `week_13>conduct_a_full_analysis.Rmd` to work on an exercise.
+
+For this semester, we do not have a specific activity that we would like you to complete here. Hopefully those project experiments are going well though! 
