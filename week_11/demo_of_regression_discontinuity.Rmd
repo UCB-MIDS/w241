@@ -1,8 +1,6 @@
 ---
-title: "Untitled"
-output: 
-  html_document: 
-    toc: true
+title: "Regression Discontinuity"
+output: github_document
 ---
 
 **Regression Discontinuity Designs** (RDD) generate inferences about causal quanitites that *very* nearly meet conditions that are produced by an experiment that has been explicitly randomized. Namely, if falling "just above" or "just below" the threshold where a **policy** is applied occurs at random, then at least for some people the efect of this policy is causally identified. 
@@ -15,7 +13,9 @@ Broadly there are two strategies for estimating RDD estimates: Subset data to on
 library(MASS)
 library(data.table) 
 library(stargazer)
+
 options(digits=3) # only print two 2 sig digits
+knitr::opts_chunk$set(dpi = 300)
 ```
 
 ```{r set variables}
