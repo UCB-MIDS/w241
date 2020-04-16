@@ -1,8 +1,8 @@
 # Coding in Class, Using Data Hub and R Studio
 
-Throughout the semester, we're going to insert breaks in the lecture action to get you involved programming. There are two types of activity we will ask you do to: (1) Coding Yoga; and, (2) Coding Workouts.
+Throughout the semester, we're going to insert breaks in the lecture action to get you involved in programming. There are two types of activity we will ask you do to: (1) Coding Yoga; and, (2) Coding Workouts.
 
-1. **Yoga** is going to be *mellow*, highly guided sessions where we will be showing you things, in code, that we just been talking about in the async lectures. We want to get you thinking about the code structures that we're using, and this is the most effective way. 
+1. **Yoga** is going to be *mellow*, highly guided sessions where we will be showing you things, in code, that we have just been talking about in the async lectures. We want to get you thinking about the code structures that we're using, and this is the most effective way. 
 2. **Hikes** are less structured than *yoga*. In a *hike*  your work is going to be self-guided. We will be providing data & context, some boilerplate, and a target to shoot for, but just how you get there will be up to you.
 
 (I mean, you signed up for some Berkeley, right?) 

@@ -1,5 +1,3 @@
 # Task Complete
 
-Rather than rehashing work that we have already done in the Green and Gerber spillover example, we going to let you know,
-
-You're done with this week's work! 
+This semester, there is no activity to complete here. Keep on going. 

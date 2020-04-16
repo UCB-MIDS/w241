@@ -1,6 +1,6 @@
 # More Yoga!
 
-In *Field Experiments* Green and Gerber make the claim that estimating with inverse probability weights might be able to recover causal estimates, even in the presence of missingnes that is **not** independent of treatment assignment. 
+In *Field Experiments* Green and Gerber make the claim that estimating with inverse probability weights might be able to recover causal estimates, even in the presence of missingness that is **not** independent of treatment assignment. 
 
 Let us level with you for a moment: 
 
