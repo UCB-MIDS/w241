@@ -24,9 +24,7 @@
 # Week 1: The Importance of Experimentation
 ## News articles with causal claims
 
-First, read the three news articles that we provided as examples for [*Essay 1*](../assignments/essays/essay1/readme.md):
--   [*Obesity caused by suburban sprawl*](http://www.cbsnews.com/2100-204_162-570634.html) (2013)
--   [Get Fast?](https://www.nytimes.com/interactive/2018/07/18/upshot/nike-vaporfly-shoe-strava.html) (2018)
+First, read the two news articles that are in the syllabus. 
 
 For each article, please consider the following discussion questions:
 - What is the causal claim?
@@ -171,9 +169,8 @@ Note that equation \[9.16\] only gives estimated coefficients, and lacks estimat
 -   Which of the coefficients are statistically significant at the 5% level, and which are not?
 -   How do you interpret the magnitudes of the significant coefficients?
 -   Now that you’ve practiced doing a simple regression, it’s a really good thing to get in the habit of using heteroskedasticity-robust standard errors. Re-run your regression model with robust standard errors, and re-answer the previous problems.
--  We work through this in [week4](../week04_demo_of_robust_ses.Rmd)
 
-## Back to the [*Opower article*](http://www.nber.org/papers/w15386.pdf) from last week
+## Return to the OPower article from last week (linked above)
 
 -   What is the full experimental design of the Sacramento (SMUD) experiment? (Give dimensions, like 2x2, and describe what the treatments are on each dimension.)
 -   Return to Table 1. Note that the title section of the table clarifies that there is “clustering by household ID.” What does this mean?
@@ -498,7 +495,7 @@ x
 
 ## In Class Discussions
 
-- There are two talks that we might have; one [advertisements](./facebookAds.org) and one about [gun contro](gunControlDebate.pdf)
+- There are two talks that we might have; one [advertisements](./facebookAds.org) and one about [gun control](gunControlDebate.pdf)
 
 # Week 14 - 15 Student Presentations
 
