@@ -35,7 +35,8 @@ Now, lets make the *slightly* more complicated quantities, `x`, the bad control,
 For example, consider the case of the white collar and blue collar jobs. If you're born the heir of a real-estate empire in NY (in this case represented by $\epsilon$), you might be likely, no matter your college attendance or draft status, to end up in a white collar job (in this case represented in $X$). But, it may also be the case in the data that having been assigned to attend college (in this case represented in $D$) increases the probability that you get a white collar job. 
 
 ```{r}
-knitr::include_graphics("./week06_bad_controls_diagram.pdf")
+knitr::include_graphics("./coding_bad_controls_diagram.pdf")
+
 ```
 
 Suppose that we measure four variables, $D, x, Y, \epsilon$ that all have a positive relationship between one another, shown in the figures above.  The one exception, and this is important to make this example easy-ish to understand, is that $x$ actually has *no* relationship on Y.
