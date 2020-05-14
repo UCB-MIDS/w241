@@ -15,11 +15,11 @@ We'd like to make sure that you understand the turnin flow! Please
 take the 5 minutes to complete this assignment. 
 
 ## Practice Turnin Set 1 
--[Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section1)
--[Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section2)
--[Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section3)
--[Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section4)
--[Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section5)
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section3)
+- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section4)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section5)
 
 
 # Problem Sets 
