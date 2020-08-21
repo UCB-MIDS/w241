@@ -44,7 +44,9 @@ vignettes/*.pdf
 rsconnect/
 
 # Ignore mac files
+# (second line for non-Unix line endings)
 *Icon*
+*Icon[\r]*
 
 # Ignore html notebooks
 *.nb.html
