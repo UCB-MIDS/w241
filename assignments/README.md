@@ -15,59 +15,59 @@ We'd like to make sure that you understand the turnin flow! Please
 take the 5 minutes to complete this assignment. 
 
 ## Practice Turnin Set 1 
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-summer2020-section5)
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-fall2020-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-fall2020-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-fall2020-section3)
+- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-fall2020-section4)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-practice-fall2020-section5)
 
 
 # Problem Sets 
 
 ## Problem Set 1
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2020-section5)
-<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2020-section98) -->
-<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-summer2020-section99) -->
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section3)
+- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section4)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section5)
+<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section98) -->
+<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section99) -->
 
 ## Problem Set 2
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2020-section5)
-<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2020-section98) -->
-<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-summer2020-section99) -->
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section3)
+- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section4)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section5)
+<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section98) -->
+<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section99) -->
 
 ## problem Set 3
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2020-section5)
-<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2020-section98) -->
-<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-summer2020-section99) -->
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section3)
+- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section4)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section5)
+<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section98) -->
+<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section99) -->
 
 ## Problem Set 4
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2020-section5)
-<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2020-section98) -->
-<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-summer2020-section99) -->
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section3)
+- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section4)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section5)
+<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section98) -->
+<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section99) -->
 
 ## Problem Set 5
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2020-section5)
-<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2020-section98) -->
-<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-summer2020-section99) -->
+- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section1)
+- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section2)
+- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section3)
+- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section4)
+- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section5)
+<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section98) -->
+<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section99) -->
 
 We come from PhD programs where all of the students (now
 faculty @ UCB, Harvard, Princeton, UCLA, UofMichigan, UT-Austin)
