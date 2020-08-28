@@ -50,7 +50,7 @@ Additional questions to think about
 
 ## More than Good Intentions
 
-Read [*Karlan and Appel*](http://smile.amazon.com/More-Than-Good-Intentions-Improving/dp/0452297567) chapters 1, 5, 8, 9. (Read the other chapters if you have time; they are excellent.)
+Read [*Karlan and Appel*](http://smile.amazon.com/More-Than-Good-Intentions-Improving/dp/0452297567) chapters 1, 9. (Read the other chapters if you have time; they are excellent.)
 
 We’re going to talk about the intent of the author, or the moral of the story in live session, but to guide your reading in the chapters we have recommended, consider the following questions:
 -   Chapter 1:
