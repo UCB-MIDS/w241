@@ -46,7 +46,7 @@ Notice that once you insert a code chunk, you get some options:
 Here are the keyboard bindings that you're going to use most frequently, and [here](https://support.rstudio.com/hc/en-us/articles/200711853-Keyboard-Shortcuts) is the full list of the keyboard bindings. 
 
 - Run a line or selection: `command+Enter` or `control+Enter`
-- Run a chunk: `option+command+c` or `control+alt+c`
+- Run a chunk: `option+command+c` or `command+Shift+Enter` or `control+alt+c`
 
 # Creating Consumable Output
 
@@ -60,7 +60,7 @@ Suppose you're doing some elementary curve-fitting (the specifics aren't actuall
 x <- runif(300,  min=-30, max=30) 
 y <- -1.2*x^3 + 1.1 * x^2 - x + 10 + rnorm(length(x),0,100*abs(x)) 
  
-## Can we find a polynome that fit this function ?
+## Can we find a polynomial that fits this function?
 model <- lm(y ~ x + I(x^2) + I(x^3))
 myPredict <- predict(model, interval="predict")
  
@@ -77,10 +77,10 @@ plot(x, y, col=rgb(0.4,0.4,0.8,0.6), pch=16 , cex=1.3 , xlab="" , ylab="")
 
 You can output all of the work in this notebook, including the code and the resulting plot to a markdown document with a standard tree by navigating to the **knit** button at the top of the editor. After knitting this, navigate to the `reintroduction_to_r.md` file that is in the `Files` tab. You'll see that the the file has been converted into github flavored markdown, with valid links to the image. This is going to be the preferred format for turning in homework for the course -- a `github_document` -- which is called out in the YAML at the top of this file.
 
-But, there are a **bunch** of othe formats. For example, switch the `github_document` to be `html_notebook` in the YAML, and knit again.
+But, there are a **bunch** of other formats. For example, switch the `github_document` to be `html_notebook` in the YAML, and knit again.
 This time, you're knitting a `.nb.html` file that is a portable document that people can open with a web-browser to see the knitted code and results; or, they can open with Rstudio if they want to execute the code. 
 
 Now, on to the work we're after, reminding ourselves about the `R` language!
 
 # Head Back
-Feel free to save the files that you've edited or touched, and the `File > Quit Session` to close this session. Afte that, you can head back into the ISVC to keep moving through the materials. 
+Feel free to save the files that you've edited or touched, and the `File > Quit Session` to close this session. After that, you can head back into the ISVC to keep moving through the materials. 
