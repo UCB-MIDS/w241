@@ -10,6 +10,8 @@ repository.
 This also means that when you submit your problem set, I should be
 able to download it and execute without any problems.
 
+*If you're enrolled in INFO290, the assignments are avaiable in bCourses.* 
+
 # Practice Turnin 
 We'd like to make sure that you understand the turnin flow! Please
 take the 5 minutes to complete this assignment. 
