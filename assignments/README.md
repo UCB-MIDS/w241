@@ -42,6 +42,7 @@ take the 5 minutes to complete this assignment.
 - [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section3)
 - [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section4)
 - [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section5)
+- [Info 290](https://github.com/UCB-MIDS/info290_assignments)
 <!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section98) -->
 <!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section99) -->
 
@@ -51,6 +52,7 @@ take the 5 minutes to complete this assignment.
 - [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section3)
 - [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section4)
 - [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section5)
+- [Info 290](https://github.com/UCB-MIDS/info290_assignments)
 <!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section98) -->
 <!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section99) -->
 
@@ -60,6 +62,7 @@ take the 5 minutes to complete this assignment.
 - [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section3)
 - [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section4)
 - [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section5)
+- [Info 290](https://github.com/UCB-MIDS/info290_assignments)
 <!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section98) -->
 <!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps4-fall2020-section99) -->
 
@@ -69,6 +72,7 @@ take the 5 minutes to complete this assignment.
 - [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section3)
 - [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section4)
 - [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section5)
+- [Info 290](https://github.com/UCB-MIDS/info290_assignments)
 <!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section98) -->
 <!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps5-fall2020-section99) -->
 
