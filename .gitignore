@@ -50,3 +50,5 @@ rsconnect/
 
 # Ignore html notebooks
 *.nb.html
+
+goof_off.*
