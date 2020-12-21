@@ -25,9 +25,11 @@ you where they are.
 
 *But, don't.*
 
-# Practice Turnin 
 
 # Problem Sets 
+
+## Practice Problem Set
+The practice problem set is ungraded, it is just a chance for you to get a sense for the project checkout and turn-in flow. 
 
 ## Problem Set 1
 The first problem set is mostly conceptual and calculations that you can do with a phone calculator. We ask questions about what it means to cause, whether a particular data capture method can _possibly_ identify a cause, and to demonstrate some simple math about treatment effects. We'd prefer that students write `.Rmd` solutions, which will be relied upon heavily later in the course.  
