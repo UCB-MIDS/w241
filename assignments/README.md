@@ -1,5 +1,3 @@
-
-
 # Overview 
 This is the directory for assignments. All the assignments _should_
 have the data that is necessary to complete the assignment included in
@@ -27,24 +25,10 @@ take the 5 minutes to complete this assignment.
 # Problem Sets 
 
 ## Problem Set 1
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section5)
-- [Info 290](https://github.com/UCB-MIDS/info290_assignments)
-<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section98) -->
-<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps1-fall2020-section99) -->
+The first problem set is mostly conceptual and calculations that you can do with a phone calculator. We ask questions about what it means to cause, whether a particular data capture method can _possibly_ identify a cause, and to demonstrate some simple math about treatment effects. We'd prefer that students write `.Rmd` solutions, which will be relied upon heavily later in the course.  
 
 ## Problem Set 2
-- [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section1)
-- [Section 2](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section2)
-- [Section 3](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section3)
-- [Section 4](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section4)
-- [Section 5](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section5)
-- [Info 290](https://github.com/UCB-MIDS/info290_assignments)
-<!-- - [Section 98](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section98) -->
-<!-- - [Section 99](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps2-fall2020-section99) -->
+The second problem set asks students to implement a permutation-based inference algorithm, **randomization inference**, estimate treatment effects in data, and write a framework for a simulation-based power analysis that can be extended into their projects.  
 
 ## problem Set 3
 - [Section 1](https://github.prod.oc.2u.com/UCB-MIDS/w241-ps3-fall2020-section1)
