@@ -56,7 +56,8 @@ There are several options for how to build a compute environment for this course
   + If you do not want to re-sync content, or manage the syncing yourself (via a shell) you can navigate to the Datahub directly: You can get to it [[http://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https://github.com/UCB-MIDS/w241&branch=master&urlpath=rstudio][here]].
   + This is a minimal instance -- you're capped at 1GB memory, but it is a really nice way to work on async coding without having to start any machinery of your own. You should be able to knit, save, and edit as you like.
   + The courses' upstream repository is /entirely/ segmented from your copy of this, so feel free to make any changes that you want. Note, however, that this also means that changes you make in the datahub will /not/ be present on your own fork of the repository. In other words, things that happen in the datahub, stay in the data hub.
-- You can alternatively use this [[https://hub.docker.com/repository/docker/dalexhughes/w241][Docker image]] on your machine, or any other machine that has a docker engine. (This image builds from a canonical [[https://hub.docker.com/r/rocker/tidyverse][Rocker]] image)
+- You can alternatively use this [[https://hub.docker.com/repository/docker/dalexhughes/w241][Docker image]] on your machine, or any other machine that has a docker engine. (This image builds from a canonical [[https://hub.docker.com/r/rocker/tidyverse][Rocker]] image).
+- Finally, if you're brave, or you know the history of your computer, you can install locally.
 
 ** Books
 We use two books in this course, and read a third book in the second week. We recommend that you buy a paper copy of the two textbooks (we've chosen textbooks that have a fair price), and would understand if you digitally read the third book. Support a local bookstore if you can; but, we've included a link to Amazon for those who cannot.
