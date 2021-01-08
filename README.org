@@ -79,10 +79,11 @@ We use two books in this course, and read a third book in the second week. We re
 |---------------------+-------------+--------------|
 | Monday              |   5:30-6:30 | Alex         |
 | Tuesday             |   5:30-6:30 | Scott        |
-| Wednesday           |   5:30-6:30 | Micah        |
+| Thursday            |   2:00-3:00 | Micah        |
 | Thursday            |   5:30-6:30 | Scott        |
 | (Friday before PS)  |   4:00-5:00 | Alex         |
 | (Saturday after PS) | 9:00-10:00a | Alex         |
+
 
 - In weeks where we have problem sets due, we will hold extra office hours on the Friday before the weekend. As well, when you are working through your project design, the instructors will schedule individual one-on-one conversations as necessary with student groups. 
 - On Saturdays after we turn in problem sets, we will hold extra office hours to review the work that you've done and the feedback that you've received. For obvious reasons, you can only attend these Saturday OH if you have submitted your via PR.
