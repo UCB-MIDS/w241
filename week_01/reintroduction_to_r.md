@@ -10,7 +10,7 @@ Not all weeks will have a code *hike* in them, but when we do, there will be onl
 
 # The Berkeley DataHub 
 
-For *in async* code demonstrations, we're going to use the UC Berkeley datahub. This is a lightweight compute system with a jupyter server and Rstudio server. You've got general access to this compute using your @berkeley.edu credentials. Don't get distracted by the link right now: but, this jupyter hub is housed at [datahub.berkeley.edu](https://datahub.berkeley.edu). If you're interested, you can read more about this compute system [here](https://jupyterhub.readthedocs.io/en/stable/).
+For *in async* code demonstrations, we're going to use the UC Berkeley datahub. This is a lightweight compute system with a jupyter server and Rstudio server. You've got general access to this compute using your @berkeley.edu credentials. Don't get distracted by the link right now: but, this jupyter hub is housed at [r.datahub.berkeley.edu](https://r.datahub.berkeley.edu). If you're interested, you can read more about this compute system [here](https://jupyterhub.readthedocs.io/en/stable/).
 
 There are two ways that you might interact with the datahub. 
 
