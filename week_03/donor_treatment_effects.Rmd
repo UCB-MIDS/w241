@@ -12,6 +12,13 @@ library(data.table)
 library(magrittr)
 
 d <- fread('http://www.dropbox.com/s/wfao23f30ll9jo1/donation.csv?raw=1')
+
+## d <- data.table(
+##   Z = rep(1:0, each = 10),
+##   Y = c(500, 100, 100, 50, 25, 25, 0, 0, 0, 0,
+##         25,  20,  15,  15, 10, 5,  5, 0, 0, )
+## )
+
 head(d)
 ```
 Here are the column definitions: 
