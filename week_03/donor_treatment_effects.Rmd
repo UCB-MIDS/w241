@@ -11,7 +11,7 @@ Let's look at the box that's reported in _Field Experiments_ box 3.7. This is a 
 library(data.table)
 library(magrittr)
 
-d <- fread('http://hdl.handle.net/10079/ghx3frr')
+d <- fread('http://www.dropbox.com/s/wfao23f30ll9jo1/donation.csv?raw=1')
 head(d)
 ```
 Here are the column definitions: 
