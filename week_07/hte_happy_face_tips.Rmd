@@ -15,7 +15,7 @@ library(data.table)
 First, load the data. 
 
 ```{r}
-d <- read.dta("http://hdl.handle.net/10079/vmcvdzs")
+d <- read.csv("http://hdl.handle.net/10079/cd6be01a-a827-4312-a2fa-74329ce7f96d")
 head(d)
 ```
 There are only three fields that we care about in this table: 
