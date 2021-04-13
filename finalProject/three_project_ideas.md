@@ -25,3 +25,7 @@ Here is another example of an abstact of this form, published by Nick Obradovich
 The article is here: https://link.springer.com/article/10.1007/s10584-016-1670-9 and the abstract reads as the following: 
 
 > _How can individuals be convinced to act on climate change?__ It is widely assumed that emphasizing personal responsibility for climate change is effective at increasing pro-climate behavior whereas collectively framing the causes of climate change diffuses responsibility and dampens the incentive for individual action. We observe the opposite result. Here we find, across three experiments, that emphasizing collective responsibility for the causes of climate change increases pro-climate monetary donations by approximately 7 % in environmental group members and by 50 % in the general public. Further, highlighting collective responsibility amplifies intent to reduce future carbon emissions. In contrast, focusing on personal responsibility for climate change does not significantly alter donations to climate change advocacy or the intent for future pro-climate behavior. These effects replicate and persist multiple days after treatment.
+
+# Submitting Ideas 
+
+Submit your ideas on Gradescope. 
