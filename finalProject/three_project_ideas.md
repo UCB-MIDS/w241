@@ -28,4 +28,8 @@ The article is here: https://link.springer.com/article/10.1007/s10584-016-1670-9
 
 # Submitting Ideas 
 
-Submit your ideas on Gradescope. 
+Submit your ideas on Gradescope.
+
+# Feedback Returned from Instructor
+
+You will receive very quick, directional feedback from your instructor about whether each of the proposed ideas sound promising and interesting. With this feedback, the team can decide which proposal to pursue for their project. 
