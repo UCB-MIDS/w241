@@ -22,15 +22,6 @@ library(data.table)
 theme_set(theme_minimal())
 ```
 
-Demo of math: 
-
-$$
-\begin{align*}
-Y &= \beta_{0} + \beta_{1} x_{1} + \epsilon \\ 
-  &= 2
-\end{align*}
-$$
-
 ---
 
 # Importance of Experimentation 
