@@ -19,6 +19,9 @@ library(tidyverse)
 library(ggplot2)
 library(data.table)
 
+options(htmltools.dir.version = FALSE)
+
+
 theme_set(theme_minimal())
 ```
 
