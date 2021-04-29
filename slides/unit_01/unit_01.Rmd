@@ -22,8 +22,6 @@ library(data.table)
 theme_set(theme_minimal())
 ```
 
----
-
 # Importance of Experimentation 
 
 - Large scale datasets are nice... but the majority of this data is not useful for assessing causal questions: _Does this cause that?_
