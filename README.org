@@ -73,13 +73,14 @@ We use two books in this course, and read a third book in the second week. We re
 
 - David has made a *great* resource that has suggestions for further reading. You can access it in this living [[https://docs.google.com/document/d/1IMsGTHmklhvetfJJfEm9dhoFM7bvb-YOkN_6mAM8kFM/edit?usp%3Dsharing][google doc]].
 
-* Office Hours (all times Pacific) 
+* Office Hours (all times Pacific, Micah's are updated for Summer '21) 
 
 | *Day*               |      *Time* | *Instructor* |
 |---------------------+-------------+--------------|
 | Monday              |   5:30-6:30 | Alex         |
 | Tuesday             |   5:30-6:30 | Scott        |
-| Thursday            |   2:00-3:00 | Micah        |
+| Tuesday             |   5:30-6:30 | Micah        |
+| Thursday            |   5:30-6:30 | Micah        |
 | Thursday            |   5:30-6:30 | Scott        |
 | (Friday before PS)  |   4:00-5:00 | Alex         |
 | (Saturday after PS) | 9:00-10:00a | Alex         |
