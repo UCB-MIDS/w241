@@ -73,7 +73,7 @@ We use two books in this course, and read a third book in the second week. We re
 
 - David has made a *great* resource that has suggestions for further reading. You can access it in this living [[https://docs.google.com/document/d/1IMsGTHmklhvetfJJfEm9dhoFM7bvb-YOkN_6mAM8kFM/edit?usp%3Dsharing][google doc]].
 
-* Office Hours (all times Pacific, Micah's are updated for Summer '21) 
+* Office Hours (all times Pacific) 
 
 | *Day*               |      *Time* | *Instructor* |
 |---------------------+-------------+--------------|
